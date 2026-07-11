@@ -45,6 +45,7 @@ This constitution governs the Apple-silicon modernization of LiveReload. It exis
 4. Logs and diagnostics must redact secrets and avoid persisting full environments or unrelated user file contents.
 5. Folder access is least-privilege and recoverable. Stale permissions must be repaired explicitly, never bypassed or silently discarded.
 6. Security findings block release until fixed or accepted in writing with scope, impact, mitigation, and review date.
+7. Archived or untrusted binaries may be executed for research only after static inspection and hash/signature capture, inside a disposable account or isolated environment with no private project mounts, no credentials, and restricted networking; execution is optional and may be replaced by source/test evidence.
 
 **Rationale:** local developer tools handle source trees, processes, and network input and therefore have meaningful trust boundaries.
 
@@ -71,7 +72,7 @@ This constitution governs the Apple-silicon modernization of LiveReload. It exis
 
 ## Article VII — Durable Project Memory
 
-1. The approved plan is the task ledger; GitHub issues may mirror it but must retain the stable task/story IDs.
+1. The active Spec Kit feature's `tasks.md` is the authoritative executable task ledger; the parent modernization roadmap tracks phase-level status and must be synchronized at phase gates. GitHub issues may mirror either level but must retain stable task/story IDs.
 2. Problems discovered during work are recorded in `docs/project-ledger/issues.md` before or alongside investigation.
 3. Reusable fixes and diagnostic recipes are recorded in `docs/project-ledger/solutions.md` and linked to their issue, task, test, commit, and ADR where applicable.
 4. Unexpected findings, constraints, and reusable insights are recorded in `docs/project-ledger/learnings.md` during the sprint in which they arise.
@@ -115,4 +116,3 @@ No phase may close unless:
 4. An amendment updates this file, its version and date, and any affected plan, template, ADR, or verification checklist in the same change.
 5. Every sprint review includes a constitution check. Violations are recorded as issues and must be corrected or resolved through an explicit amendment.
 6. Exceptions must be temporary, written in the issue ledger with owner, reason, risk, compensating control, and expiry/review date. Permanent exceptions require an amendment.
-

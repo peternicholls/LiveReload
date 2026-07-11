@@ -84,6 +84,32 @@ ModernLiveReload/
 - **Research rule:** every spike is time-boxed and ends with an artifact: an ADR, compatibility matrix, executable prototype, benchmark, or captured fixture. A spike cannot end with only notes.
 - **Tracking:** story IDs are stable (`R`, `F`, `P`, `M`, `W`, `B`, `U`, `Q`, `D`). Task checkboxes are the executable backlog and should be copied into issues only when that sprint starts.
 
+### Spec Kit phase protocol
+
+Each roadmap phase is delivered as its own numbered Spec Kit feature. The parent roadmap describes intent and sequencing; the active feature's `specs/NNN-short-name/tasks.md` is canonical for execution and completion evidence.
+
+For every phase, in order:
+
+1. **Specify:** create a new feature branch/directory with `speckit.specify`; define prioritized, independently testable user stories, edge cases, functional requirements, entities, measurable outcomes, assumptions, and a passing requirements checklist.
+2. **Clarify when necessary:** run `speckit.clarify` only for materially branching unknowns that cannot be resolved from repository or primary-source evidence. Clarifications are incorporated into the specification before planning.
+3. **Plan:** run `speckit.plan`; pass the constitution gate, resolve technical unknowns in `research.md`, produce `data-model.md`, relevant contracts, `quickstart.md`, and pass the post-design constitution gate.
+4. **Tasks:** run `speckit.tasks`; generate dependency-ordered, checkbox-tracked tasks grouped by user story with exact paths, test-first work where applicable, parallel markers, requirement traceability, and explicit checkpoints.
+5. **Analyze:** run `speckit.analyze` before implementation and again before phase closure; critical/high inconsistencies block progress.
+6. **Implement and verify:** execute only the active phase's approved `tasks.md`; update ledgers and sprint evidence as work proceeds.
+7. **Close and hand off:** revalidate requirements, constitution, tasks, ADRs, tests, and phase exit criteria; update this parent roadmap; then start the next phase with a new `speckit.specify` feature rather than appending work to the previous feature.
+
+Proposed feature sequence (exact numbers are assigned by Spec Kit at creation time):
+
+| Roadmap phase | Proposed short name | Expected sprint coverage | Status |
+|---|---|---|---|
+| Phase 0 — Discovery and decision lock | `discovery-baseline` | Sprint 0 | `001` specified/planned/tasked |
+| Phase 1 — Modern foundation and project lifecycle | `modern-foundation` | Sprints 1–2 | Not specified |
+| Phase 2 — Minimum useful reload loop | `reload-loop` | Sprints 3–4 | Not specified |
+| Phase 3 — Developer workflow and daily usability | `developer-workflow` | Sprints 5–6 | Not specified |
+| Phase 4 — Quality, security, and private preview | `private-preview` | Sprints 7–8 | Not specified |
+
+Later phase specifications may refine their roadmap stories and tasks, but may not silently weaken the constitution, prior accepted ADRs, or version 1 boundaries. Any such change requires an explicit amendment or superseding ADR.
+
 ### Checkbox and evidence rules
 
 - `[ ]` not started, `[>]` in progress, `[!]` blocked, and `[x]` complete. GitHub only renders the first and last as native task states; the middle states remain intentionally searchable text.
