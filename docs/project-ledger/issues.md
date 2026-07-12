@@ -36,22 +36,6 @@ Record product defects, blockers, risks, and unanswered technical questions here
 - Next action: Use the accepted minimal owned RFC 6455 server decision in ADR-001; retain the Network.framework harness as regression evidence only.
 - Review/expiry: 2026-10-11
 
-### ISS-003 — Physical sleep/wake monitoring exercise requires an interactive desktop window
-
-- Status: open
-- Severity: low
-- Found: 2026-07-12
-- Owner: Phase 0 maintainer
-- Related tasks: T036
-- Related ADRs: ADR-002
-- Reproduction: Start a workspace-backed FSEvents monitor, put the physical Mac to sleep, wake it, and verify monitoring restarts without duplicate streams or missed recovery state.
-- Expected: The lifecycle remains single-owned and recovers cleanly after wake.
-- Actual: The shared desktop was not put to sleep because that would interrupt this active workspace session.
-- Evidence: `docs/modernization/evidence/monitoring/fsevents-bookmark-prototype.md`
-- Hypotheses: Root-change/restart simulation covers the code-path design but not OS wake delivery.
-- Next action: Run `Research/FSEventsPrototype/scripts/sleep-wake-capture.sh` using `docs/modernization/evidence/monitoring/sleep-wake-procedure.md`; retain the capture log and close only on observed post-wake event plus clean stop.
-- Review/expiry: 2026-10-11
-
 <!--
 ### ISS-002 — Concise problem statement
 
@@ -74,4 +58,19 @@ Record product defects, blockers, risks, and unanswered technical questions here
 
 Move records here without changing their IDs. Add resolution date, linked solution/commit/test, and why the disposition is justified.
 
-None.
+### ISS-003 — Physical sleep/wake monitoring exercise requires an interactive desktop window
+
+- Status: resolved
+- Severity: low
+- Found: 2026-07-12
+- Resolved: 2026-07-12
+- Owner: Phase 0 maintainer
+- Related tasks: T036
+- Related ADRs: ADR-002
+- Reproduction: Start a workspace-backed FSEvents monitor, put the physical Mac to sleep, wake it, and verify monitoring restarts without duplicate streams or missed recovery state.
+- Expected: The lifecycle remains single-owned and recovers cleanly after wake.
+- Actual: After normal sleep/wake and unlock, a workspace-fixture edit emitted an event and the monitor stopped once.
+- Evidence: `docs/modernization/evidence/monitoring/sleep-wake-capture.log`; `docs/modernization/evidence/monitoring/fsevents-bookmark-prototype.md`
+- Resolution: Interactive validation passed; the capture is sanitized and retained in the repository.
+- Next action: Repeat this manual exercise as a release check on a future production monitor.
+- Review/expiry: 2026-10-11

@@ -21,7 +21,7 @@ Build complete!
 | 10,000 writes | Passed; 10,000 appends to one workspace file resulted in six bounded event records and no crash. |
 | Start / stop | Passed; each run emitted `STARTED`, completed, and emitted `STOPPED`. |
 | `/tmp` watch | No events observed in this host environment; not used as a production-test fixture. |
-| Physical sleep/wake | Not invoked because putting the shared desktop to sleep would interrupt the active session. Lifecycle safety was exercised by stop/restart and root-change recovery; a physical sleep/wake test remains a Phase 4 release validation item. |
+| Physical sleep/wake | Passed on 2026-07-12: after a normal sleep/wake and unlock, an edit under the workspace fixture produced an event and the monitor stopped once. Sanitized capture: `sleep-wake-capture.log`. |
 
 ## Bookmark results
 

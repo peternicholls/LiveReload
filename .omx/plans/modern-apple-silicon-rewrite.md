@@ -102,7 +102,7 @@ Proposed feature sequence (exact numbers are assigned by Spec Kit at creation ti
 
 | Roadmap phase | Proposed short name | Expected sprint coverage | Status |
 |---|---|---|---|
-| Phase 0 — Discovery and decision lock | `discovery-baseline` | Sprint 0 | `001` specified/planned/tasked |
+| Phase 0 — Discovery and decision lock | `discovery-baseline` | Sprint 0 | `001` complete; Phase 1 short name: `modern-foundation` |
 | Phase 1 — Modern foundation and project lifecycle | `modern-foundation` | Sprints 1–2 | Not specified |
 | Phase 2 — Minimum useful reload loop | `reload-loop` | Sprints 3–4 | Not specified |
 | Phase 3 — Developer workflow and daily usability | `developer-workflow` | Sprints 5–6 | Not specified |
@@ -140,11 +140,11 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `R-01.1` Tag the untouched fork baseline and record upstream/develop SHA.
-- [ ] `R-01.2` Trace the historical protocol parser, server, project lifecycle, ignore rules, and build trigger paths.
-- [ ] `R-01.3` Run the archived app under Rosetta if safe and possible; capture screenshots and event sequences. If it cannot run, record the blocker and use source/tests as evidence.
-- [ ] `R-01.4` Write `docs/modernization/behavior-inventory.md` with v1/deferred/rejected classifications.
-- [ ] `R-01.5` Create sanitized JSON fixtures for valid/invalid handshakes and reload messages.
+- [x] `R-01.1` Tag the untouched fork baseline and record upstream/develop SHA.
+- [x] `R-01.2` Trace the historical protocol parser, server, project lifecycle, ignore rules, and build trigger paths.
+- [x] `R-01.3` Run the archived app under Rosetta if safe and possible; capture screenshots and event sequences. If it cannot run, record the blocker and use source/tests as evidence.
+- [x] `R-01.4` Write `docs/modernization/behavior-inventory.md` with v1/deferred/rejected classifications.
+- [x] `R-01.5` Create sanitized JSON fixtures for valid/invalid handshakes and reload messages.
 
 **R-02 — Validate current browser compatibility (M)**  
 As a user, I want modern browser clients to connect without a bespoke extension so that the app is immediately useful.
@@ -157,10 +157,10 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `R-02.1` Identify the maintained LiveReload browser client and its protocol expectations from primary source/documentation.
-- [ ] `R-02.2` Build a minimal local HTML/CSS/JS browser fixture independent of the macOS app.
-- [ ] `R-02.3` Capture handshake and reload traffic for Safari and Chromium.
-- [ ] `R-02.4` Save `docs/modernization/browser-compatibility.md` and commit reusable fixtures.
+- [x] `R-02.1` Identify the maintained LiveReload browser client and its protocol expectations from primary source/documentation.
+- [x] `R-02.2` Build a minimal local HTML/CSS/JS browser fixture independent of the macOS app.
+- [x] `R-02.3` Capture handshake and reload traffic for Safari and Chromium.
+- [x] `R-02.4` Save `docs/modernization/browser-compatibility.md` and commit reusable fixtures.
 
 **R-03 — Prototype Network.framework WebSocket serving (L)**  
 As the implementer, I want to prove the server API before committing architecture so that protocol work does not stall inside UI development.
@@ -173,10 +173,10 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `R-03.1` Research current Network.framework server-side WebSocket support using Apple documentation and SDK headers.
-- [ ] `R-03.2` Build a throwaway command-line prototype under `Research/WebSocketPrototype/`.
-- [ ] `R-03.3` Test it against the Sprint 0 browser fixture and malformed frames.
-- [ ] `R-03.4` Record latency, API limitations, and decision in `docs/adr/001-websocket-server.md`.
+- [x] `R-03.1` Research current Network.framework server-side WebSocket support using Apple documentation and SDK headers.
+- [x] `R-03.2` Build a throwaway command-line prototype under `Research/WebSocketPrototype/`.
+- [x] `R-03.3` Test it against the Sprint 0 browser fixture and malformed frames.
+- [x] `R-03.4` Record latency, API limitations, and decision in `docs/adr/001-websocket-server.md`.
 
 **R-04 — Prototype FSEvents and permission lifecycle (M)**  
 As a user, I want reliable watching across restart, rename, and sleep so that reloads do not silently stop.
@@ -189,10 +189,10 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `R-04.1` Build an FSEvents command-line prototype with copied Sendable event values.
-- [ ] `R-04.2` Exercise large bursts, root rename/removal, sleep/wake, and inaccessible folders.
-- [ ] `R-04.3` Prototype bookmark persistence in a minimal GUI harness.
-- [ ] `R-04.4` Write `docs/adr/002-monitoring-and-folder-access.md`.
+- [x] `R-04.1` Build an FSEvents command-line prototype with copied Sendable event values.
+- [x] `R-04.2` Exercise large bursts, root rename/removal, sleep/wake, and inaccessible folders.
+- [x] `R-04.3` Prototype bookmark persistence in a minimal GUI harness.
+- [x] `R-04.4` Write `docs/adr/002-monitoring-and-folder-access.md`.
 
 **R-05 — Resolve licensing, signing, and sandbox posture (S)**  
 As the maintainer, I want documented distribution constraints so that implementation and assets do not create avoidable legal or packaging debt.
@@ -205,10 +205,10 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `R-05.1` Confirm licence history and last official release evidence; record sources, not legal conclusions.
-- [ ] `R-05.2` Inventory app icons/images/frameworks and classify their intended treatment.
-- [ ] `R-05.3` Test an empty hardened-runtime app with local signing.
-- [ ] `R-05.4` Write `NOTICE.md` and `docs/adr/003-distribution-security.md`.
+- [x] `R-05.1` Confirm licence history and last official release evidence; record sources, not legal conclusions.
+- [x] `R-05.2` Inventory app icons/images/frameworks and classify their intended treatment.
+- [x] `R-05.3` Test an empty hardened-runtime app with local signing.
+- [x] `R-05.4` Write `NOTICE.md` and `docs/adr/003-distribution-security.md`.
 
 **R-06 — Establish project governance and memory (S)**  
 As the maintainer, I want durable principles and linked records so that decisions, failures, fixes, and discoveries survive long-running work.

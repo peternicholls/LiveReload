@@ -108,7 +108,7 @@ description: "Dependency-ordered Phase 0 discovery baseline tasks"
 
 - [x] T034 [US3] Implement FSEvents adapter prototype with immediate callback-data copying and typed Sendable events in `Research/FSEventsPrototype/` (roadmap R-04.1; evidence: `Research/FSEventsPrototype/Sources/FSEventsPrototype/main.swift`)
 - [x] T035 [P] [US3] Implement minimal AppKit bookmark selection/restoration/repair harness in `Research/FSEventsPrototype/` (roadmap R-04.3; evidence: `Research/FSEventsPrototype/Sources/FSEventsPrototype/main.swift`)
-- [!] T036 [US3] Exercise root rename/removal, dropped events, 10,000-event burst, inaccessible folder, and sleep/wake; save results under `docs/modernization/evidence/monitoring/` (roadmap R-04.2; root, dropped-event, burst, and inaccessible-folder evidence complete in `fsevents-bookmark-prototype.md`; physical sleep/wake blocked by ISS-003)
+- [x] T036 [US3] Exercise root rename/removal, dropped events, 10,000-event burst, inaccessible folder, and sleep/wake; save results under `docs/modernization/evidence/monitoring/` (roadmap R-04.2; evidence: `fsevents-bookmark-prototype.md`, `sleep-wake-capture.log`; ISS-003 resolved)
 - [x] T037 [US3] Write and accept `docs/adr/002-monitoring-and-folder-access.md` with stream options, ownership, debounce boundary, bookmark lifecycle, rescan/recovery rules, alternatives, and T036 evidence (roadmap R-04.4; evidence: ADR-002)
 - [x] T038 [US3] Run both prototype READMEs from a clean build directory and record a combined reproducibility verdict in `docs/modernization/evidence/prototype-validation.md` (evidence: `prototype-validation.md`)
 
@@ -158,9 +158,9 @@ description: "Dependency-ordered Phase 0 discovery baseline tasks"
 - [x] T052 [P] Search new artifacts for credentials, tokens, personal absolute paths, private source contents, unclassified assets, and committed build products; record sanitized result in `docs/modernization/evidence/privacy-review.md` (evidence: `privacy-review.md`)
 - [x] T053 Build every Swift research target in Debug and Release with warnings treated as errors, run all prototype/fixture tests from clean build directories, and record exact commands/results in `docs/modernization/sprint-reviews/sprint-0.md` (evidence: Sprint 0 review)
 - [x] T054 Revalidate `specs/001-discovery-baseline/checklists/requirements.md` against completed artifacts and correct any regression (evidence: 19/19 requirement checks completed on 2026-07-12)
-- [ ] T055 Run Spec Kit cross-artifact analysis over `spec.md`, `plan.md`, `tasks.md`, constitution, ADRs, and research artifacts; resolve every critical/high finding
-- [ ] T056 Complete the Phase Readiness Verdict in `docs/modernization/sprint-reviews/sprint-0.md`, requiring zero open architecture-blocking issues and accepted ADR-001/002/003
-- [ ] T057 Update `.omx/plans/modern-apple-silicon-rewrite.md` Phase 0 checkboxes from this canonical task evidence and identify the next phase's new Spec Kit feature short name
+- [x] T055 Run Spec Kit cross-artifact analysis over `spec.md`, `plan.md`, `tasks.md`, constitution, ADRs, and research artifacts; resolve every critical/high finding (evidence: `docs/modernization/evidence/speckit-cross-artifact-analysis.md`)
+- [x] T056 Complete the Phase Readiness Verdict in `docs/modernization/sprint-reviews/sprint-0.md`, requiring zero open architecture-blocking issues and accepted ADR-001/002/003 (evidence: Sprint 0 verdict)
+- [x] T057 Update `.omx/plans/modern-apple-silicon-rewrite.md` Phase 0 checkboxes from this canonical task evidence and identify the next phase's new Spec Kit feature short name (next: `modern-foundation`)
 
 **Final checkpoint**: Phase 0 is complete only when T001–T057, all story checkpoints, SC-001–SC-009, and the constitution gate pass. Phase 1 begins with a new `speckit.specify` flow, not by appending production tasks here.
 

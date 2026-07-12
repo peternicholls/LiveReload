@@ -38,4 +38,4 @@ Persist folder selection as security-scoped bookmark data. Resolve it on launch,
 
 ## Verification
 
-`docs/modernization/evidence/monitoring/fsevents-bookmark-prototype.md` contains the real workspace-event, root-change, burst, bookmark restore/stale, and corrupt-bookmark results.
+`docs/modernization/evidence/monitoring/fsevents-bookmark-prototype.md` contains the real workspace-event, root-change, burst, bookmark restore/stale, corrupt-bookmark, and physical sleep/wake results.
