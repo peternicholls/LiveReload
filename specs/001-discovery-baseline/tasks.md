@@ -24,9 +24,9 @@ description: "Dependency-ordered Phase 0 discovery baseline tasks"
 - [x] T003 Complete constitution-gated technical design in `specs/001-discovery-baseline/plan.md`, `research.md`, `data-model.md`, `contracts/`, and `quickstart.md`
 - [x] T004 [P] Ratify constitution v1.0.0 in `.specify/memory/constitution.md` (roadmap R-06.1)
 - [x] T005 [P] Establish issue, solution, learning, ADR, and sprint-review templates under `docs/project-ledger/`, `docs/adr/`, and `docs/modernization/sprint-reviews/` (roadmap R-06.2–R-06.4)
-- [ ] T006 Verify branch/status, record baseline `upstream/develop` SHA, and create an annotated private baseline tag as specified in `docs/modernization/behavior-inventory.md` metadata (roadmap R-01.1)
-- [ ] T007 [P] Create Phase 0 artifact directories `Research/BrowserFixture/`, `Research/WebSocketPrototype/`, `Research/FSEventsPrototype/`, `Research/SigningPrototype/`, `tests/fixtures/livereload-protocol/`, and `docs/modernization/evidence/` with purpose README files matching `contracts/prototype-boundaries.md`
-- [ ] T008 Run a ledger traceability dry run using a clearly marked temporary example in `docs/project-ledger/`, verify links/status rules, then remove the example and record the result in `docs/modernization/sprint-reviews/sprint-0.md` (roadmap R-06.5)
+- [x] T006 Verify branch/status, record baseline `upstream/develop` SHA, and create an annotated private baseline tag as specified in `docs/modernization/behavior-inventory.md` metadata (roadmap R-01.1; evidence: `docs/modernization/sprint-reviews/sprint-0.md`)
+- [x] T007 [P] Create Phase 0 artifact directories `Research/BrowserFixture/`, `Research/WebSocketPrototype/`, `Research/FSEventsPrototype/`, `Research/SigningPrototype/`, `tests/fixtures/livereload-protocol/`, and `docs/modernization/evidence/` with purpose README files matching `contracts/prototype-boundaries.md` (evidence: `docs/modernization/sprint-reviews/sprint-0.md`)
+- [x] T008 Run a ledger traceability dry run using a clearly marked temporary example in `docs/project-ledger/`, verify links/status rules, then remove the example and record the result in `docs/modernization/sprint-reviews/sprint-0.md` (roadmap R-06.5; evidence: `docs/modernization/sprint-reviews/sprint-0.md`)
 
 **Checkpoint**: Feature governance, directories, baseline identity, and evidence rules are ready. No research story begins before T006–T008 pass.
 
@@ -40,19 +40,19 @@ description: "Dependency-ordered Phase 0 discovery baseline tasks"
 
 ### Evidence tests
 
-- [ ] T009 [US1] Define and add the Behavior Record table/schema plus completeness validation procedure to `docs/modernization/behavior-inventory.md` before populating records
-- [ ] T010 [P] [US1] Define fixture naming, sanitization, and expected-result format in `tests/fixtures/livereload-protocol/README.md`
+- [x] T009 [US1] Define and add the Behavior Record table/schema plus completeness validation procedure to `docs/modernization/behavior-inventory.md` before populating records (evidence: `docs/modernization/behavior-inventory.md`)
+- [x] T010 [P] [US1] Define fixture naming, sanitization, and expected-result format in `tests/fixtures/livereload-protocol/README.md` (evidence: `tests/fixtures/livereload-protocol/README.md`)
 
 ### Research and artifacts
 
-- [ ] T011 [P] [US1] Trace project lifecycle and persistence behavior in legacy source/tests and add cited `BEH-NNN` records to `docs/modernization/behavior-inventory.md` (roadmap R-01.2)
-- [ ] T012 [P] [US1] Trace monitoring, ignore/filter, and change batching behavior in legacy source/tests and add cited behavior records to `docs/modernization/behavior-inventory.md` (roadmap R-01.2)
-- [ ] T013 [P] [US1] Trace protocol handshake, reload classification, and client-connection behavior in legacy source/tests and add cited behavior records to `docs/modernization/behavior-inventory.md` (roadmap R-01.2)
-- [ ] T014 [P] [US1] Trace build trigger, output, success/failure, and cancellation behavior in legacy source/tests and add cited behavior records to `docs/modernization/behavior-inventory.md` (roadmap R-01.2)
-- [ ] T015 [US1] After static inspection and hash/signature capture, optionally attempt archived-app observation under Rosetta only in a disposable account/isolated environment with no private project mounts, no credentials, restricted networking, and explicit stop conditions; otherwise record the blocker and use source/tests as evidence in `docs/project-ledger/issues.md` and the inventory (roadmap R-01.3; depends on T011–T014)
-- [ ] T016 [US1] Reconcile conflicts and classify every behavior `v1`, `deferred`, or `rejected` with future verification in `docs/modernization/behavior-inventory.md` (depends on T011–T015)
-- [ ] T017 [US1] Add sanitized valid/invalid hello and reload payload fixtures plus expected results under `tests/fixtures/livereload-protocol/` (roadmap R-01.5; depends on T010, T013)
-- [ ] T018 [US1] Run the inventory and fixture completeness procedures, record results in `docs/modernization/evidence/behavior-validation.md`, and open ledger issues for every gap
+- [x] T011 [P] [US1] Trace project lifecycle and persistence behavior in legacy source/tests and add cited `BEH-NNN` records to `docs/modernization/behavior-inventory.md` (roadmap R-01.2; evidence: BEH-001–BEH-003)
+- [x] T012 [P] [US1] Trace monitoring, ignore/filter, and change batching behavior in legacy source/tests and add cited behavior records to `docs/modernization/behavior-inventory.md` (roadmap R-01.2; evidence: BEH-004–BEH-006)
+- [x] T013 [P] [US1] Trace protocol handshake, reload classification, and client-connection behavior in legacy source/tests and add cited behavior records to `docs/modernization/behavior-inventory.md` (roadmap R-01.2; evidence: BEH-011–BEH-012)
+- [x] T014 [P] [US1] Trace build trigger, output, success/failure, and cancellation behavior in legacy source/tests and add cited behavior records to `docs/modernization/behavior-inventory.md` (roadmap R-01.2; evidence: BEH-007–BEH-010)
+- [x] T015 [US1] After static inspection and hash/signature capture, optionally attempt archived-app observation under Rosetta only in a disposable account/isolated environment with no private project mounts, no credentials, restricted networking, and explicit stop conditions; otherwise record the blocker and use source/tests as evidence in `docs/project-ledger/issues.md` and the inventory (roadmap R-01.3; evidence: ISS-001 and inventory runtime-observation status)
+- [x] T016 [US1] Reconcile conflicts and classify every behavior `v1`, `deferred`, or `rejected` with future verification in `docs/modernization/behavior-inventory.md` (evidence: BEH-001–BEH-012)
+- [x] T017 [US1] Add sanitized valid/invalid hello and reload payload fixtures plus expected results under `tests/fixtures/livereload-protocol/` (roadmap R-01.5; evidence: FXT-001–FXT-005)
+- [x] T018 [US1] Run the inventory and fixture completeness procedures, record results in `docs/modernization/evidence/behavior-validation.md`, and open ledger issues for every gap (evidence: `docs/modernization/evidence/behavior-validation.md`, ISS-001)
 
 **Checkpoint**: US1 passes SC-001; all v1 behavior is evidence-backed and fixtures are reusable independently.
 
@@ -66,16 +66,16 @@ description: "Dependency-ordered Phase 0 discovery baseline tasks"
 
 ### Fixture tests
 
-- [ ] T019 [US2] Write the manual/automated browser observation procedure and matrix schema in `docs/modernization/browser-compatibility.md` before implementing the fixture
-- [ ] T020 [P] [US2] Select maintained LiveReload client source/version from primary documentation and record provenance/licence evidence in `Research/BrowserFixture/README.md` (roadmap R-02.1)
+- [x] T019 [US2] Write the manual/automated browser observation procedure and matrix schema in `docs/modernization/browser-compatibility.md` before implementing the fixture (evidence: `docs/modernization/browser-compatibility.md`)
+- [x] T020 [P] [US2] Select maintained LiveReload client source/version from primary documentation and record provenance/licence evidence in `Research/BrowserFixture/README.md` (roadmap R-02.1; evidence: `Research/BrowserFixture/README.md`)
 
 ### Research and artifacts
 
-- [ ] T021 [US2] Implement minimal HTML/CSS/JavaScript pages plus a disposable loopback-only fixture endpoint in `Research/BrowserFixture/`; document its language/runtime, served routes, handshake/reload injection method, lifecycle, and why it is not the production server, using fixtures from T017 (roadmap R-02.2; depends on T017, T020)
-- [ ] T022 [P] [US2] Execute and capture current Safari handshake, CSS reload, and page reload observations under `docs/modernization/evidence/browser/safari/` (roadmap R-02.3; depends on T019, T021)
-- [ ] T023 [P] [US2] Execute and capture current Chromium handshake, CSS reload, and page reload observations under `docs/modernization/evidence/browser/chromium/` (roadmap R-02.3; depends on T019, T021)
-- [ ] T024 [US2] Reconcile results into supported/partial/unsupported rows with exact versions and evidence in `docs/modernization/browser-compatibility.md` (roadmap R-02.4; depends on T022, T023)
-- [ ] T025 [US2] Re-run the independent fixture from `specs/001-discovery-baseline/quickstart.md`, record reproducibility result, and open issues for discrepancies
+- [x] T021 [US2] Implement minimal HTML/CSS/JavaScript pages plus a disposable loopback-only fixture endpoint in `Research/BrowserFixture/`; document its language/runtime, served routes, handshake/reload injection method, lifecycle, and why it is not the production server, using fixtures from T017 (roadmap R-02.2; evidence: `Research/BrowserFixture/`)
+- [x] T022 [P] [US2] Execute and capture current Safari handshake, CSS reload, and page reload observations under `docs/modernization/evidence/browser/safari/` (roadmap R-02.3; evidence: `docs/modernization/evidence/browser/fixture-run-2026-07-11.md`)
+- [x] T023 [P] [US2] Execute and capture current Chromium handshake, CSS reload, and page reload observations under `docs/modernization/evidence/browser/chromium/` (roadmap R-02.3; evidence: `docs/modernization/evidence/browser/fixture-run-2026-07-11.md`)
+- [x] T024 [US2] Reconcile results into supported/partial/unsupported rows with exact versions and evidence in `docs/modernization/browser-compatibility.md` (roadmap R-02.4; evidence: `docs/modernization/browser-compatibility.md`)
+- [x] T025 [US2] Re-run the independent fixture from `specs/001-discovery-baseline/quickstart.md`, record reproducibility result, and open issues for discrepancies (evidence: `docs/modernization/evidence/browser/fixture-run-2026-07-11.md`)
 
 **Checkpoint**: US2 passes SC-002 and provides the client-side contract for the WebSocket prototype.
 
@@ -89,28 +89,28 @@ description: "Dependency-ordered Phase 0 discovery baseline tasks"
 
 ### WebSocket tests first
 
-- [ ] T026 [US3] Write failing/expected scenario tests for bind, protocol-7 handshake, reload, multiple clients, disconnect, malformed input, and port collision in `Research/WebSocketPrototype/Tests/` using T017/T024 fixtures
-- [ ] T027 [P] [US3] Research installed Network.framework server-side WebSocket APIs from Apple documentation/SDK headers and record findings in `docs/project-ledger/learnings.md` with source/version (roadmap R-03.1)
+- [x] T026 [US3] Write failing/expected scenario tests for bind, protocol-7 handshake, reload, multiple clients, disconnect, malformed input, and port collision in `Research/WebSocketPrototype/Tests/` using T017/T024 fixtures (evidence: `Research/WebSocketPrototype/Tests/scenarios.md`, `scripts/exercise.mjs`)
+- [x] T027 [P] [US3] Research installed Network.framework server-side WebSocket APIs from Apple documentation/SDK headers and record findings in `docs/project-ledger/learnings.md` with source/version (roadmap R-03.1; evidence: LRN-001)
 
 ### WebSocket prototype
 
-- [ ] T028 [US3] Implement the smallest loopback-only Swift WebSocket command-line prototype in `Research/WebSocketPrototype/` that can satisfy T026 (roadmap R-03.2; depends on T026, T027)
-- [ ] T029 [US3] Add bounded input/output, connection lifecycle, malformed-frame handling, and latency capture to `Research/WebSocketPrototype/` (depends on T028)
-- [ ] T030 [US3] Execute T026 against the Safari/Chromium fixture, preserve results under `docs/modernization/evidence/websocket/`, and record limitations/issues (roadmap R-03.3; depends on T024, T029)
-- [ ] T031 [US3] Write and accept `docs/adr/001-websocket-server.md` with drivers, alternatives, decision, consequences, fallback, and T030 evidence (roadmap R-03.4)
+- [x] T028 [US3] Implement the smallest loopback-only Swift WebSocket command-line prototype in `Research/WebSocketPrototype/` that can satisfy T026 (roadmap R-03.2; evidence: `Research/WebSocketPrototype/`)
+- [x] T029 [US3] Add bounded input/output, connection lifecycle, malformed-frame handling, and latency capture to `Research/WebSocketPrototype/` (evidence: `scripts/exercise.mjs`, `network-framework-prototype.md`)
+- [x] T030 [US3] Execute T026 against the Safari/Chromium fixture, preserve results under `docs/modernization/evidence/websocket/`, and record limitations/issues (roadmap R-03.3; evidence: `network-framework-prototype.md`, ISS-002)
+- [x] T031 [US3] Write and accept `docs/adr/001-websocket-server.md` with drivers, alternatives, decision, consequences, fallback, and T030 evidence (roadmap R-03.4; evidence: ADR-001)
 
 ### FSEvents/bookmark tests first
 
-- [ ] T032 [P] [US3] Write expected scenarios for create, modify, rename, delete, root change, dropped events, start/stop, and burst behavior in `Research/FSEventsPrototype/Tests/`
-- [ ] T033 [P] [US3] Write expected bookmark scenarios for create, restore, balanced access, stale resolution, failure, and repair in `Research/FSEventsPrototype/Tests/`
+- [x] T032 [P] [US3] Write expected scenarios for create, modify, rename, delete, root change, dropped events, start/stop, and burst behavior in `Research/FSEventsPrototype/Tests/` (evidence: `Research/FSEventsPrototype/Tests/scenarios.md`)
+- [x] T033 [P] [US3] Write expected bookmark scenarios for create, restore, balanced access, stale resolution, failure, and repair in `Research/FSEventsPrototype/Tests/` (evidence: `Research/FSEventsPrototype/Tests/scenarios.md`)
 
 ### FSEvents/bookmark prototype
 
-- [ ] T034 [US3] Implement FSEvents adapter prototype with immediate callback-data copying and typed Sendable events in `Research/FSEventsPrototype/` (roadmap R-04.1; depends on T032)
-- [ ] T035 [P] [US3] Implement minimal AppKit bookmark selection/restoration/repair harness in `Research/FSEventsPrototype/` (roadmap R-04.3; depends on T033)
-- [ ] T036 [US3] Exercise root rename/removal, dropped events, 10,000-event burst, inaccessible folder, and sleep/wake; save results under `docs/modernization/evidence/monitoring/` (roadmap R-04.2; depends on T034, T035)
-- [ ] T037 [US3] Write and accept `docs/adr/002-monitoring-and-folder-access.md` with stream options, ownership, debounce boundary, bookmark lifecycle, rescan/recovery rules, alternatives, and T036 evidence (roadmap R-04.4)
-- [ ] T038 [US3] Run both prototype READMEs from a clean build directory and record a combined reproducibility verdict in `docs/modernization/evidence/prototype-validation.md`
+- [x] T034 [US3] Implement FSEvents adapter prototype with immediate callback-data copying and typed Sendable events in `Research/FSEventsPrototype/` (roadmap R-04.1; evidence: `Research/FSEventsPrototype/Sources/FSEventsPrototype/main.swift`)
+- [x] T035 [P] [US3] Implement minimal AppKit bookmark selection/restoration/repair harness in `Research/FSEventsPrototype/` (roadmap R-04.3; evidence: `Research/FSEventsPrototype/Sources/FSEventsPrototype/main.swift`)
+- [!] T036 [US3] Exercise root rename/removal, dropped events, 10,000-event burst, inaccessible folder, and sleep/wake; save results under `docs/modernization/evidence/monitoring/` (roadmap R-04.2; root, dropped-event, burst, and inaccessible-folder evidence complete in `fsevents-bookmark-prototype.md`; physical sleep/wake blocked by ISS-003)
+- [x] T037 [US3] Write and accept `docs/adr/002-monitoring-and-folder-access.md` with stream options, ownership, debounce boundary, bookmark lifecycle, rescan/recovery rules, alternatives, and T036 evidence (roadmap R-04.4; evidence: ADR-002)
+- [x] T038 [US3] Run both prototype READMEs from a clean build directory and record a combined reproducibility verdict in `docs/modernization/evidence/prototype-validation.md` (evidence: `prototype-validation.md`)
 
 **Checkpoint**: US3 passes SC-003/SC-004/SC-005 for ADR-001/ADR-002. Any failed required scenario remains architecture-blocking.
 
@@ -126,8 +126,8 @@ description: "Dependency-ordered Phase 0 discovery baseline tasks"
 - [x] T040 [P] [US4] Create stable-ID issue, solution, and learning templates under `docs/project-ledger/` (roadmap R-06.2)
 - [x] T041 [P] [US4] Create ADR and sprint-review templates under `docs/adr/` and `docs/modernization/sprint-reviews/` (roadmap R-06.3)
 - [x] T042 [US4] Define task checkbox/evidence/status rules in `.omx/plans/modern-apple-silicon-rewrite.md` and verify unique parent-roadmap IDs (roadmap R-06.4–R-06.5)
-- [ ] T043 [US4] Link at least one genuine Phase 0 issue, or the clearly marked controlled traceability exercise from T008 when no genuine issue exists, to its originating `TNNN`, evidence, solution/learning/ADR, and `docs/modernization/sprint-reviews/sprint-0.md`
-- [ ] T044 [US4] Perform the post-execution constitution review, record compliance/exceptions in `docs/modernization/sprint-reviews/sprint-0.md`, and create issues for violations
+- [x] T043 [US4] Link at least one genuine Phase 0 issue, or the clearly marked controlled traceability exercise from T008 when no genuine issue exists, to its originating `TNNN`, evidence, solution/learning/ADR, and `docs/modernization/sprint-reviews/sprint-0.md` (evidence: ISS-002 → SOL-001, LRN-001, ADR-001, T026–T031)
+- [x] T044 [US4] Perform the post-execution constitution review, record compliance/exceptions in `docs/modernization/sprint-reviews/sprint-0.md`, and create issues for violations (evidence: Sprint 0 review; ISS-003)
 
 **Checkpoint**: US4 passes SC-006/SC-007; project memory is demonstrated with real work rather than templates alone.
 
@@ -139,12 +139,12 @@ description: "Dependency-ordered Phase 0 discovery baseline tasks"
 
 **Independent Test**: Review every conclusion against cited evidence, inspect the asset inventory, and reproduce the empty-app signing check.
 
-- [ ] T045 [P] [US5] Confirm repository licence text, release history, and last official binary evidence from primary sources; record sourced facts in `docs/modernization/distribution-research.md` without unsupported legal conclusions (roadmap R-05.1)
-- [ ] T046 [P] [US5] Inventory historical icons/images/frameworks into `docs/modernization/asset-provenance.md` using `AST-NNN` records and classify each `reusable`, `replace`, `excluded`, or `unknown` (roadmap R-05.2)
-- [ ] T047 [P] [US5] Create `NOTICE.md` retaining required attribution and clearly distinguishing the modernization work
-- [ ] T048 [US5] Build/sign a minimal arm64 hardened-runtime harness from `Research/SigningPrototype/`, inspect architecture/entitlements/signature, and save commands/results under `docs/modernization/evidence/signing/` (roadmap R-05.3; depends on T045)
-- [ ] T049 [US5] Research App Sandbox implications for folder bookmarks, loopback networking, and child developer tools using Apple primary sources; record evidence/limits in `docs/modernization/distribution-research.md`
-- [ ] T050 [US5] Write and accept `docs/adr/003-distribution-security.md` covering private preview, signing, hardened runtime, sandbox status, public-distribution boundary, assets, risks, and T045–T049 evidence (roadmap R-05.4)
+- [x] T045 [P] [US5] Confirm repository licence text, release history, and last official binary evidence from primary sources; record sourced facts in `docs/modernization/distribution-research.md` without unsupported legal conclusions (roadmap R-05.1; evidence: `distribution-research.md`)
+- [x] T046 [P] [US5] Inventory historical icons/images/frameworks into `docs/modernization/asset-provenance.md` using `AST-NNN` records and classify each `reusable`, `replace`, `excluded`, or `unknown` (roadmap R-05.2; evidence: `asset-provenance.md`)
+- [x] T047 [P] [US5] Create `NOTICE.md` retaining required attribution and clearly distinguishing the modernization work (evidence: `NOTICE.md`)
+- [x] T048 [US5] Build/sign a minimal arm64 hardened-runtime harness from `Research/SigningPrototype/`, inspect architecture/entitlements/signature, and save commands/results under `docs/modernization/evidence/signing/` (roadmap R-05.3; evidence: `signing-prototype.md`)
+- [x] T049 [US5] Research App Sandbox implications for folder bookmarks, loopback networking, and child developer tools using Apple primary sources; record evidence/limits in `docs/modernization/distribution-research.md` (evidence: `distribution-research.md`)
+- [x] T050 [US5] Write and accept `docs/adr/003-distribution-security.md` covering private preview, signing, hardened runtime, sandbox status, public-distribution boundary, assets, risks, and T045–T049 evidence (roadmap R-05.4; evidence: ADR-003)
 
 **Checkpoint**: US5 passes SC-005 for ADR-003 and SC-008; no unknown asset enters the modern release path.
 
@@ -154,10 +154,10 @@ description: "Dependency-ordered Phase 0 discovery baseline tasks"
 
 **Purpose**: Prove the entire Phase 0 artifact set is internally consistent and ready to hand off.
 
-- [ ] T051 [P] Validate all `BEH`, `FXT`, `OBS`, `ADR`, `ISS`, `SOL`, `LRN`, and `AST` IDs for uniqueness and required fields; save the check/result in `docs/modernization/evidence/artifact-validation.md`
-- [ ] T052 [P] Search new artifacts for credentials, tokens, personal absolute paths, private source contents, unclassified assets, and committed build products; record sanitized result in `docs/modernization/evidence/privacy-review.md`
-- [ ] T053 Build every Swift research target in Debug and Release with warnings treated as errors, run all prototype/fixture tests from clean build directories, and record exact commands/results in `docs/modernization/sprint-reviews/sprint-0.md`
-- [ ] T054 Revalidate `specs/001-discovery-baseline/checklists/requirements.md` against completed artifacts and correct any regression
+- [x] T051 [P] Validate all `BEH`, `FXT`, `OBS`, `ADR`, `ISS`, `SOL`, `LRN`, and `AST` IDs for uniqueness and required fields; save the check/result in `docs/modernization/evidence/artifact-validation.md` (evidence: `artifact-validation.md`)
+- [x] T052 [P] Search new artifacts for credentials, tokens, personal absolute paths, private source contents, unclassified assets, and committed build products; record sanitized result in `docs/modernization/evidence/privacy-review.md` (evidence: `privacy-review.md`)
+- [x] T053 Build every Swift research target in Debug and Release with warnings treated as errors, run all prototype/fixture tests from clean build directories, and record exact commands/results in `docs/modernization/sprint-reviews/sprint-0.md` (evidence: Sprint 0 review)
+- [x] T054 Revalidate `specs/001-discovery-baseline/checklists/requirements.md` against completed artifacts and correct any regression (evidence: 19/19 requirement checks completed on 2026-07-12)
 - [ ] T055 Run Spec Kit cross-artifact analysis over `spec.md`, `plan.md`, `tasks.md`, constitution, ADRs, and research artifacts; resolve every critical/high finding
 - [ ] T056 Complete the Phase Readiness Verdict in `docs/modernization/sprint-reviews/sprint-0.md`, requiring zero open architecture-blocking issues and accepted ADR-001/002/003
 - [ ] T057 Update `.omx/plans/modern-apple-silicon-rewrite.md` Phase 0 checkboxes from this canonical task evidence and identify the next phase's new Spec Kit feature short name
