@@ -1,0 +1,16 @@
+{
+  "id": "FXT-002",
+  "direction": "server-to-client",
+  "scenario": "valid protocol 7 stylesheet reload",
+  "payload": {
+    "command": "reload",
+    "path": "/assets/site.css",
+    "liveCSS": true
+  },
+  "expectedResult": {
+    "kind": "reload",
+    "path": "/assets/site.css",
+    "liveCSS": true
+  },
+  "sourceEvidence": "node_modules/livereload-protocol/lib/parser.coffee:64-77"
+}

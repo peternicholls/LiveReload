@@ -1,0 +1,15 @@
+{
+  "id": "FXT-003",
+  "direction": "client-to-server",
+  "scenario": "invalid hello missing protocols",
+  "payload": {
+    "command": "hello",
+    "id": "browser-fixture"
+  },
+  "expectedResult": {
+    "kind": "protocolError",
+    "code": "ATTR",
+    "messageContains": "Required attribute 'protocols' is missing"
+  },
+  "sourceEvidence": "node_modules/livereload-protocol/lib/parser.coffee:18-22, 39-46"
+}
