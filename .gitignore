@@ -22,6 +22,9 @@ DerivedData/
 .build/
 .swiftpm/
 
+# Local research harness output
+/Research/SigningPrototype/SigningPrototype
+
 # Windows
 /WinApp
 /Windows/files.nsi

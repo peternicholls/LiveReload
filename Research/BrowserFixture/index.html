@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LiveReload Protocol 7 Browser Fixture</title>
+    <link id="fixture-style" rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main>
+      <h1>LiveReload Protocol 7 Browser Fixture</h1>
+      <p id="connection">Connecting…</p>
+      <p id="reload">No reload received.</p>
+      <button id="css">Trigger CSS reload</button>
+      <button id="page">Trigger page reload</button>
+    </main>
+    <script>
+      const connection = document.querySelector('#connection');
+      const reload = document.querySelector('#reload');
+      const stylesheet = document.querySelector('#fixture-style');
+      const websocketPort = new URLSearchParams(location.search).get('wsPort') ?? location.port;
+      const socket = new WebSocket(`ws://${location.hostname}:${websocketPort}/livereload`);
+      const browser = encodeURIComponent(navigator.userAgent);
+
+      socket.addEventListener('open', () => socket.send(JSON.stringify({
+        command: 'hello',
+        protocols: ['http://livereload.com/protocols/official-7'],
+        id: 'phase-0-browser-fixture',
+        name: 'Phase 0 Browser Fixture',
+        version: '1.0'
+      })));
+      socket.addEventListener('message', event => {
+        const message = JSON.parse(event.data);
+        if (message.command === 'hello') {
+          connection.textContent = 'Connected with protocol 7.';
+          fetch(`/client-event?event=hello&browser=${browser}`);
+          return;
+        }
+        if (message.command === 'reload') {
+          reload.textContent = `Reload: ${message.path} (liveCSS=${Boolean(message.liveCSS)})`;
+          fetch(`/client-event?event=reload&path=${encodeURIComponent(message.path)}&browser=${browser}`);
+          if (message.liveCSS && message.path.endsWith('.css')) {
+            stylesheet.href = `/styles.css?livereload=${Date.now()}`;
+          } else {
+            location.reload();
+          }
+        }
+      });
+      socket.addEventListener('close', () => { connection.textContent = 'Disconnected.'; });
+      socket.addEventListener('error', () => { connection.textContent = 'Connection error.'; });
+      document.querySelector('#css').addEventListener('click', () => fetch('/trigger?path=/styles.css&liveCSS=true'));
+      document.querySelector('#page').addEventListener('click', () => fetch('/trigger?path=/index.html&liveCSS=false'));
+    </script>
+  </body>
+</html>
