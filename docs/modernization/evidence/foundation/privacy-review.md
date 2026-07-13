@@ -8,6 +8,7 @@ Results on 2026-07-13:
 - The only `/Users/example` and `token=hunter2` strings are intentionally synthetic redaction fixtures/tests; assertions prove neither survives an activity snapshot.
 - No modern assets are included; historical artwork remains excluded pending provenance.
 - `git ls-files` reports no tracked `.build`, `Build`, DerivedData, `.app`, `.xcarchive`, object, or Swift module product.
+- Volatile `.omx` logs, metrics, and runtime state are absent from the feature-branch history and rejected by `scripts/verify-modern.sh`; durable `.omx/plans` records remain tracked.
 - The modern inclusion inventory is reconciled in `docs/project-ledger/software-inclusions.md`; NOTICE impact is retention-only for this private foundation.
 
 Result: PASS for checked-in Phase 1 material. Xcode result bundles remain local and are not evidence attachments because they contain host paths.

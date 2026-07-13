@@ -15,7 +15,7 @@ Run date: 2026-07-13. Scope: feature 002 spec/plan/tasks, constitution 1.1.0, Ph
 |---|---|---|
 | C1 | `[>]`/`[!]` are not Markdown checkboxes and conflict with constitution Article V.1 | Resolved: task state uses standard Markdown checkboxes; all 58 Phase 1 tasks are complete. |
 | C2 | Plan claimed sub-second launch with 100 projects without an FR/SC/task/measurement | Resolved: removed unsupported quantitative claim; Phase 1 retains only bounded history/no-main-actor-I/O goals. |
-| C3 | Loading, reduced-motion, and path-overflow coverage was not explicit | Resolved in UI contract, tasks, copy, loading view, truncation/accessibility behavior, and four passing XCUITest scenarios. |
+| C3 | Loading, reduced-motion, and path-overflow coverage was not explicit | Resolved in UI contract, tasks, copy, loading view, truncation/accessibility behavior, and five passing XCUITest scenarios. |
 | C4 | Inclusion/guide updates appeared deferred to exit tasks | Resolved: task rules now require contemporaneous register/guide updates or an owned dated issue; exit tasks are audits only. Current implementation/register/guides are reconciled. |
 | C5 | T050 requiring T001–T058 created a T050/T051 cycle while `.omx/plans/` is read-only to executor | Resolved: T050 gates prerequisite work excluding itself/T051; T051 is an authorized planning-workflow action immediately after the gate. |
 | U1 | T049 combined a read-only workflow, remediation, and evidence write | Resolved: task now separates the read-only analysis from implementation-authorized remediation and sanitized persistence. |

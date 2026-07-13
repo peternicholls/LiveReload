@@ -6,8 +6,8 @@ After removing generated package and Xcode build directories, the foundation `sc
 
 The remaining gates also passed: arm64 executable, macOS 15 deployment floor, Hardened Runtime signature, bundle/version metadata, changelog/inclusion/NOTICE/guides, and absence of tracked build products.
 
-Result: **PASS**. The four UI scenarios completed with zero failures and cover corrupt-store recovery, first launch through relaunch/removal, missing-folder repair, and long-label/reduced-motion behavior.
+Result: **PASS**. The current five UI scenarios completed with zero failures and cover corrupt-store recovery, future-version write protection, first launch through relaunch/removal, missing-folder repair, and long-label/reduced-motion behavior.
 
-Post-review hardening added eight core regressions and app coverage for restored access, selection retention, and mutation gating. The 23-test core suite, core Release build, bookmark boundary, signed app Debug/Release builds, and all four app unit tests pass. A full XCUITest rerun was attempted, but a modal window from another host application blocked XCTest pointer-event interruption checks and the 120-second harness stopped the run. No current-code UI pass is claimed from that blocked rerun.
+Pull-request hardening expanded the suite to 27 core tests, 6 app tests, and 5 XCUITests. The final current-code run passed the core Release build, bookmark boundary, signed app Debug/Release builds, all tests, architecture/deployment/signing checks, documentation checks, tracked-build-product scan, and tracked-agent-runtime privacy gate.
 
 No absolute local paths or signing identity details are retained in this evidence.

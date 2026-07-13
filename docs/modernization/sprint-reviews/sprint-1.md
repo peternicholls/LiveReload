@@ -12,7 +12,7 @@
 Checked tasks link to commands, fixtures, or evidence. This review is not a completion claim until the Phase Readiness Verdict passes.
 
 - Native baseline, shared models, persistence/access, diagnostics, and accessible project-management implementation are present.
-- Core behavior has 15 passing tests; app Debug/Release build with Swift 6 strict concurrency and warnings as errors; all four lifecycle XCUITests pass.
+- Core behavior has 27 passing tests; app Debug/Release build with Swift 6 strict concurrency and warnings as errors; all six app tests and five lifecycle/recovery XCUITests pass.
 
 ## Demo
 
@@ -25,7 +25,7 @@ The app presents empty, available, missing/repair, removal-confirmation, and bou
 | Core tests + Release | `swift test` / `swift build -c release` with warnings as errors | PASS | `build-baseline.md` |
 | App Debug/Release | `xcodebuild` arm64/macOS 15 | PASS | `build-baseline.md` |
 | Test bundle build/unit smoke | shared scheme/test plan | PASS | `build-baseline.md` |
-| XCUITest execution | `scripts/verify-modern.sh` | PASS — 4 tests, 0 failures | `verify-modern.md` |
+| XCUITest execution | `scripts/verify-modern.sh` | PASS — 5 tests, 0 failures | `verify-modern.md` |
 | Architecture/signing | Mach-O/codesign inspection | PASS | `build-baseline.md` |
 | Core boundary/dependencies | scripted import/manifest inventory | PASS | `core-boundary-audit.md`, `dependency-final-audit.md` |
 | Privacy/provenance | scoped source/evidence scan | PASS | `privacy-review.md` |
@@ -44,7 +44,7 @@ For every genuine problem, verify: `TNNN` → `ISS-NNN` → evidence → `SOL/LR
 
 ## Metrics and risks
 
-- Relevant measurements: 23 core tests passing; activity capacity 200; app arm64/macOS 15; Swift 6.2 strict concurrency
+- Relevant measurements: 27 core tests and 6 app tests passing; activity capacity 200; app arm64/macOS 15; Swift 6.2 strict concurrency
 - New or changed risks: no open Phase 1 critical/high security or acceptance blocker
 - Constitution exceptions and expiry: none
 
