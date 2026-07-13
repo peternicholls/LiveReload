@@ -27,8 +27,12 @@ public actor DeterministicReloadClock: ReloadClock {
         let id = UUID()
         let deadline = now + duration
         try await withTaskCancellationHandler {
-            try await withCheckedThrowingContinuation { continuation in
-                sleepers[id] = Sleeper(deadline: deadline, continuation: continuation)
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
+                if Task.isCancelled {
+                    continuation.resume(throwing: CancellationError())
+                } else {
+                    sleepers[id] = Sleeper(deadline: deadline, continuation: continuation)
+                }
             }
         } onCancel: {
             Task { await self.cancel(id) }

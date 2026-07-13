@@ -31,7 +31,7 @@ public enum MonitoringRecoveryReason: String, Equatable, Sendable {
     case rootChanged, eventsDropped, scanRequired, folderUnavailable, sourceFailure
 }
 
-public enum FileChangeKind: String, Equatable, Sendable {
+public enum FileChangeKind: String, CaseIterable, Equatable, Sendable {
     case created, modified, renamed, deleted
 }
 

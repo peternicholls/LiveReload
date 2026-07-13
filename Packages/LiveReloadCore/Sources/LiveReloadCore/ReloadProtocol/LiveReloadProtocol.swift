@@ -57,7 +57,6 @@ public enum LiveReloadProtocol {
 
     public static func encodeReload(path: String, liveCSS: Bool) throws -> Data {
         guard let bytes = path.data(using: .utf8),
-              !path.isEmpty,
               bytes.count <= ProtocolLimits.maximumRelativePathBytes,
               !path.hasPrefix("/"),
               !path.split(separator: "/", omittingEmptySubsequences: false).contains("..") else {

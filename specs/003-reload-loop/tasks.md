@@ -52,13 +52,13 @@
 
 ### Tests and monitoring state first
 
-- [ ] T010 [US2] Add failing lifecycle tests for start, stop, repeated start/stop, source failure, root change, event loss, folder loss, scope release, and pending-work cancellation in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/MonitoringTests.swift` (FR-001–FR-005, SC-002).
-- [ ] T011 [US2] Add a workspace-backed disposable-directory integration test for create/modify/rename/delete events and a root-change/recovery fixture in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/` (FR-003, SC-002).
+- [x] T010 [US2] Add failing lifecycle tests for start, stop, repeated start/stop, source failure, root change, event loss, folder loss, scope release, and pending-work cancellation in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/MonitoringTests.swift` (FR-001–FR-005, SC-002).
+- [x] T011 [US2] Add a workspace-backed disposable-directory integration test for create/modify/rename/delete events and a root-change/recovery fixture in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/` (FR-003, SC-002).
 
 ### Implementation
 
-- [ ] T012 [US2] Implement the actor-owned `ProjectMonitor` lifecycle and explicit recovery transitions in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` (FR-001–FR-005).
-- [ ] T013 [US2] Implement the narrow direct-FSEvents adapter that copies callback paths/flags into bounded Sendable signals and maps required-scan/dropped/root-change conditions to recovery in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` (FR-003–FR-004).
+- [x] T012 [US2] Implement the actor-owned `ProjectMonitor` lifecycle and explicit recovery transitions in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` (FR-001–FR-005).
+- [x] T013 [US2] Implement the narrow direct-FSEvents adapter that copies callback paths/flags into bounded Sendable signals and maps required-scan/dropped/root-change conditions to recovery in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` (FR-003–FR-004).
 - [ ] T014 [US2] Extend `AppModel` composition and runtime projection for explicit per-project start/stop/retry actions without changing Phase 1 persistence ownership in `ModernLiveReload/LiveReloadApp/AppModel.swift` (FR-001–FR-005).
 - [ ] T015 [US2] Add accessible stopped/starting/watching/recovering/failed views, controls, safe recovery copy, and identifiers in `ModernLiveReload/LiveReloadApp/Views/` (FR-002, FR-015, SC-006).
 - [ ] T016 [US2] Complete app-model/UI regression tests for user start/stop and folder/stream recovery states in `ModernLiveReload/LiveReloadAppTests/` and `ModernLiveReload/LiveReloadAppUITests/` (FR-001–FR-005, SC-006).
@@ -76,12 +76,12 @@
 ### Tests and policy first
 
 - [x] T017 [US3] Add failing ignore-rule tests covering default paths, user glob grammar, precedence, hidden files, Unicode normalization, relative-root escape, symlinks, and invalid patterns in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/IgnoreRuleTests.swift` (FR-006–FR-007).
-- [ ] T018 [US3] Add failing fake-clock batching tests for ordering, de-duplication, 100–500 ms settling, stop/recovery cancellation, and a 10,000-event burst in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/MonitoringTests.swift` (FR-008, FR-016, SC-003).
+- [x] T018 [US3] Add failing fake-clock batching tests for ordering, de-duplication, 100–500 ms settling, stop/recovery cancellation, and a 10,000-event burst in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/MonitoringTests.swift` (FR-008, FR-016, SC-003).
 
 ### Implementation
 
 - [x] T019 [US3] Implement normalized project-relative path handling, built-in exclusions, positive user glob rules, and bounded safe summaries in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` (FR-006–FR-007, FR-016).
-- [ ] T020 [US3] Implement actor-owned `ChangeBatcher` with injected clock, one pending batch per project, ordered de-duplication, and cancellation in `Packages/LiveReloadCore/Sources/LiveReloadCore/Pipeline/` (FR-008, FR-016).
+- [x] T020 [US3] Implement actor-owned `ChangeBatcher` with injected clock, one pending batch per project, ordered de-duplication, and cancellation in `Packages/LiveReloadCore/Sources/LiveReloadCore/Pipeline/` (FR-008, FR-016).
 - [ ] T021 [US3] Surface safe settled-batch activity rows and verify long/path-overflow behavior in `ModernLiveReload/LiveReloadApp/Views/` and `ModernLiveReload/LiveReloadAppUITests/` (FR-016, SC-006).
 
 **Checkpoint**: US3 passes mixed-burst and 10,000-event tests; excluded-only changes make no reload decision.
@@ -97,14 +97,14 @@
 ### Protocol and server tests first
 
 - [x] T022 [US1] Add protocol-7 golden tests for hello negotiation, reload encoding, defaults, unsupported commands, malformed JSON, and bounded values in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/ReloadProtocolTests.swift` using `tests/fixtures/reload-loop/protocol/` (FR-010, FR-012–FR-014).
-- [ ] T023 [US1] Add raw RFC-6455 integration tests for loopback bind, endpoint rejection, masked frames, frame/message limits, ping/pong, close, multiple clients, disconnect cleanup, restart, and port conflict in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/ReloadServerTests.swift` (FR-009–FR-011, FR-014–FR-016, SC-004).
-- [ ] T024 [US1] Add failing project-pipeline tests for stylesheet-only, full-page, manual, excluded-only, stopped, recovering, no-client, and multi-client reload decisions in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/ProjectPipelineTests.swift` (FR-012–FR-013, FR-017, SC-001).
+- [x] T023 [US1] Add raw RFC-6455 integration tests for loopback bind, endpoint rejection, masked frames, frame/message limits, ping/pong, close, multiple clients, disconnect cleanup, restart, and port conflict in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/ReloadServerTests.swift` (FR-009–FR-011, FR-014–FR-016, SC-004).
+- [x] T024 [US1] Add failing project-pipeline tests for stylesheet-only, full-page, manual, excluded-only, stopped, recovering, no-client, and multi-client reload decisions in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/ProjectPipelineTests.swift` (FR-012–FR-013, FR-017, SC-001).
 
 ### Implementation
 
 - [x] T025 [US1] Implement typed protocol-7 message validation/encoding and bounded RFC-6455 frame parsing in `Packages/LiveReloadCore/Sources/LiveReloadCore/ReloadProtocol/` (FR-010, FR-014, FR-016).
-- [ ] T026 [US1] Implement actor-owned loopback `ReloadServer` on Darwin BSD sockets (not `Network.framework`) and isolated browser sessions in `Packages/LiveReloadCore/Sources/LiveReloadCore/ReloadServer/` (FR-009–FR-011, FR-014–FR-016).
-- [ ] T027 [US1] Implement `ProjectPipeline` to connect monitor batches and manual reload to one classified broadcast, with recovery/stopped/no-client suppression in `Packages/LiveReloadCore/Sources/LiveReloadCore/Pipeline/` (FR-008, FR-012–FR-013, FR-017).
+- [x] T026 [US1] Implement actor-owned loopback `ReloadServer` on Darwin BSD sockets (not `Network.framework`) and isolated browser sessions in `Packages/LiveReloadCore/Sources/LiveReloadCore/ReloadServer/` (FR-009–FR-011, FR-014–FR-016).
+- [x] T027 [US1] Implement `ProjectPipeline` to connect monitor batches and manual reload to one classified broadcast, with recovery/stopped/no-client suppression in `Packages/LiveReloadCore/Sources/LiveReloadCore/Pipeline/` (FR-008, FR-012–FR-013, FR-017).
 - [ ] T028 [US1] Compose server and per-project pipelines in `ModernLiveReload/LiveReloadApp/AppModel.swift`, expose safe connection count/manual reload state, and preserve existing project mutation gating (FR-011, FR-015, FR-017).
 - [ ] T029 [US1] Add accessible local-server/no-client/client-count/manual-reload UI and identifiers in `ModernLiveReload/LiveReloadApp/Views/` with corresponding app/UI tests (FR-011, FR-015, FR-017, SC-006).
 - [ ] T030 [US1] Run the existing Safari and Chromium browser fixtures against the production server and capture sanitized compatibility evidence in `docs/modernization/evidence/reload-loop/` (FR-010–FR-013, SC-001, SC-004, SC-007).

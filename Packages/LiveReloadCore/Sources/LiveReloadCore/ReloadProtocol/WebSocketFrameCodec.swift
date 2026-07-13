@@ -86,8 +86,8 @@ public struct DecodedWebSocketFrame: Equatable, Sendable {
 public enum WebSocketFrameCodec {
     public static func decodeClientFrame(_ data: Data) throws -> DecodedWebSocketFrame {
         guard data.count >= 2 else { throw WebSocketProtocolError.incompleteFrame }
-        let first = data[0]
-        let second = data[1]
+        let first = byte(in: data, at: 0)
+        let second = byte(in: data, at: 1)
         guard first & 0x80 != 0, first & 0x70 == 0 else {
             throw WebSocketProtocolError.unsupportedFrame
         }
@@ -104,14 +104,15 @@ public enum WebSocketFrameCodec {
             payloadLength = shortLength
         case 126:
             guard data.count >= cursor + 2 else { throw WebSocketProtocolError.incompleteFrame }
-            payloadLength = Int(data[cursor]) << 8 | Int(data[cursor + 1])
+            payloadLength = Int(byte(in: data, at: cursor)) << 8 | Int(byte(in: data, at: cursor + 1))
             cursor += 2
         case 127:
             guard data.count >= cursor + 8 else { throw WebSocketProtocolError.incompleteFrame }
             var length: UInt64 = 0
-            for byte in data[cursor..<(cursor + 8)] {
+            for offset in cursor..<(cursor + 8) {
+                let valueByte = byte(in: data, at: offset)
                 guard length <= UInt64(Int.max) >> 8 else { throw WebSocketProtocolError.payloadTooLarge }
-                length = length << 8 | UInt64(byte)
+                length = length << 8 | UInt64(valueByte)
             }
             guard length <= UInt64(ProtocolLimits.maximumFramePayloadBytes) else {
                 throw WebSocketProtocolError.payloadTooLarge
@@ -128,10 +129,12 @@ public enum WebSocketFrameCodec {
             guard payloadLength <= 125 else { throw WebSocketProtocolError.invalidFrame }
         }
         guard data.count >= cursor + 4 else { throw WebSocketProtocolError.incompleteFrame }
-        let mask = Array(data[cursor..<(cursor + 4)])
+        let mask = (0..<4).map { byte(in: data, at: cursor + $0) }
         cursor += 4
         guard data.count >= cursor + payloadLength else { throw WebSocketProtocolError.incompleteFrame }
-        var payload = Data(data[cursor..<(cursor + payloadLength)])
+        let payloadStart = data.index(data.startIndex, offsetBy: cursor)
+        let payloadEnd = data.index(payloadStart, offsetBy: payloadLength)
+        var payload = Data(data[payloadStart..<payloadEnd])
         payload.withUnsafeMutableBytes { (bytes: UnsafeMutableRawBufferPointer) in
             for index in 0..<payloadLength {
                 bytes[index] ^= mask[index % 4]
@@ -183,5 +186,9 @@ public enum WebSocketFrameCodec {
                 frame.append(UInt8((value >> UInt64(shift)) & 0xff))
             }
         }
+    }
+
+    private static func byte(in data: Data, at offset: Int) -> UInt8 {
+        data[data.index(data.startIndex, offsetBy: offset)]
     }
 }
