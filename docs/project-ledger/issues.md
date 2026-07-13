@@ -58,6 +58,23 @@ Record product defects, blockers, risks, and unanswered technical questions here
 
 Move records here without changing their IDs. Add resolution date, linked solution/commit/test, and why the disposition is justified.
 
+### ISS-005 — macOS UI-test runner does not complete automation-mode startup
+
+- Status: resolved
+- Severity: medium
+- Found: 2026-07-13
+- Resolved: 2026-07-13
+- Owner: Phase 1 maintainer
+- Related tasks: T043, T045, T047, T050, T058
+- Related ADRs: none
+- Reproduction: Run `scripts/verify-modern.sh` while `DevToolsSecurity -status` reports developer mode disabled.
+- Expected: All four `LiveReloadAppUITests` execute and produce a passing result bundle.
+- Actual: Before resolution, Xcode built and signed the runner but could not establish automation mode.
+- Evidence: `docs/modernization/evidence/foundation/verify-modern.md`; local Xcode result bundle omitted because it contains host paths.
+- Resolution: Developer mode was enabled, the clean verification command ran all four UI tests with zero failures, and the clean-account smoke passed.
+- Next action: Retain the fail-fast developer-mode preflight in the verification script.
+- Review/expiry: 2026-10-13
+
 ### ISS-003 — Physical sleep/wake monitoring exercise requires an interactive desktop window
 
 - Status: resolved

@@ -7,6 +7,7 @@ This directory is the durable operational memory for the modernization. It compl
 - `issues.md`: problems, defects, blockers, risks, and unanswered technical questions.
 - `solutions.md`: verified fixes and diagnostic recipes worth reusing.
 - `learnings.md`: discoveries, constraints, and insights that should influence later work.
+- `software-inclusions.md`: origin, licence evidence, usage, attribution, and review state for code, assets, tools, services, and other inclusions.
 - `../adr/`: durable architectural decisions and superseding decisions.
 - `../modernization/sprint-reviews/`: sprint goals, verification evidence, and retrospectives.
 
@@ -18,7 +19,8 @@ This directory is the durable operational memory for the modernization. It compl
 4. If the resolution is reusable, add `SOL-NNN` and link it to the issue.
 5. If the work changes an architectural choice, add or supersede an ADR.
 6. Capture non-obvious findings as `LRN-NNN` while they are fresh.
-7. Update the sprint review and only then check the plan task when its evidence is complete.
+7. Before introducing an inclusion, update `software-inclusions.md`; unknown provenance/licensing is not release-ready.
+8. Update the sprint review and only then check the plan task when its evidence is complete.
 
 ## Status Vocabulary
 

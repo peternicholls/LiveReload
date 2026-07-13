@@ -17,6 +17,7 @@ xcuserdata
 # Xcode
 *.xcuserstate
 DerivedData/
+/ModernLiveReload/Build/
 
 # Swift Package Manager
 .build/
@@ -25,6 +26,11 @@ DerivedData/
 # Local research harness output
 /Research/SigningPrototype/SigningPrototype
 /Research/BrowserFixture/.playwright-cli/
+
+# Local agent runtime state (durable plans remain tracked)
+/.omx/logs/
+/.omx/state/
+/.omx/metrics.json
 
 # Windows
 /WinApp

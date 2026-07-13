@@ -38,6 +38,12 @@ Observable workflow demonstrated with fixture/project and result.
 - New or changed risks:
 - Constitution exceptions and expiry:
 
+## Version, inclusion, and guide review
+
+- Version/changelog disposition:
+- Inclusion-register and NOTICE impact:
+- User/developer-guide updates and deferred claims:
+
 ## Unfinished work
 
 Task IDs, reason, and destination sprint/backlog.

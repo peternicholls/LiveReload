@@ -1,8 +1,8 @@
 # LiveReload Modernization Constitution
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Ratified:** 2026-07-11
-**Last amended:** 2026-07-11
+**Last amended:** 2026-07-13
 
 ## Purpose
 
@@ -93,6 +93,16 @@ This constitution governs the Apple-silicon modernization of LiveReload. It exis
 
 **Rationale:** scope control and provenance protect both the technical result and the people who created the original work.
 
+## Article IX — Versioning, Inclusions, and Living Guides
+
+1. Release versions follow the policy in `VERSIONING.md`; every releasable change is categorized in `CHANGELOG.md` before tagging or distribution.
+2. Every production, development, copied-source, generated-source, asset, tool, and service inclusion is recorded in `docs/project-ledger/software-inclusions.md` before use or at the same time it is introduced. Unknown licensing/provenance blocks release inclusion until resolved or explicitly excluded.
+3. `NOTICE.md` remains the release-facing attribution notice. The inclusion register is the operational source of truth for origin, version/hash, licence evidence, usage, attribution location, and review state; it is not legal advice.
+4. User guidance under `docs/guides/` describes only supported, verified behavior. Developer guidance records the current build, test, release, documentation, and inclusion-review workflows. A change affecting user-visible behavior, setup, configuration, diagnostics, compatibility, or developer workflow updates the affected guide in the same change or records an issue with owner and review date.
+5. A release or phase closure requires a documentation review: version/changelog state, inclusion-register completeness, NOTICE/attribution impact, and user/developer-guide accuracy.
+
+**Rationale:** dependable releases require an honest version history, traceable inclusion provenance, and guides that evolve with the product rather than after it.
+
 ## Quality Gates
 
 No phase may close unless:
@@ -104,6 +114,7 @@ No phase may close unless:
 - Debug and Release verification is green for affected targets;
 - no known critical or high-severity security defect remains open;
 - documentation reflects actual behavior and limitations.
+- version, changelog, inclusion-register, attribution, and guide review requirements are satisfied for the phase/release scope.
 
 ## Governance
 

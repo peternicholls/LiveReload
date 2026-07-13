@@ -3,6 +3,13 @@ LiveReload 3
 
 LiveReload is an essential tool for web developers, and is currently the top paid developer tool on the Mac App Store in many countries.
 
+Modern Apple-silicon foundation
+-------------------------------
+
+The isolated modern target lives in `ModernLiveReload/` and targets arm64 macOS 15+ using Swift 6.2. It does not build or package the legacy Node.js, Ruby, CoffeeScript, CocoaPods, or historical Xcode targets below.
+
+From the repository root, run `scripts/verify-modern.sh` for the supported Debug/Release, package, app/UI-test build, architecture, signing, dependency, and documentation gates. See `ModernLiveReload/README.md` and `docs/guides/developer-guide.md` for exact prerequisites and limitations.
+
 
 License
 -------
@@ -41,6 +48,8 @@ Follow [windows/README.md](windows/README.md).
 
 Building LiveReload for Mac
 ---------------------------
+
+The instructions in this historical section apply only to the legacy reference target, not the modern application.
 
 Note: right now this branch is in a transitional state; I'm doing active development of Mac v3.0.x. See the ‘master’ branch for the latest stable Mac version (v2.3.x).
 

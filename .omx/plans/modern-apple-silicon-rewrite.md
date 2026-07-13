@@ -103,8 +103,8 @@ Proposed feature sequence (exact numbers are assigned by Spec Kit at creation ti
 | Roadmap phase | Proposed short name | Expected sprint coverage | Status |
 |---|---|---|---|
 | Phase 0 — Discovery and decision lock | `discovery-baseline` | Sprint 0 | `001` complete; Phase 1 short name: `modern-foundation` |
-| Phase 1 — Modern foundation and project lifecycle | `modern-foundation` | Sprints 1–2 | Not specified |
-| Phase 2 — Minimum useful reload loop | `reload-loop` | Sprints 3–4 | Not specified |
+| Phase 1 — Modern foundation and project lifecycle | `modern-foundation` | Sprints 1–2 | `002` complete; verification and readiness PASS |
+| Phase 2 — Minimum useful reload loop | `reload-loop` | Sprints 3–4 | Next Spec Kit short name; not yet specified |
 | Phase 3 — Developer workflow and daily usability | `developer-workflow` | Sprints 5–6 | Not specified |
 | Phase 4 — Quality, security, and private preview | `private-preview` | Sprints 7–8 | Not specified |
 
@@ -233,6 +233,8 @@ Tasks:
 
 **Outcome:** a clean arm64 app can add projects, retain access, display status, and run a testable service core.
 
+**Completion evidence (2026-07-13):** `specs/002-modern-foundation/tasks.md` is the executable record. A clean `scripts/verify-modern.sh` run passed 15 core tests, a real disposable bookmark round trip, Debug/Release builds, four lifecycle XCUITests, arm64/macOS 15 and Hardened Runtime checks, documentation/version checks, and the tracked-build-product privacy gate. The Phase 1 readiness verdict is recorded in `docs/modernization/sprint-reviews/sprint-1.md`.
+
 #### Sprint 1 — Build system and domain foundation
 
 **Sprint goal:** launch a clean Swift 6.2 application and establish package/test boundaries with no legacy runtime dependencies.
@@ -248,11 +250,11 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `F-01.1` Create `ModernLiveReload/LiveReload.xcodeproj` with SwiftUI app and UI-test targets.
-- [ ] `F-01.2` Create local `Packages/LiveReloadCore` targets for model, monitoring, protocol, build, and test support.
-- [ ] `F-01.3` Configure arm64, macOS 15, hardened runtime, bundle IDs, signing, strict concurrency, and warning policy.
-- [ ] `F-01.4` Add shared schemes and `scripts/verify-modern.sh`.
-- [ ] `F-01.5` Add repository documentation for building only the modern target.
+- [x] `F-01.1` Create `ModernLiveReload/LiveReload.xcodeproj` with SwiftUI app and UI-test targets.
+- [x] `F-01.2` Create local `Packages/LiveReloadCore` targets for model, monitoring, protocol, build, and test support.
+- [x] `F-01.3` Configure arm64, macOS 15, hardened runtime, bundle IDs, signing, strict concurrency, and warning policy.
+- [x] `F-01.4` Add shared schemes and `scripts/verify-modern.sh`.
+- [x] `F-01.5` Add repository documentation for building only the modern target.
 
 **F-02 — Define the domain model (M)**
 As the app, I need versioned project configuration so that persisted user choices remain migratable.
@@ -265,10 +267,10 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `F-02.1` Define `ProjectConfiguration`, `BuildConfiguration`, `IgnoreRule`, `MonitoringState`, and `ActivityEvent`.
-- [ ] `F-02.2` Define schema envelope/version and migration protocol.
-- [ ] `F-02.3` Add fixtures and unit tests for all model states.
-- [ ] `F-02.4` Document invariants and identifier/path semantics.
+- [x] `F-02.1` Define `ProjectConfiguration`, `BuildConfiguration`, `IgnoreRule`, `MonitoringState`, and `ActivityEvent`.
+- [x] `F-02.2` Define schema envelope/version and migration protocol.
+- [x] `F-02.3` Add fixtures and unit tests for all model states.
+- [x] `F-02.4` Document invariants and identifier/path semantics.
 
 **F-03 — Establish diagnostics (S)**
 As a user and maintainer, I want structured diagnostics so that failures are actionable without attaching a debugger.
@@ -281,9 +283,9 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `F-03.1` Define logging categories and `ActivityEvent` mapping.
-- [ ] `F-03.2` Implement bounded activity storage.
-- [ ] `F-03.3` Add privacy/redaction and capacity tests.
+- [x] `F-03.1` Define logging categories and `ActivityEvent` mapping.
+- [x] `F-03.2` Implement bounded activity storage.
+- [x] `F-03.3` Add privacy/redaction and capacity tests.
 
 **Sprint 1 exit gate:** clean build and all tests pass from Terminal; the empty app launches natively as arm64; the model package has no UI dependencies.
 
@@ -302,10 +304,10 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `P-01.1` Implement injectable `ProjectStore` actor and atomic file replacement.
-- [ ] `P-01.2` Implement schema migration entry point and corrupt-store recovery.
-- [ ] `P-01.3` Implement normalized duplicate detection.
-- [ ] `P-01.4` Add temporary-directory integration tests.
+- [x] `P-01.1` Implement injectable `ProjectStore` actor and atomic file replacement.
+- [x] `P-01.2` Implement schema migration entry point and corrupt-store recovery.
+- [x] `P-01.3` Implement normalized duplicate detection.
+- [x] `P-01.4` Add temporary-directory integration tests.
 
 **P-02 — Manage security-scoped bookmarks (M)**
 As a user, I want the app to regain selected-folder access and guide me when permission is stale.
@@ -318,9 +320,9 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `P-02.1` Implement `FolderAccessProvider` abstraction and production bookmark adapter.
-- [ ] `P-02.2` Add stale/failure/replacement tests using a fake provider.
-- [ ] `P-02.3` Add integration coverage for a real selected temporary folder.
+- [x] `P-02.1` Implement `FolderAccessProvider` abstraction and production bookmark adapter.
+- [x] `P-02.2` Add stale/failure/replacement tests using a fake provider.
+- [x] `P-02.3` Add integration coverage for a real selected temporary folder.
 
 **P-03 — Build project-list UI (M)**
 As a user, I want to add, inspect, rename, enable, repair, and remove watched projects.
@@ -334,12 +336,12 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `P-03.1` Implement `LiveReloadApp`, `AppModel`, and `NavigationSplitView` shell.
-- [ ] `P-03.2` Implement project list/detail/empty states and open-panel bridge.
-- [ ] `P-03.3` Add rename, enable, repair, and remove flows.
-- [ ] `P-03.4` Add keyboard, VoiceOver labels/order, light/dark mode checks, and UI tests.
+- [x] `P-03.1` Implement `LiveReloadApp`, `AppModel`, and `NavigationSplitView` shell.
+- [x] `P-03.2` Implement project list/detail/empty states and open-panel bridge.
+- [x] `P-03.3` Add rename, enable, repair, and remove flows.
+- [x] `P-03.4` Add keyboard, VoiceOver labels/order, light/dark mode checks, and UI tests.
 
-**Sprint 2 exit gate:** add/restart/restore/repair/remove works in a Release build; persistence and UI tests pass; no monitoring or networking is faked as complete in the UI.
+**Sprint 2 exit gate:** PASS — add/restart/restore/repair/remove works in a Release build; persistence and UI tests pass; monitoring, reload, and build execution remain deferred and are not represented as complete.
 
 ### Phase 2 — Minimum useful reload loop
 
