@@ -18,7 +18,7 @@
 
 | ID | Browser | Version | Hello | CSS reload | Page reload / reconnect | Classification | Evidence |
 |---|---:|---|---|---|---|---|
-| OBS-001 | Safari | 26.5.2 | Sent protocol-7 hello; received server hello | Historical protocol acknowledgement only; corrected stylesheet-resource result requires revalidation | Received `/index.html`; sent close, reconnected, and sent a new hello | partial pending corrected CSS-resource run | Fixture events captured 2026-07-11; revalidation blocked by disabled Safari remote automation |
+| OBS-001 | Safari | 26.5.2 | Sent protocol-7 hello; received server hello | Received `/styles.css` with `liveCSS=true`; initial and cache-busted stylesheets loaded with two rules and returned 200 | Received `/index.html`; sent close, reconnected, and sent a new hello | supported for direct protocol fixture | Initial fixture events 2026-07-11; corrected CSS-resource run 2026-07-13 via SafariDriver |
 | OBS-002 | Google Chrome (headless) | 149.0.7827.201 | Sent protocol-7 hello; received server hello | Received `/styles.css` with `liveCSS=true`, updated stylesheet URL, and cache-busted stylesheet request returned 200 | Received `/index.html`; sent close, reconnected, and sent a new hello | supported for direct protocol fixture | Initial fixture events 2026-07-11; corrected CSS-resource run 2026-07-13 |
 
 ## Captured evidence summary

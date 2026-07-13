@@ -73,10 +73,10 @@ description: "Dependency-ordered Phase 0 discovery baseline tasks"
 ### Research and artifacts
 
 - [x] T021 [US2] Implement minimal HTML/CSS/JavaScript pages plus a disposable loopback-only fixture endpoint in `Research/BrowserFixture/`; document its language/runtime, served routes, handshake/reload injection method, lifecycle, and why it is not the production server, using fixtures from T017 (roadmap R-02.2; evidence: `Research/BrowserFixture/`)
-- [>] T022 [P] [US2] Revalidate current Safari handshake, CSS reload, and page reload observations against the corrected stylesheet fixture (roadmap R-02.3; prior observation is retained, but stylesheet-resource evidence is blocked by ISS-004)
+- [x] T022 [P] [US2] Revalidate current Safari handshake, CSS reload, and page reload observations against the corrected stylesheet fixture (roadmap R-02.3; SafariDriver evidence: `docs/modernization/evidence/browser/fixture-run-2026-07-11.md`; ISS-004 resolved)
 - [x] T023 [P] [US2] Execute and capture current Chromium handshake, CSS reload, and page reload observations under `docs/modernization/evidence/browser/chromium/` (roadmap R-02.3; evidence: `docs/modernization/evidence/browser/fixture-run-2026-07-11.md`)
 - [x] T024 [US2] Reconcile results into supported/partial/unsupported rows with exact versions and evidence in `docs/modernization/browser-compatibility.md` (roadmap R-02.4; evidence: `docs/modernization/browser-compatibility.md`)
-- [>] T025 [US2] Re-run the independent fixture from `specs/001-discovery-baseline/quickstart.md`, record reproducibility result, and open issues for discrepancies (Chrome revalidation passed; Safari corrected-CSS revalidation remains ISS-004)
+- [x] T025 [US2] Re-run the independent fixture from `specs/001-discovery-baseline/quickstart.md`, record reproducibility result, and open issues for discrepancies (Chrome and Safari corrected-CSS revalidation passed; ISS-004 resolved)
 
 **Checkpoint**: US2 passes SC-002 and provides the client-side contract for the WebSocket prototype.
 
@@ -159,9 +159,9 @@ description: "Dependency-ordered Phase 0 discovery baseline tasks"
 - [x] T052 [P] Search new artifacts for credentials, tokens, personal absolute paths, private source contents, unclassified assets, and committed build products; record sanitized result in `docs/modernization/evidence/privacy-review.md` (evidence: `privacy-review.md`)
 - [x] T053 Build every Swift research target in Debug and Release with warnings treated as errors, run all prototype/fixture tests from clean build directories, and record exact commands/results in `docs/modernization/sprint-reviews/sprint-0.md` (evidence: Sprint 0 review)
 - [x] T054 Revalidate `specs/001-discovery-baseline/checklists/requirements.md` against completed artifacts and correct any regression (evidence: 19/19 requirement checks completed on 2026-07-12)
-- [>] T055 Run Spec Kit cross-artifact analysis over `spec.md`, `plan.md`, `tasks.md`, constitution, ADRs, and research artifacts; resolve every critical/high finding (review found and resolved CSS-fixture, bookmark-repair, stale-evidence, and whitespace issues; Safari revalidation remains ISS-004)
-- [>] T056 Complete the Phase Readiness Verdict in `docs/modernization/sprint-reviews/sprint-0.md`, requiring zero open architecture-blocking issues and accepted ADR-001/002/003 (pending T022/T025 corrected Safari run)
-- [>] T057 Update `.omx/plans/modern-apple-silicon-rewrite.md` Phase 0 checkboxes from this canonical task evidence and identify the next phase's new Spec Kit feature short name (next: `modern-foundation`; Phase 0 status remains review changes requested)
+- [x] T055 Run Spec Kit cross-artifact analysis over `spec.md`, `plan.md`, `tasks.md`, constitution, ADRs, and research artifacts; resolve every critical/high finding (review findings resolved; evidence: `docs/modernization/evidence/speckit-cross-artifact-analysis.md`)
+- [x] T056 Complete the Phase Readiness Verdict in `docs/modernization/sprint-reviews/sprint-0.md`, requiring zero open architecture-blocking issues and accepted ADR-001/002/003 (evidence: Sprint 0 verdict)
+- [x] T057 Update `.omx/plans/modern-apple-silicon-rewrite.md` Phase 0 checkboxes from this canonical task evidence and identify the next phase's new Spec Kit feature short name (next: `modern-foundation`)
 
 **Final checkpoint**: Phase 0 is complete only when T001–T057, all story checkpoints, SC-001–SC-009, and the constitution gate pass. Phase 1 begins with a new `speckit.specify` flow, not by appending production tasks here.
 

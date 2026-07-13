@@ -2,7 +2,7 @@
 
 - Dates/capacity: Started 2026-07-11
 - Sprint goal: Establish the Phase 0 discovery and decision baseline.
-- Result: review changes requested
+- Result: complete
 - Constitution version checked: 1.0.0
 
 ## Completed stories and tasks
@@ -12,7 +12,7 @@
 - [x] T007 — Research, fixture, and evidence directories created with purpose/handling READMEs.
 - [x] T008 — Controlled temporary traceability records linked task, issue, solution, learning, and sprint review; links were inspected and temporary records removed.
 - [x] T009–T018 — Twelve source-backed behavior records, five sanitized protocol fixtures, and structural validation completed. Archived runtime observation was safely skipped and recorded as ISS-001.
-- [>] T019–T025 — Corrected fixture validates protocol-7 and CSS reload in Chrome 149; Safari CSS-resource revalidation is pending ISS-004.
+- [x] T019–T025 — Corrected fixture validates protocol-7 and CSS reload in Chrome 149 and Safari 26.5.2.
 - [x] T026–T031 — Network.framework prototype passed strict Debug/Release raw-client tests, but Safari broadcast evidence was inconsistent; ADR-001 selects an owned bounded RFC 6455 server for Phase 2.
 - [x] T043 — Genuine issue trace completed: ISS-002 → SOL-001, LRN-001, ADR-001, and the WebSocket evidence.
 - [x] T045–T050 — Historical attribution, asset exclusion, private signing, sandbox constraints, and ADR-003 completed.
@@ -21,7 +21,7 @@
 - [x] T051–T052 — Canonical artifact IDs and privacy/provenance checks passed.
 - [x] T053 — WebSocket, FSEvents, signing, and browser-fixture verification commands passed in current Debug/Release configuration.
 - [x] T036 — Physical sleep/wake capture passed: a post-wake workspace edit emitted an event and the monitor stopped once; ISS-003 is resolved.
-- [>] T054–T057 — Requirements revalidation completed; review remediation is complete except for the Safari corrected-CSS run tracked by ISS-004.
+- [x] T054–T057 — Requirements revalidation, review remediation, Safari corrected-CSS validation, readiness verdict, and parent-roadmap synchronization completed.
 
 ## Demo
 
@@ -56,7 +56,7 @@ The feature branch contains a baseline behavior-inventory schema, isolated resea
 
 ## Phase Readiness Verdict
 
-**PENDING — review changes requested.** The CSS fixture, bookmark repair, stale evidence, and whitespace review findings are resolved. Safari must still repeat the corrected stylesheet-resource scenario (ISS-004) before T022, T025, and the final readiness checks can close. Constitution v1.0.0 remains satisfied with no exception.
+**PASS — Phase 0 is complete.** All T001–T057 are checked with evidence, the requirements checklist is 19/19, ADR-001/002/003 are accepted, Spec Kit cross-artifact analysis has no unresolved critical/high findings, and no architecture-blocking issue is open. Constitution v1.0.0 is satisfied with no exception.
 
 ## Next sprint readiness
 

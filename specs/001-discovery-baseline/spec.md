@@ -4,7 +4,7 @@
 
 **Created**: 2026-07-11
 
-**Status**: Review changes requested (ISS-004)
+**Status**: Complete
 
 **Input**: Phase 0 discovery and decision baseline for the modern Apple-silicon LiveReload rewrite.
 

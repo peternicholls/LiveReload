@@ -102,7 +102,7 @@ Proposed feature sequence (exact numbers are assigned by Spec Kit at creation ti
 
 | Roadmap phase | Proposed short name | Expected sprint coverage | Status |
 |---|---|---|---|
-| Phase 0 — Discovery and decision lock | `discovery-baseline` | Sprint 0 | `001` review changes requested; Safari corrected-CSS revalidation pending (ISS-004) |
+| Phase 0 — Discovery and decision lock | `discovery-baseline` | Sprint 0 | `001` complete; Phase 1 short name: `modern-foundation` |
 | Phase 1 — Modern foundation and project lifecycle | `modern-foundation` | Sprints 1–2 | Not specified |
 | Phase 2 — Minimum useful reload loop | `reload-loop` | Sprints 3–4 | Not specified |
 | Phase 3 — Developer workflow and daily usability | `developer-workflow` | Sprints 5–6 | Not specified |
@@ -159,7 +159,7 @@ Tasks:
 
 - [x] `R-02.1` Identify the maintained LiveReload browser client and its protocol expectations from primary source/documentation.
 - [x] `R-02.2` Build a minimal local HTML/CSS/JS browser fixture independent of the macOS app.
-- [>] `R-02.3` Revalidate Safari handshake and corrected CSS reload traffic; Chromium passed.
+- [x] `R-02.3` Revalidate Safari handshake and corrected CSS reload traffic; Chromium and Safari passed.
 - [x] `R-02.4` Save `docs/modernization/browser-compatibility.md` and commit reusable fixtures.
 
 **R-03 — Prototype Network.framework WebSocket serving (L)**
