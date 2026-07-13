@@ -56,4 +56,33 @@ private func reference(_ identity: String = "/tmp/project") throws -> FolderRefe
     #expect(throws: ModelValidationError.invalidIgnoreRule) {
         try IgnoreRule(pattern: "")
     }
+    #expect(throws: ModelValidationError.invalidBookmarkData) {
+        try FolderReference(bookmarkData: Data(), normalizedIdentity: "/tmp/project", displayLabel: "project")
+    }
+}
+
+@Test func decodingReappliesAllNestedModelInvariants() throws {
+    let invalidFolder = #"{"bookmarkData":"","normalizedIdentity":"","displayLabel":"/Users/private/secret"}"#
+    #expect(throws: (any Error).self) {
+        _ = try JSONDecoder().decode(FolderReference.self, from: Data(invalidFolder.utf8))
+    }
+
+    let invalidRule = #"{"pattern":"   "}"#
+    #expect(throws: (any Error).self) {
+        _ = try JSONDecoder().decode(IgnoreRule.self, from: Data(invalidRule.utf8))
+    }
+
+    let oversizedBuild = #"{"placeholderName":"\#(String(repeating: "x", count: 81))"}"#
+    #expect(throws: (any Error).self) {
+        _ = try JSONDecoder().decode(BuildConfiguration.self, from: Data(oversizedBuild.utf8))
+    }
+
+    let validProject = try ProjectConfiguration(displayName: "Project", folderReference: reference())
+    let encoder = JSONEncoder()
+    var object = try #require(JSONSerialization.jsonObject(with: encoder.encode(validProject)) as? [String: Any])
+    object["displayName"] = "   "
+    let invalidProject = try JSONSerialization.data(withJSONObject: object)
+    #expect(throws: (any Error).self) {
+        _ = try JSONDecoder().decode(ProjectConfiguration.self, from: invalidProject)
+    }
 }

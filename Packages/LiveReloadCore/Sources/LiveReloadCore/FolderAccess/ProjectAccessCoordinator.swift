@@ -15,19 +15,32 @@ public actor ProjectAccessCoordinator {
         guard let project = envelope.projects.first(where: { $0.id == projectID }) else {
             throw ProjectStoreError.projectNotFound
         }
-        let state: FolderAccessState
         switch await provider.resolve(project.folderReference) {
-        case .available:
-            state = .available
+        case .available(let resolvedReference):
+            let token: ScopedAccessToken
+            do {
+                token = try await provider.beginAccess(to: resolvedReference)
+            } catch {
+                let state = Self.accessFailureState(for: error)
+                _ = try await store.setAccessState(projectID: projectID, state: state)
+                return state
+            }
+            token.release()
+            if project.folderReference != resolvedReference || project.folderAccessState != .available {
+                _ = try await store.replaceFolderAccess(
+                    projectID: projectID,
+                    reference: resolvedReference,
+                    state: .available
+                )
+            }
+            return .available
         case .stale, .corrupt:
-            state = .needsRepair
+            return try await persist(.needsRepair, for: projectID)
         case .missing:
-            state = .missing
+            return try await persist(.missing, for: projectID)
         case .denied:
-            state = .denied
+            return try await persist(.denied, for: projectID)
         }
-        _ = try await store.setAccessState(projectID: projectID, state: state)
-        return state
     }
 
     public func repair(projectID: UUID, replacementURL: URL?) async throws {
@@ -37,5 +50,23 @@ public actor ProjectAccessCoordinator {
         }
         let replacement = try await provider.repair(project.folderReference, with: replacementURL)
         _ = try await store.replaceFolderAccess(projectID: projectID, reference: replacement)
+    }
+
+    private func persist(_ state: FolderAccessState, for projectID: UUID) async throws -> FolderAccessState {
+        _ = try await store.setAccessState(projectID: projectID, state: state)
+        return state
+    }
+
+    private static func accessFailureState(for error: any Error) -> FolderAccessState {
+        switch error {
+        case FolderAccessError.corruptBookmark,
+             FolderAccessError.selectionRequired,
+             FolderAccessError.repairCancelled:
+            .needsRepair
+        case FolderAccessError.accessDenied:
+            .denied
+        default:
+            .denied
+        }
     }
 }

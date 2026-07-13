@@ -3,22 +3,49 @@ import Foundation
 public enum ModelValidationError: Error, Equatable, Sendable {
     case emptyDisplayName
     case displayNameTooLong
+    case invalidBookmarkData
     case invalidFolderIdentity
+    case invalidBuildConfiguration
     case invalidIgnoreRule
     case duplicateFolderIdentity
 }
 
 public struct FolderReference: Codable, Equatable, Sendable {
-    public var bookmarkData: Data
-    public var normalizedIdentity: String
-    public var displayLabel: String
+    public static let maximumBookmarkDataLength = 1_048_576
+    public static let maximumIdentityLength = 4_096
+
+    public private(set) var bookmarkData: Data
+    public private(set) var normalizedIdentity: String
+    public private(set) var displayLabel: String
 
     public init(bookmarkData: Data, normalizedIdentity: String, displayLabel: String) throws {
         let identity = normalizedIdentity.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !identity.isEmpty else { throw ModelValidationError.invalidFolderIdentity }
+        guard !bookmarkData.isEmpty, bookmarkData.count <= Self.maximumBookmarkDataLength else {
+            throw ModelValidationError.invalidBookmarkData
+        }
+        guard !identity.isEmpty, identity.count <= Self.maximumIdentityLength else {
+            throw ModelValidationError.invalidFolderIdentity
+        }
         self.bookmarkData = bookmarkData
         self.normalizedIdentity = identity
         self.displayLabel = Self.safeLabel(displayLabel)
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        try self.init(
+            bookmarkData: container.decode(Data.self, forKey: .bookmarkData),
+            normalizedIdentity: container.decode(String.self, forKey: .normalizedIdentity),
+            displayLabel: container.decode(String.self, forKey: .displayLabel)
+        )
+    }
+
+    func validated() throws -> Self {
+        try Self(
+            bookmarkData: bookmarkData,
+            normalizedIdentity: normalizedIdentity,
+            displayLabel: displayLabel
+        )
     }
 
     public static func normalizedIdentity(for url: URL) -> String {
@@ -41,20 +68,50 @@ public enum FolderAccessState: String, Codable, CaseIterable, Sendable {
 }
 
 public struct BuildConfiguration: Codable, Equatable, Sendable {
-    public var placeholderName: String
+    public static let maximumPlaceholderNameLength = 80
+
+    public private(set) var placeholderName: String
 
     public init(placeholderName: String = "Deferred") {
-        self.placeholderName = String(placeholderName.prefix(80))
+        self.placeholderName = String(placeholderName.prefix(Self.maximumPlaceholderNameLength))
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let value = try container.decode(String.self, forKey: .placeholderName)
+        guard value.count <= Self.maximumPlaceholderNameLength else {
+            throw ModelValidationError.invalidBuildConfiguration
+        }
+        self.init(placeholderName: value)
+    }
+
+    func validate() throws {
+        guard placeholderName.count <= Self.maximumPlaceholderNameLength else {
+            throw ModelValidationError.invalidBuildConfiguration
+        }
     }
 }
 
 public struct IgnoreRule: Codable, Equatable, Sendable {
-    public var pattern: String
+    public static let maximumPatternLength = 256
+
+    public private(set) var pattern: String
 
     public init(pattern: String) throws {
         let value = pattern.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !value.isEmpty, value.count <= 256 else { throw ModelValidationError.invalidIgnoreRule }
+        guard !value.isEmpty, value.count <= Self.maximumPatternLength else {
+            throw ModelValidationError.invalidIgnoreRule
+        }
         self.pattern = value
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        try self.init(pattern: container.decode(String.self, forKey: .pattern))
+    }
+
+    func validate() throws {
+        _ = try Self(pattern: pattern)
     }
 }
 
@@ -91,6 +148,21 @@ public struct ProjectConfiguration: Codable, Identifiable, Equatable, Sendable {
         self.buildConfiguration = buildConfiguration
         self.ignoreRules = ignoreRules
         self.monitoringState = monitoringState
+        _ = try validated()
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        try self.init(
+            id: container.decode(UUID.self, forKey: .id),
+            displayName: container.decode(String.self, forKey: .displayName),
+            isEnabled: container.decode(Bool.self, forKey: .isEnabled),
+            folderReference: container.decode(FolderReference.self, forKey: .folderReference),
+            folderAccessState: container.decode(FolderAccessState.self, forKey: .folderAccessState),
+            buildConfiguration: container.decode(BuildConfiguration.self, forKey: .buildConfiguration),
+            ignoreRules: container.decode([IgnoreRule].self, forKey: .ignoreRules),
+            monitoringState: container.decode(MonitoringState.self, forKey: .monitoringState)
+        )
     }
 
     public mutating func rename(to value: String) throws {
@@ -98,11 +170,14 @@ public struct ProjectConfiguration: Codable, Identifiable, Equatable, Sendable {
     }
 
     public func validated() throws -> Self {
-        _ = try Self.validatedDisplayName(displayName)
-        guard !folderReference.normalizedIdentity.isEmpty else {
-            throw ModelValidationError.invalidFolderIdentity
+        var result = self
+        result.displayName = try Self.validatedDisplayName(displayName)
+        _ = try folderReference.validated()
+        try buildConfiguration.validate()
+        for rule in ignoreRules {
+            try rule.validate()
         }
-        return self
+        return result
     }
 
     private static func validatedDisplayName(_ value: String) throws -> String {

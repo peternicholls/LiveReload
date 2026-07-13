@@ -70,6 +70,48 @@ private func project(for folder: URL, id: UUID = UUID()) throws -> ProjectConfig
     #expect(try Data(contentsOf: fixture.file) == data)
 }
 
+@Test func structurallyChangedFutureStoreIsDetectedBeforeCurrentModelDecoding() async throws {
+    let fixture = try temporaryStore()
+    defer { try? FileManager.default.removeItem(at: fixture.directory) }
+    let data = Data(#"{"schemaVersion":99,"projects":{"futureShape":true}}"#.utf8)
+    try data.write(to: fixture.file)
+
+    let outcome = try await fixture.store.load()
+
+    #expect(outcome == .unsupportedFutureVersion(99))
+    #expect(try Data(contentsOf: fixture.file) == data)
+    let contents = try FileManager.default.contentsOfDirectory(atPath: fixture.directory.path)
+    #expect(!contents.contains { $0.contains("corrupt-") })
+}
+
+@Test func unreadableStoreProvidesSafeSnapshotAndBlocksWrites() async throws {
+    let fixture = try temporaryStore()
+    defer { try? FileManager.default.removeItem(at: fixture.directory) }
+    let source = Data("preserve-me".utf8)
+    try source.write(to: fixture.file)
+    let store = ProjectStore(
+        fileURL: fixture.file,
+        fileManager: .default,
+        dataReader: { _ in throw CocoaError(.fileReadNoPermission) }
+    )
+
+    let outcome = try await store.load()
+
+    guard case .recoveryRequired(let empty) = outcome else {
+        Issue.record("Expected recovery-required state")
+        return
+    }
+    #expect(empty.projects.isEmpty)
+    #expect(try await store.snapshot() == empty)
+    await #expect(throws: ProjectStoreError.sourceNotPreserved) {
+        _ = try await store.add(project(for: fixture.directory.appending(path: "source")))
+    }
+    await #expect(throws: ProjectStoreError.sourceNotPreserved) {
+        _ = try await store.setEnabled(projectID: UUID(), enabled: false)
+    }
+    #expect(try Data(contentsOf: fixture.file) == source)
+}
+
 @Test func duplicateIdentityIsRejectedAndRemovalPreservesFolder() async throws {
     let fixture = try temporaryStore()
     defer { try? FileManager.default.removeItem(at: fixture.directory) }
@@ -109,4 +151,20 @@ private func project(for folder: URL, id: UUID = UUID()) throws -> ProjectConfig
     #expect(updated.projects[0].displayName == "Custom Name")
     #expect(updated.projects[0].isEnabled == false)
     #expect(updated.projects[0].folderReference == replacementReference)
+}
+
+@Test func fieldMutationsComposeWithoutOverwritingUnrelatedValues() async throws {
+    let fixture = try temporaryStore()
+    defer { try? FileManager.default.removeItem(at: fixture.directory) }
+    _ = try await fixture.store.load()
+    let original = try project(for: fixture.directory.appending(path: "source"))
+    _ = try await fixture.store.add(original)
+
+    _ = try await fixture.store.rename(projectID: original.id, to: "Renamed")
+    let updated = try await fixture.store.setEnabled(projectID: original.id, enabled: false)
+
+    #expect(updated.projects[0].displayName == "Renamed")
+    #expect(updated.projects[0].isEnabled == false)
+    #expect(updated.projects[0].folderReference == original.folderReference)
+    #expect(updated.projects[0].buildConfiguration == original.buildConfiguration)
 }

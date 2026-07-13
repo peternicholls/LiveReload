@@ -11,14 +11,19 @@ public enum ActivitySeverity: String, Codable, CaseIterable, Sendable {
 public enum ActivityRedactor {
     public static let maximumSummaryLength = 512
 
+    private static let secretPattern =
+        #"(?i)(password|token|secret|api[_-]?key)\s*[:=]\s*[^\s,;]+"#
+    private static let absolutePathPattern =
+        #"(?i)(?:file://(?:localhost)?|(?<![A-Za-z0-9:/]))/(?!/)(?:(?![\r\n,;\"'<>]|\s+(?:password|token|secret|api[_-]?key)\s*[:=]).)*"#
+
     public static func redact(_ rawValue: String) -> String {
         var value = rawValue.replacingOccurrences(
-            of: #"(?i)(password|token|secret|api[_-]?key)\s*[:=]\s*[^\s,;]+"#,
+            of: secretPattern,
             with: "$1=[REDACTED]",
             options: .regularExpression
         )
         value = value.replacingOccurrences(
-            of: #"(?<![A-Za-z0-9])/(?:Users|home|Volumes|private|var|tmp)/[^\s,;]+"#,
+            of: absolutePathPattern,
             with: "[REDACTED_PATH]",
             options: .regularExpression
         )
@@ -51,5 +56,23 @@ public struct ActivityEvent: Codable, Identifiable, Equatable, Sendable {
         self.severity = severity
         self.summary = ActivityRedactor.redact(summary)
         self.projectID = projectID
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let id = try container.decode(UUID.self, forKey: .id)
+        let timestamp = try container.decode(Date.self, forKey: .timestamp)
+        let category = try container.decode(ActivityCategory.self, forKey: .category)
+        let severity = try container.decode(ActivitySeverity.self, forKey: .severity)
+        let summary = try container.decode(String.self, forKey: .summary)
+        let projectID = try container.decodeIfPresent(UUID.self, forKey: .projectID)
+        self.init(
+            id: id,
+            timestamp: timestamp,
+            category: category,
+            severity: severity,
+            summary: summary,
+            projectID: projectID
+        )
     }
 }

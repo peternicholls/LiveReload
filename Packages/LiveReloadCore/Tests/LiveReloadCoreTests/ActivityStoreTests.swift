@@ -31,6 +31,35 @@ import Testing
     #expect(snapshot[0].summary.count <= ActivityRedactor.maximumSummaryLength)
 }
 
+@Test func activityRedactsArbitraryAbsolutePathsFileURLsAndSpaces() {
+    let summary = ActivityRedactor.redact(
+        "Open /Applications/Live Reload/My Project.app, read file:///opt/private data/config.json; then /custom/root/file"
+    )
+
+    #expect(!summary.contains("Applications"))
+    #expect(!summary.contains("Live Reload"))
+    #expect(!summary.contains("file:///"))
+    #expect(!summary.contains("/opt"))
+    #expect(!summary.contains("/custom"))
+    #expect(summary.components(separatedBy: "[REDACTED_PATH]").count == 4)
+}
+
+@Test func decodedActivityEventsReapplyRedaction() throws {
+    let event = ActivityEvent(category: .storage, severity: .error, summary: "safe")
+    let encoded = try JSONEncoder().encode(event)
+    var object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    object["summary"] = "Read /Applications/Private Folder/data token=hunter2"
+
+    let decoded = try JSONDecoder().decode(
+        ActivityEvent.self,
+        from: JSONSerialization.data(withJSONObject: object)
+    )
+
+    #expect(decoded.summary.contains("[REDACTED_PATH]"))
+    #expect(!decoded.summary.contains("Private Folder"))
+    #expect(!decoded.summary.contains("hunter2"))
+}
+
 @Test func activityCategoryAndSeverityContractsAreFixed() {
     #expect(ActivityCategory.allCases.count == 7)
     #expect(ActivitySeverity.allCases.count == 4)

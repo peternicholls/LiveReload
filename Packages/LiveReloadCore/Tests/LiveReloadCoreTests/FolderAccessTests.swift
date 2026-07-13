@@ -63,3 +63,73 @@ import Testing
     #expect(snapshot.projects[0].id == project.id)
     #expect(snapshot.projects[0].folderAccessState == .missing)
 }
+
+@Test func coordinatorProvesAndBalancesScopedAccessBeforeMarkingAvailable() async throws {
+    let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: directory) }
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    let store = ProjectStore(fileURL: directory.appending(path: "projects.json"))
+    _ = try await store.load()
+    let provider = FakeFolderAccessProvider(mode: .available)
+    let reference = try await provider.createReference(for: directory.appending(path: "source"))
+    let project = try ProjectConfiguration(
+        displayName: "Restored",
+        folderReference: reference,
+        folderAccessState: .needsRepair
+    )
+    _ = try await store.add(project)
+    let coordinator = ProjectAccessCoordinator(store: store, provider: provider)
+
+    #expect(try await coordinator.refreshAccess(for: project.id) == .available)
+    for _ in 0..<10 where await provider.counts().ended == 0 {
+        await Task.yield()
+    }
+
+    let counts = await provider.counts()
+    #expect(counts.began == 1)
+    #expect(counts.ended == 1)
+    let firstSnapshot = try await store.snapshot()
+    #expect(firstSnapshot.projects[0].folderAccessState == .available)
+
+    #expect(try await coordinator.refreshAccess(for: project.id) == .available)
+    let secondSnapshot = try await store.snapshot()
+    #expect(secondSnapshot.updatedAt == firstSnapshot.updatedAt)
+}
+
+@Test func coordinatorMapsFailedScopedAccessToDenied() async throws {
+    let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: directory) }
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    let store = ProjectStore(fileURL: directory.appending(path: "projects.json"))
+    _ = try await store.load()
+    let provider = ResolvesAvailableButDeniesAccessProvider()
+    let reference = try FolderReference(
+        bookmarkData: Data("bookmark".utf8),
+        normalizedIdentity: "/source",
+        displayLabel: "source"
+    )
+    let project = try ProjectConfiguration(displayName: "Denied", folderReference: reference)
+    _ = try await store.add(project)
+    let coordinator = ProjectAccessCoordinator(store: store, provider: provider)
+
+    #expect(try await coordinator.refreshAccess(for: project.id) == .denied)
+    #expect(try await store.snapshot().projects[0].folderAccessState == .denied)
+}
+
+private struct ResolvesAvailableButDeniesAccessProvider: FolderAccessProvider {
+    func createReference(for selectedURL: URL) async throws -> FolderReference {
+        throw FolderAccessError.selectionRequired
+    }
+
+    func resolve(_ reference: FolderReference) async -> FolderAccessOutcome {
+        .available(reference: reference)
+    }
+
+    func beginAccess(to reference: FolderReference) async throws -> ScopedAccessToken {
+        throw FolderAccessError.accessDenied
+    }
+
+    func repair(_ reference: FolderReference, with selectedURL: URL?) async throws -> FolderReference {
+        throw FolderAccessError.repairCancelled
+    }
+}
