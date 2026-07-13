@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "6B8BCE27-D2E9-4EE4-B1E3-B8C4F815D2F0",
+      "name" : "Default",
+      "options" : {
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:LiveReload.xcodeproj",
+      "identifier" : "A60000000000000000000001",
+      "name" : "LiveReloadApp"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:LiveReload.xcodeproj",
+        "identifier" : "A60000000000000000000002",
+        "name" : "LiveReloadAppTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:LiveReload.xcodeproj",
+        "identifier" : "A60000000000000000000003",
+        "name" : "LiveReloadAppUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

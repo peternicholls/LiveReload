@@ -17,6 +17,7 @@ xcuserdata
 # Xcode
 *.xcuserstate
 DerivedData/
+/ModernLiveReload/Build/
 
 # Swift Package Manager
 .build/
