@@ -2,10 +2,27 @@ import Foundation
 import LiveReloadCore
 import Observation
 
+struct ProjectMutationGate {
+    private var activeProjectIDs: Set<UUID> = []
+
+    mutating func begin(_ projectID: UUID) -> Bool {
+        activeProjectIDs.insert(projectID).inserted
+    }
+
+    mutating func end(_ projectID: UUID) {
+        activeProjectIDs.remove(projectID)
+    }
+
+    func contains(_ projectID: UUID) -> Bool {
+        activeProjectIDs.contains(projectID)
+    }
+}
+
 @MainActor
 @Observable
 final class AppModel {
     private(set) var isLoading = true
+    private(set) var isAddingProject = false
     private(set) var projects: [ProjectConfiguration] = []
     private(set) var activities: [ActivityEvent] = []
     var selectedProjectID: UUID?
@@ -15,6 +32,7 @@ final class AppModel {
     private let activityStore = ActivityStore()
     private let provider: any FolderAccessProvider
     private let accessCoordinator: ProjectAccessCoordinator
+    private var projectMutationGate = ProjectMutationGate()
 
     convenience init() {
         let arguments = ProcessInfo.processInfo.arguments
@@ -74,6 +92,10 @@ final class AppModel {
         projects.first { $0.id == selectedProjectID }
     }
 
+    func isProjectMutationPending(_ projectID: UUID) -> Bool {
+        projectMutationGate.contains(projectID)
+    }
+
     func load() async {
         do {
             var shouldRefreshAccess = false
@@ -115,6 +137,9 @@ final class AppModel {
     }
 
     func addProject() async {
+        guard !isAddingProject else { return }
+        isAddingProject = true
+        defer { isAddingProject = false }
         guard let url = FolderPicker.chooseFolder() else { return }
         do {
             let reference = try await provider.createReference(for: url)
@@ -137,6 +162,8 @@ final class AppModel {
     }
 
     func rename(_ project: ProjectConfiguration, to name: String) async {
+        guard beginMutation(for: project.id) else { return }
+        defer { endMutation(for: project.id) }
         do {
             projects = try await store.rename(projectID: project.id, to: name).projects
         } catch {
@@ -148,6 +175,8 @@ final class AppModel {
     }
 
     func setEnabled(_ project: ProjectConfiguration, enabled: Bool) async {
+        guard beginMutation(for: project.id) else { return }
+        defer { endMutation(for: project.id) }
         do {
             projects = try await store.setEnabled(projectID: project.id, enabled: enabled).projects
         } catch {
@@ -159,6 +188,8 @@ final class AppModel {
     }
 
     func repair(_ project: ProjectConfiguration) async {
+        guard beginMutation(for: project.id) else { return }
+        defer { endMutation(for: project.id) }
         guard let url = FolderPicker.chooseFolder(prompt: "Repair Project Access") else { return }
         do {
             let reference = try await provider.repair(project.folderReference, with: url)
@@ -174,6 +205,8 @@ final class AppModel {
     }
 
     func remove(_ project: ProjectConfiguration) async {
+        guard beginMutation(for: project.id) else { return }
+        defer { endMutation(for: project.id) }
         do {
             projects = try await store.remove(projectID: project.id).projects
             if selectedProjectID == project.id { selectedProjectID = projects.first?.id }
@@ -209,6 +242,14 @@ final class AppModel {
         if let snapshot = try? await store.snapshot() {
             projects = snapshot.projects
         }
+    }
+
+    private func beginMutation(for projectID: UUID) -> Bool {
+        projectMutationGate.begin(projectID)
+    }
+
+    private func endMutation(for projectID: UUID) {
+        projectMutationGate.end(projectID)
     }
 
     private func presentRecovery(

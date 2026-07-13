@@ -153,7 +153,13 @@ description: "Dependency-ordered Phase 1 modern foundation tasks"
 - [x] T057 Add version/changelog, inclusion-register, NOTICE, and guide checks to `scripts/verify-modern.sh`; fail the Phase 1 release verification when required review/evidence is absent and capture results in `docs/modernization/evidence/foundation/documentation-audit.md` (FR-017–FR-020, SC-008).
 - [x] T058 Complete the Phase 1 documentation/release review in `docs/modernization/sprint-reviews/sprint-1.md`, linking version/changelog disposition, inclusion-register audit, NOTICE impact, guide updates, and any open provenance issue (SC-007, SC-008).
 
-**Final checkpoint**: Phase 1 is complete only when T001–T058, all four story checkpoints, SC-001–SC-008, and the constitution gate pass. Phase 2 begins with a new `speckit.specify` flow; no Phase 2 production tasks are appended here.
+## Phase 8: Post-review Concurrency Hardening
+
+- [x] T059 [US3] Add app-model regression tests proving duplicate same-project mutations are rejected while distinct project IDs remain independent in `ModernLiveReload/LiveReloadAppTests/LiveReloadAppTests.swift` (FR-021, SC-009).
+- [x] T060 [US3] Add model-owned per-project mutation gating and bind rename, enable, repair, and removal controls to the pending state in `ModernLiveReload/LiveReloadApp/AppModel.swift` and `ModernLiveReload/LiveReloadApp/Views/ProjectViews.swift` (FR-021).
+- [x] T061 Re-run core/app verification, reconcile evidence, and create a focused Lore commit; retain `ProjectDetailView` extraction and queued banner/toast presentation as trigger-based deferrals in `specs/002-modern-foundation/plan.md`.
+
+**Final checkpoint**: Phase 1 is complete only when T001–T061, all four story checkpoints, SC-001–SC-009, and the constitution gate pass. Phase 2 begins with a new `speckit.specify` flow; no Phase 2 production tasks are appended here.
 
 ---
 
@@ -185,6 +191,7 @@ Foundation/Governance (T001–T005)
 | US3 Accessible management | FR-011–FR-012, FR-015 | SC-005 | T036–T043 |
 | US4 Safe diagnostics | FR-013–FR-015 | SC-006 | T032–T035 |
 | Phase exit | All | SC-001–SC-008 | T044–T058 |
+| US3 concurrency hardening | FR-021 | SC-009 | T059–T061 |
 
 ## Notes
 

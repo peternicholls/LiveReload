@@ -108,6 +108,7 @@ As a developer, I can see a small, useful history of local app events and failur
 - **FR-018**: The project MUST maintain `docs/project-ledger/software-inclusions.md` for every production, development, copied-source, generated-source, asset, tool, and service inclusion, with origin, version/hash, licence evidence, usage, attribution/distribution impact, and review status.
 - **FR-019**: Unknown or unverified inclusion provenance/licensing MUST block release inclusion until resolved or explicitly excluded; the register MUST NOT make unsupported legal claims.
 - **FR-020**: The project MUST maintain user and developer guides that state only verified behavior and are reviewed/updated with every applicable user workflow, diagnostic, compatibility, build/test, release, dependency, or attribution change.
+- **FR-021**: The project-management interface MUST prevent overlapping mutations for the same project, visibly disable the affected controls while work is pending, and MUST NOT unnecessarily block mutations for a different project.
 
 ### Key Entities
 
@@ -132,6 +133,7 @@ As a developer, I can see a small, useful history of local app events and failur
 - **SC-006**: Activity-history tests demonstrate the configured capacity limit and redact all test absolute paths while retaining actionable category and severity.
 - **SC-007**: The Phase 1 sprint review links every completed task to evidence, records any exception/issue, and leaves no unresolved critical or high-severity security defect.
 - **SC-008**: A documentation review confirms the version/changelog state, inclusion-register completeness, NOTICE impact, and user/developer-guide accuracy for every Phase 1 capability that is claimed as supported.
+- **SC-009**: App-model tests prove a second mutation for an already-busy project is rejected while a mutation for another project can begin, and UI controls derive their disabled state from the same model-owned operation state.
 
 ## Assumptions
 

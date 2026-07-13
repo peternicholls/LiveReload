@@ -29,6 +29,7 @@ struct ProjectShellView: View {
                     .buttonStyle(.borderedProminent)
                     .keyboardShortcut("n", modifiers: .command)
                     .accessibilityIdentifier("project.add")
+                    .disabled(model.isAddingProject)
                     .padding()
             }
         } detail: {
@@ -79,6 +80,7 @@ private struct EmptyProjectView: View {
         } actions: {
             Button("Add Project") { Task { await model.addProject() } }
                 .accessibilityIdentifier("empty.add")
+                .disabled(model.isAddingProject)
         }
     }
 }
@@ -90,12 +92,14 @@ private struct ProjectDetailView: View {
     @State private var confirmingRemoval = false
 
     var body: some View {
+        let mutationPending = model.isProjectMutationPending(project.id)
         Form {
             Section("Project") {
                 TextField("Display name", text: $draftName)
                     .onAppear { draftName = project.displayName }
                     .onSubmit { Task { await model.rename(project, to: draftName) } }
                     .accessibilityIdentifier("project.name")
+                    .disabled(mutationPending)
                 Text(project.folderReference.displayLabel)
                     .lineLimit(1)
                     .truncationMode(.middle)
@@ -105,12 +109,18 @@ private struct ProjectDetailView: View {
                     set: { value in Task { await model.setEnabled(project, enabled: value) } }
                 ))
                 .accessibilityIdentifier("project.enabled")
+                .disabled(mutationPending)
+                if mutationPending {
+                    ProgressView("Saving project changes…")
+                        .accessibilityIdentifier("project.mutation.pending")
+                }
             }
             if project.folderAccessState != .available {
                 Section("Access needs attention") {
                     Text("The folder is unavailable, but this project and its settings are preserved.")
                     Button("Repair Access") { Task { await model.repair(project) } }
                         .accessibilityIdentifier("project.repair")
+                        .disabled(mutationPending)
                 }
             }
             Section("Activity") {
@@ -128,6 +138,7 @@ private struct ProjectDetailView: View {
             Section {
                 Button("Remove Project…", role: .destructive) { confirmingRemoval = true }
                     .accessibilityIdentifier("project.remove")
+                    .disabled(mutationPending)
             }
         }
         .formStyle(.grouped)

@@ -10,6 +10,7 @@
 | Corrupt configuration recovery | Safe configuration reset and diagnostic preservation notice | Dismiss and add/restore projects |
 | Configuration source recovery | Source could not be read or safely preserved; no project changes are written | Restore storage access and relaunch |
 | Newer configuration | Newer schema remains unchanged and write-protected | Open with a compatible version |
+| Project mutation pending | Existing project state remains visible; controls for that project are disabled without blocking other project IDs | Wait for the current mutation to finish |
 | Removal confirmation | Configuration-only removal and explicit statement that files remain | Cancel or remove project |
 
 All interactive controls require accessibility labels, stable UI-test identifiers, logical VoiceOver order, keyboard operation, reduced-motion compatibility, long/path-overflow handling, and appearance-independent state communication. Errors must identify what was preserved and the next safe action.

@@ -8,6 +8,6 @@ The remaining gates also passed: arm64 executable, macOS 15 deployment floor, Ha
 
 Result: **PASS**. The four UI scenarios completed with zero failures and cover corrupt-store recovery, first launch through relaunch/removal, missing-folder repair, and long-label/reduced-motion behavior.
 
-Post-review hardening added eight core regressions. The 23-test core suite, core Release build, bookmark boundary, signed app Debug/Release builds, and all three app unit tests pass. A full XCUITest rerun was attempted, but a modal window from another host application blocked XCTest pointer-event interruption checks and the 120-second harness stopped the run. No current-code UI pass is claimed from that blocked rerun.
+Post-review hardening added eight core regressions and app coverage for restored access, selection retention, and mutation gating. The 23-test core suite, core Release build, bookmark boundary, signed app Debug/Release builds, and all four app unit tests pass. A full XCUITest rerun was attempted, but a modal window from another host application blocked XCTest pointer-event interruption checks and the 120-second harness stopped the run. No current-code UI pass is claimed from that blocked rerun.
 
 No absolute local paths or signing identity details are retained in this evidence.

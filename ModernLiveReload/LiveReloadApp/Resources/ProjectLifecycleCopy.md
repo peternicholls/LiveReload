@@ -10,6 +10,7 @@
 | Corrupt store | Configuration safely reset; unreadable file preserved | Dismiss and restore/add | Recovery alert with next action |
 | Source recovery required | Configuration could not be read or safely moved; source remains write-protected | Restore storage access and relaunch | Recovery alert; project changes remain disabled by the store |
 | Newer configuration | Configuration was created by a newer app and remains unchanged | Open with a compatible version | Recovery alert; project changes remain disabled by the store |
+| Project mutation pending | Current project state remains visible while its change is saved | Wait; other projects remain independent | Disabled mutation controls and a spoken progress label |
 | Removal | Configuration/bookmark only; folder files remain | Cancel or Remove Configuration | Destructive role and explicit confirmation |
 
 All controls use stable accessibility identifiers, labels that include state text, keyboard traversal, and system semantic colours that adapt to light/dark appearance. Layout uses system text styles and resizable split-view/form containers.

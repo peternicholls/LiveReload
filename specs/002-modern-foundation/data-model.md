@@ -60,5 +60,5 @@ The state machine never transitions from a failure to deletion. Removal is a sep
 |---|---|---|
 | `ProjectStore` | actor | current envelope and serialized writes |
 | `ActivityStore` | actor | bounded event buffer |
-| `AppModel` | `@MainActor` | view selection, presentation alerts, task handles |
+| `AppModel` | `@MainActor` | view selection, presentation alerts, and the set of project IDs with an active mutation |
 | `FolderAccessProvider` | protocol implementation | scoped access token lifecycle; real adapter is not shared mutable UI state |

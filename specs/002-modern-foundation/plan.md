@@ -36,7 +36,7 @@ Phase 1 creates the native, testable base for the rewrite: a SwiftUI macOS shell
 |---|---|---|
 | Behavior before implementation | Retains only Phase 0-approved project/access outcomes; no legacy source is ported | PASS |
 | Native, modern, minimal | SwiftUI + Foundation/OSLog/AppKit bridge; no third-party or legacy runtime | PASS |
-| Safe concurrency and ownership | `ProjectStore` is an actor; UI model is `@MainActor`; bookmark scope is explicitly balanced | PASS |
+| Safe concurrency and ownership | `ProjectStore` is an actor; UI model is `@MainActor`; same-project UI mutations are gated; bookmark scope is explicitly balanced | PASS |
 | Security and privacy | Atomic data, validated configuration, least-privilege bookmarks, bounded/redacted events | PASS |
 | Evidence-driven delivery | Unit, integration, UI, architecture, signing, and clean-account checks are planned before completion | PASS |
 | Accessible/actionable experience | Empty, repair, missing-folder, and removal states have keyboard/VoiceOver acceptance checks | PASS |
@@ -63,7 +63,7 @@ LiveReloadCore services
 ```
 
 - `LiveReloadCore` has no SwiftUI/AppKit import. It owns domain models, validation, migration, persistence protocols, fake providers, and service tests.
-- `LiveReloadApp` is an Xcode app target. Its `@MainActor` `AppModel` coordinates UI state and invokes core services with explicit `Task` ownership.
+- `LiveReloadApp` is an Xcode app target. Its `@MainActor` `AppModel` coordinates UI state, owns per-project pending-operation state, and invokes core services with explicit `Task` ownership. A project accepts at most one mutation at a time while operations for distinct project IDs remain independent.
 - AppKit appears only in `FolderPicker` to obtain a user-selected URL. The core receives an URL/provider result, not an `NSOpenPanel`.
 - `ProjectStore` serializes load/mutate/save. It writes a temporary sibling file, flushes/replaces atomically, and preserves corrupt input under a timestamped diagnostic name before returning an empty/recoverable state.
 - `FolderAccessProvider` has real and fake implementations. The real implementation creates/resolves bookmarks and returns a scoped-access token whose release balances `startAccessingSecurityScopedResource`.
@@ -76,6 +76,8 @@ LiveReloadCore services
 - The owned loopback RFC 6455 server and protocol-7 model are deferred to Phase 2 under ADR-001.
 - Build-command validation/execution is deferred to Phase 3; Phase 1 stores a non-executable placeholder configuration only.
 - App Sandbox/public-distribution work is deferred under ADR-003. Hardened Runtime/private signing remains required for app-target verification.
+- `ProjectDetailView` section extraction is deferred until section growth creates a concrete reuse or navigation boundary; splitting the current small form would add indirection without changing behavior.
+- A queued banner/toast presentation layer is deferred until recovery messages require stacking or non-modal dismissal; the single recovery alert remains the verified Phase 1 contract.
 
 ## Delivery Sequence
 
@@ -167,3 +169,4 @@ Phase 1 closes only when the following are evidenced in the Sprint 1/2 review:
 5. All completed tasks link to fixtures/tests/evidence, and ledgers/ADRs reflect any new decision.
 6. Version/changelog, software-inclusion, NOTICE, user-guide, and developer-guide review evidence is complete for every claimed Phase 1 capability.
 7. Phase 2 begins with a fresh `speckit.specify` flow for `reload-loop` rather than appending monitoring/server work here.
+8. Post-review hardening adds test-first per-project mutation gating without broadening the Phase 1 feature surface.

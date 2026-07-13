@@ -45,6 +45,24 @@ final class LiveReloadAppTests: XCTestCase {
         XCTAssertEqual(model.projects.map(\.id), [second.id])
         XCTAssertEqual(model.selectedProjectID, second.id)
     }
+
+    @MainActor
+    func testProjectMutationGateRejectsDuplicateAndAllowsDifferentProject() {
+        let first = UUID()
+        let second = UUID()
+        var gate = ProjectMutationGate()
+
+        XCTAssertTrue(gate.begin(first))
+        XCTAssertFalse(gate.begin(first))
+        XCTAssertTrue(gate.begin(second))
+        XCTAssertTrue(gate.contains(first))
+        XCTAssertTrue(gate.contains(second))
+
+        gate.end(first)
+
+        XCTAssertFalse(gate.contains(first))
+        XCTAssertTrue(gate.begin(first))
+    }
 }
 
 private struct AppModelFixture {
