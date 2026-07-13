@@ -104,6 +104,10 @@ As a developer, I can see a small, useful history of local app events and failur
 - **FR-014**: Activity events and persisted diagnostics MUST redact sensitive absolute-path components and MUST NOT retain credentials, full environment values, or source-file contents.
 - **FR-015**: The phase MUST include unit, integration, UI, and clean-account smoke evidence appropriate to its targets; tests MUST cover model round trips, defaults, invalid data, future-version rejection, corrupt-store recovery, duplicates, bookmark stale/failure/repair behavior, activity capacity, and redaction.
 - **FR-016**: This phase MUST NOT claim production filesystem monitoring, browser reload serving, browser protocol compatibility, or build execution; later feature specifications own those behaviors.
+- **FR-017**: The project MUST maintain `VERSIONING.md` and `CHANGELOG.md`; every releasable change MUST have an explicit version/changelog disposition before tag or distribution.
+- **FR-018**: The project MUST maintain `docs/project-ledger/software-inclusions.md` for every production, development, copied-source, generated-source, asset, tool, and service inclusion, with origin, version/hash, licence evidence, usage, attribution/distribution impact, and review status.
+- **FR-019**: Unknown or unverified inclusion provenance/licensing MUST block release inclusion until resolved or explicitly excluded; the register MUST NOT make unsupported legal claims.
+- **FR-020**: The project MUST maintain user and developer guides that state only verified behavior and are reviewed/updated with every applicable user workflow, diagnostic, compatibility, build/test, release, dependency, or attribution change.
 
 ### Key Entities
 
@@ -113,6 +117,8 @@ As a developer, I can see a small, useful history of local app events and failur
 - **Project Store**: The persistence boundary that loads, validates, atomically replaces, and recovers project configuration.
 - **Activity Event**: A bounded, redacted record with category, severity, timestamp, safe summary, and optional project identity.
 - **Project List State**: UI-facing collection and selection state that maps project/store/access outcomes to accessible controls and actionable empty/error states.
+- **Software Inclusion Record**: Stable record of a code, asset, tool, framework, generator, or service inclusion and its origin, licence evidence, usage, attribution impact, and review state.
+- **Guide Coverage Record**: The documented supported behavior, setup, recovery, limitation, and developer workflow affected by a change.
 
 ## Success Criteria *(mandatory)*
 
@@ -125,6 +131,7 @@ As a developer, I can see a small, useful history of local app events and failur
 - **SC-005**: The primary add/rename/enable/repair/remove journey passes an XCUITest with accessibility identifiers and keyboard-operable controls; removal leaves the selected source folder on disk.
 - **SC-006**: Activity-history tests demonstrate the configured capacity limit and redact all test absolute paths while retaining actionable category and severity.
 - **SC-007**: The Phase 1 sprint review links every completed task to evidence, records any exception/issue, and leaves no unresolved critical or high-severity security defect.
+- **SC-008**: A documentation review confirms the version/changelog state, inclusion-register completeness, NOTICE impact, and user/developer-guide accuracy for every Phase 1 capability that is claimed as supported.
 
 ## Assumptions
 

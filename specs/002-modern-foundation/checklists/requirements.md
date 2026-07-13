@@ -37,7 +37,11 @@
 - [x] CHK017 Core-domain and persistence requirements are isolated from SwiftUI/AppKit and from legacy runtime dependencies.
 - [x] CHK018 Diagnostics and project records prohibit credentials, private source contents, and unsafe absolute-path retention.
 - [x] CHK019 Folder access and repair requirements preserve least privilege and explicit recovery behavior.
+- [x] CHK020 Versioning and changelog requirements define an auditable release-history policy.
+- [x] CHK021 Inclusion tracking requires origin, licence evidence, attribution impact, and explicit unknown-status handling.
+- [x] CHK022 User and developer guides have a same-change update rule and prohibit unsupported claims.
+- [x] CHK023 Phase closure requires documentation, inclusion, attribution, and guide review.
 
 ## Validation Result
 
-**PASS** — 19/19 checks satisfied. The specification is ready for `speckit.plan`.
+**PASS** — 23/23 checks satisfied. The specification, plan, and tasks are ready for implementation.

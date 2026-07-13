@@ -68,6 +68,7 @@ LiveReloadCore services
 - `ProjectStore` serializes load/mutate/save. It writes a temporary sibling file, flushes/replaces atomically, and preserves corrupt input under a timestamped diagnostic name before returning an empty/recoverable state.
 - `FolderAccessProvider` has real and fake implementations. The real implementation creates/resolves bookmarks and returns a scoped-access token whose release balances `startAccessingSecurityScopedResource`.
 - `ActivityStore` accepts only already-redacted values, retains the newest 200 events, and exposes snapshots for the UI.
+- `VERSIONING.md`, `CHANGELOG.md`, the software-inclusion register, and the living guides are project-wide governance sources. `scripts/verify-modern.sh` will verify their required state at Phase 1 exit; release tags and app marketing/build versions share one future target-owned version source.
 
 ### Deferred boundaries
 
@@ -143,6 +144,10 @@ Packages/LiveReloadCore/
 
 scripts/verify-modern.sh
 tests/fixtures/modern-foundation/
+VERSIONING.md
+CHANGELOG.md
+docs/guides/
+docs/project-ledger/software-inclusions.md
 ```
 
 **Structure Decision**: The app target contains only presentation/composition concerns. The local package is the source of truth for all durable domain and service behavior. This preserves testability and prevents phase-specific AppKit/SwiftUI leakage into later monitoring, protocol, and build services.
@@ -160,4 +165,5 @@ Phase 1 closes only when the following are evidenced in the Sprint 1/2 review:
 3. Model, store, bookmark, diagnostics, and project-list acceptance criteria pass independently.
 4. No critical/high security issue is open; configuration recovery and access repair are actionable and privacy-safe.
 5. All completed tasks link to fixtures/tests/evidence, and ledgers/ADRs reflect any new decision.
-6. Phase 2 begins with a fresh `speckit.specify` flow for `reload-loop` rather than appending monitoring/server work here.
+6. Version/changelog, software-inclusion, NOTICE, user-guide, and developer-guide review evidence is complete for every claimed Phase 1 capability.
+7. Phase 2 begins with a fresh `speckit.specify` flow for `reload-loop` rather than appending monitoring/server work here.

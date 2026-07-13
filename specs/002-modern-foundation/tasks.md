@@ -143,12 +143,17 @@ description: "Dependency-ordered Phase 1 modern foundation tasks"
 - [ ] T047 [P] Perform clean-account/first-launch smoke evidence for empty state, add, relaunch, repair, and removal without using a private source folder; capture procedure/result in `docs/modernization/evidence/foundation/clean-account-smoke.md` (FR-011–FR-015).
 - [ ] T048 Link all new ISS/SOL/LRN/ADR records to their originating tasks and evidence; record constitution compliance/exceptions in `docs/modernization/sprint-reviews/sprint-1.md` (SC-007).
 - [ ] T049 Run Spec Kit cross-artifact analysis across the feature spec, plan, tasks, constitution, Phase 0 ADRs, and implementation evidence; resolve critical/high findings and save the result in `docs/modernization/evidence/foundation/cross-artifact-analysis.md`.
-- [ ] T050 Complete the Phase 1 readiness verdict in `docs/modernization/sprint-reviews/sprint-1.md`, requiring all T001–T049 evidence, no critical/high security issue, and explicit confirmation that monitoring/reload/build execution remain deferred.
+- [ ] T050 Complete the Phase 1 readiness verdict in `docs/modernization/sprint-reviews/sprint-1.md`, requiring all T001–T058 evidence, no critical/high security issue, and explicit confirmation that monitoring/reload/build execution remain deferred.
 - [ ] T051 Synchronize Phase 1 completion/evidence to `.omx/plans/modern-apple-silicon-rewrite.md` and identify the next Spec Kit short name `reload-loop`.
 - [ ] T052 [P] Audit every `Packages/LiveReloadCore/Sources/` and `Packages/LiveReloadCore/Tests/` import as part of `scripts/verify-modern.sh`; fail on `SwiftUI` or `AppKit`, and record the result in `docs/modernization/evidence/foundation/core-boundary-audit.md` (FR-005, FR-015).
 - [ ] T053 [P] Generate and review the final package/project dependency inventory in `scripts/verify-modern.sh`; fail if a third-party package, CocoaPods, Node.js, Ruby, or CoffeeScript runtime is introduced, and record the sanitized result in `docs/modernization/evidence/foundation/dependency-final-audit.md` (FR-003, FR-015, SC-002).
+- [ ] T054 [P] Establish the modern target's single version-source configuration and About/build metadata linkage; validate it against `VERSIONING.md` and add the Phase 1 `Unreleased` changelog workflow to `CHANGELOG.md` (FR-017).
+- [ ] T055 [P] Reconcile `docs/project-ledger/software-inclusions.md` with Xcode/package manifests, source headers, generated artefacts, assets, build tools, and services; open ledger issues for every unknown inclusion and update `NOTICE.md` where attribution requires it (FR-018–FR-019).
+- [ ] T056 [P] Update `docs/guides/user-guide.md` and `docs/guides/developer-guide.md` with verified Phase 1 setup, project lifecycle, recovery, accessibility, test, and limitation guidance; retain deferred features as explicitly unsupported (FR-020).
+- [ ] T057 Add version/changelog, inclusion-register, NOTICE, and guide checks to `scripts/verify-modern.sh`; fail the Phase 1 release verification when required review/evidence is absent and capture results in `docs/modernization/evidence/foundation/documentation-audit.md` (FR-017–FR-020, SC-008).
+- [ ] T058 Complete the Phase 1 documentation/release review in `docs/modernization/sprint-reviews/sprint-1.md`, linking version/changelog disposition, inclusion-register audit, NOTICE impact, guide updates, and any open provenance issue (SC-007, SC-008).
 
-**Final checkpoint**: Phase 1 is complete only when T001–T053, all four story checkpoints, SC-001–SC-007, and the constitution gate pass. Phase 2 begins with a new `speckit.specify` flow; no Phase 2 production tasks are appended here.
+**Final checkpoint**: Phase 1 is complete only when T001–T058, all four story checkpoints, SC-001–SC-008, and the constitution gate pass. Phase 2 begins with a new `speckit.specify` flow; no Phase 2 production tasks are appended here.
 
 ---
 
@@ -161,7 +166,7 @@ Foundation/Governance (T001–T005)
               ├─► US1 persistence/access (T023–T031)
               ├─► US4 diagnostics (T032–T035)
               └─► US3 accessible UI (T036–T043)
-                    └─► Phase exit (T044–T051)
+                    └─► Phase exit (T044–T058)
 ```
 
 ### Parallel opportunities
@@ -169,7 +174,7 @@ Foundation/Governance (T001–T005)
 - T002–T004 and T007–T008 can proceed independently once T001/T006 establish their context.
 - Model fixtures T015–T017 and model implementations T019–T020 can proceed in parallel where they write separate targets/files.
 - After T021, persistence/access and diagnostics can proceed independently; UI implementation starts after their service contracts are stable.
-- T044–T047 can run in parallel after all story checkpoints pass; T048–T051 are sequential closeout tasks.
+- T044–T047 and T052–T056 can run in parallel after all story checkpoints pass; complete T048–T049, then T057–T058, before the final T050–T051 readiness/roadmap closeout.
 
 ## Traceability Summary
 
@@ -179,7 +184,7 @@ Foundation/Governance (T001–T005)
 | US2 Native baseline | FR-001–FR-003, FR-015–FR-016 | SC-001, SC-002 | T006–T014 |
 | US3 Accessible management | FR-011–FR-012, FR-015 | SC-005 | T036–T043 |
 | US4 Safe diagnostics | FR-013–FR-015 | SC-006 | T032–T035 |
-| Phase exit | All | SC-001–SC-007 | T044–T053 |
+| Phase exit | All | SC-001–SC-008 | T044–T058 |
 
 ## Notes
 
