@@ -13,6 +13,7 @@ struct LiveReloadApp: App {
             CommandGroup(after: .newItem) {
                 Button("Add Project") { Task { await model.addProject() } }
                     .keyboardShortcut("n", modifiers: .command)
+                    .disabled(model.isLoading || !model.canMutateProjects || model.isAddingProject)
             }
         }
     }

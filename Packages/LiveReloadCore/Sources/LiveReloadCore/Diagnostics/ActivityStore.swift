@@ -2,10 +2,11 @@ public actor ActivityStore {
     public static let defaultCapacity = 200
 
     private let capacity: Int
-    private var events: [ActivityEvent] = []
+    private var events: [ActivityEvent]
 
-    public init(capacity: Int = defaultCapacity) {
+    public init(capacity: Int = defaultCapacity, initialEvents: [ActivityEvent] = []) {
         self.capacity = max(1, capacity)
+        events = Array(initialEvents.suffix(self.capacity))
     }
 
     public func append(_ event: ActivityEvent) {

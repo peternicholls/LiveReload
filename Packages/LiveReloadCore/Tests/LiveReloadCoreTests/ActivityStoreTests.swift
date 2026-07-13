@@ -46,15 +46,26 @@ import Testing
 
 @Test func activityRedactsAuthorizationHeaders() {
     let summary = ActivityRedactor.redact(
-        "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.payload.signature, "
-            + "authorization: basic dXNlcjpwYXNzd29yZA=="
+        "Authorization: Digest username=build, response=digest-secret\n"
+            + "Proxy-Authorization: ApiKey proxy-secret"
     )
 
-    #expect(!summary.localizedCaseInsensitiveContains("bearer"))
-    #expect(!summary.localizedCaseInsensitiveContains("basic"))
-    #expect(!summary.contains("eyJhbGciOiJIUzI1NiJ9"))
-    #expect(!summary.contains("dXNlcjpwYXNzd29yZA=="))
+    #expect(!summary.localizedCaseInsensitiveContains("digest"))
+    #expect(!summary.localizedCaseInsensitiveContains("apikey"))
+    #expect(!summary.contains("digest-secret"))
+    #expect(!summary.contains("proxy-secret"))
     #expect(summary.components(separatedBy: "[REDACTED]").count == 3)
+}
+
+@Test func activityRedactsQuotedStructuredSecretKeys() {
+    let summary = ActivityRedactor.redact(
+        #"{"access_token":"json-secret","client_secret":"oauth-secret"}"#
+    )
+
+    #expect(summary.contains(#""access_token"=[REDACTED]"#))
+    #expect(summary.contains(#""client_secret"=[REDACTED]"#))
+    #expect(!summary.contains("json-secret"))
+    #expect(!summary.contains("oauth-secret"))
 }
 
 @Test func activityRedactsCredentialsEmbeddedInURLs() {

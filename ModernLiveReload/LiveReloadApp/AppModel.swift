@@ -37,7 +37,7 @@ final class AppModel {
     var recoveryMessage: String?
 
     private let store: ProjectStore?
-    private let activityStore = ActivityStore()
+    private let activityStore: ActivityStore
     private let provider: any FolderAccessProvider
     private let accessCoordinator: ProjectAccessCoordinator?
     private let beforeProjectMutation: @Sendable (UUID) async -> Void
@@ -97,12 +97,25 @@ final class AppModel {
         initialConfigurationStoreState: ConfigurationStoreState = .writable,
         beforeProjectMutation: @escaping @Sendable (UUID) async -> Void = { _ in }
     ) {
+        let initialActivities: [ActivityEvent]
+        if initialConfigurationStoreState == .unavailable {
+            initialActivities = [ActivityEvent(
+                category: .storage,
+                severity: .error,
+                summary: "Configuration storage is unavailable. Restore Application Support access and relaunch."
+            )]
+        } else {
+            initialActivities = []
+        }
         self.store = store
         self.provider = provider
         isLoading = automaticallyLoad
         configurationStoreState = initialConfigurationStoreState
+        activities = initialActivities
+        activityStore = ActivityStore(initialEvents: initialActivities)
         accessCoordinator = store.map { ProjectAccessCoordinator(store: $0, provider: provider) }
         self.beforeProjectMutation = beforeProjectMutation
+        initialActivities.forEach(AppLogger.log)
         guard automaticallyLoad else { return }
         Task {
             if arguments.contains("--ui-testing-delay-load") {

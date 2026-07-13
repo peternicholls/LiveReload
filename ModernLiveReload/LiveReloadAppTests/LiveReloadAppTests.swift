@@ -65,12 +65,14 @@ final class LiveReloadAppTests: XCTestCase {
         await model.load()
 
         let firstMutation = Task { await model.rename(first, to: "First accepted") }
-        await checkpoint.waitUntilPaused(first.id)
+        let firstDidPause = await checkpoint.waitUntilPaused(first.id)
+        XCTAssertTrue(firstDidPause)
         XCTAssertTrue(model.isProjectMutationPending(first.id))
 
         await model.rename(first, to: "Duplicate rejected")
         let secondMutation = Task { await model.rename(second, to: "Second accepted") }
-        await checkpoint.waitUntilPaused(second.id)
+        let secondDidPause = await checkpoint.waitUntilPaused(second.id)
+        XCTAssertTrue(secondDidPause)
 
         XCTAssertTrue(model.isProjectMutationPending(first.id))
         XCTAssertTrue(model.isProjectMutationPending(second.id))
@@ -115,6 +117,8 @@ final class LiveReloadAppTests: XCTestCase {
         XCTAssertEqual(model.configurationStoreState, .unavailable)
         XCTAssertFalse(model.canMutateProjects)
         XCTAssertFalse(model.isLoading)
+        XCTAssertEqual(model.activities.last?.category, .storage)
+        XCTAssertEqual(model.activities.last?.severity, .error)
     }
 }
 
@@ -133,10 +137,13 @@ private actor MutationCheckpoint {
         }
     }
 
-    func waitUntilPaused(_ projectID: UUID) async {
+    func waitUntilPaused(_ projectID: UUID, timeout: Duration = .seconds(2)) async -> Bool {
+        let deadline = ContinuousClock.now + timeout
         while !pausedProjectIDs.contains(projectID) {
+            guard ContinuousClock.now < deadline else { return false }
             await Task.yield()
         }
+        return true
     }
 
     func resume(_ projectID: UUID) {

@@ -12,11 +12,11 @@ public enum ActivityRedactor {
     public static let maximumSummaryLength = 512
 
     private static let authorizationPattern =
-        #"(?i)(\bauthorization\s*:\s*)(?:bearer|basic)\s+[^\s,;]+"#
+        #"(?i)(\b(?:proxy-)?authorization\s*:\s*)[^\r\n]+"#
     private static let urlCredentialsPattern =
         #"(?i)\b([a-z][a-z0-9+.-]*://)[^\s/]+@"#
     private static let secretPattern =
-        #"(?i)((?:aws[_-]?)?secret[_-]?access[_-]?key|(?:aws[_-]?)?access[_-]?key(?:[_-]?id)?|awsaccesskeyid|access[_-]?token|auth[_-]?token|client[_-]?secret|private[_-]?key|password|passwd|token|secret|api[_-]?key)\s*[:=]\s*(?:\"[^\"\r\n]*\"|'[^'\r\n]*'|[^\s,;&]+)"#
+        #"(?i)((?:\"|')?(?:(?:aws[_-]?)?secret[_-]?access[_-]?key|(?:aws[_-]?)?access[_-]?key(?:[_-]?id)?|awsaccesskeyid|access[_-]?token|auth[_-]?token|client[_-]?secret|private[_-]?key|password|passwd|token|secret|api[_-]?key)(?:\"|')?)\s*[:=]\s*(?:\"[^\"\r\n]*\"|'[^'\r\n]*'|[^\s,;&]+)"#
     private static let absolutePathPattern =
         #"(?i)(?:file://(?:localhost)?|(?<![A-Za-z0-9:/]))/(?!/)(?:(?![\r\n,;\"'<>]|\s+(?:password|token|secret|api[_-]?key)\s*[:=]).)*"#
 
