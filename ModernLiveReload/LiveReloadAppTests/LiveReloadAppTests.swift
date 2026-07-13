@@ -120,7 +120,60 @@ final class LiveReloadAppTests: XCTestCase {
         XCTAssertEqual(model.activities.last?.category, .storage)
         XCTAssertEqual(model.activities.last?.severity, .error)
     }
+
+    @MainActor
+    func testReloadLoopAppModelScenarioContractPrecedesRuntimeComposition() async throws {
+        let fixture = try AppModelFixture()
+        defer { fixture.remove() }
+        _ = try await fixture.store.load()
+        let project = try fixture.project(named: "Runtime Contract")
+        _ = try await fixture.store.add(project)
+        let model = AppModel(
+            store: fixture.store,
+            provider: FakeFolderAccessProvider(),
+            automaticallyLoad: false
+        )
+        await model.load()
+
+        XCTAssertEqual(Set(reloadLoopAppModelScenarios.map(\.expectedState)), [
+            "stopped", "starting", "watching", "recovering", "failed",
+            "server-starting", "server-listening", "server-port-conflict",
+            "server-two-clients", "manual-reload-requested",
+        ])
+        XCTAssertEqual(model.selectedProject?.id, project.id, "Phase 1 project selection remains the scenario baseline")
+
+        // T014/T028 will replace this expected failure with an injected runtime
+        // driver and assertions against AppModel's observable projections. Keeping
+        // the failure executable now prevents Phase 2 from silently omitting the
+        // app-model contract while production monitoring/server types do not exist.
+        XCTExpectFailure("Deferred to T014/T028: AppModel has no monitoring/server/manual-reload test seam yet") {
+            XCTAssertTrue(
+                false,
+                "Exercise every reloadLoopAppModelScenario through an injected AppModel runtime driver"
+            )
+        }
+    }
 }
+
+private struct ReloadLoopAppModelScenario: Equatable {
+    let initialState: String
+    let action: String
+    let expectedState: String
+    let preservedValue: String
+}
+
+private let reloadLoopAppModelScenarios: [ReloadLoopAppModelScenario] = [
+    .init(initialState: "stopped", action: "start", expectedState: "starting", preservedValue: "project configuration"),
+    .init(initialState: "starting", action: "source-ready", expectedState: "watching", preservedValue: "project configuration"),
+    .init(initialState: "watching", action: "folder-or-stream-loss", expectedState: "recovering", preservedValue: "project configuration"),
+    .init(initialState: "starting", action: "source-start-failed", expectedState: "failed", preservedValue: "safe recovery reason"),
+    .init(initialState: "recovering", action: "stop", expectedState: "stopped", preservedValue: "project configuration"),
+    .init(initialState: "server-stopped", action: "start", expectedState: "server-starting", preservedValue: "loopback-only endpoint"),
+    .init(initialState: "server-starting", action: "bind-ready", expectedState: "server-listening", preservedValue: "safe endpoint summary"),
+    .init(initialState: "server-starting", action: "port-in-use", expectedState: "server-port-conflict", preservedValue: "monitoring state"),
+    .init(initialState: "server-listening", action: "clients-changed-to-2", expectedState: "server-two-clients", preservedValue: "client isolation"),
+    .init(initialState: "watching-with-client", action: "manual-reload", expectedState: "manual-reload-requested", preservedValue: "project configuration"),
+]
 
 private enum StoreLocationError: Error {
     case unavailable

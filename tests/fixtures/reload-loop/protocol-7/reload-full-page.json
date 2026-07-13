@@ -1,0 +1,15 @@
+{
+  "id": "RL-P7-004",
+  "direction": "server-to-client",
+  "scenario": "non-stylesheet settled batch",
+  "payload": {
+    "command": "reload",
+    "path": "index.html",
+    "liveCSS": false
+  },
+  "expected": {
+    "decision": "full-page",
+    "fullPageReload": true
+  }
+}
+

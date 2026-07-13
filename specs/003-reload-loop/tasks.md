@@ -12,10 +12,10 @@
 
 **Purpose**: Establish deterministic fixtures, test seams, and verification commands without enabling monitoring or browser serving.
 
-- [ ] T001 Create sanitized protocol-7, raw-frame, browser, monitor, exclusion, and recovery fixture directories under `tests/fixtures/reload-loop/`, reusing Phase 0 evidence by reference rather than copying legacy runtime code (FR-010, FR-014, FR-016).
-- [ ] T002 [P] Add a Phase 2 verification matrix and feature evidence index under `docs/modernization/evidence/reload-loop/` for core, integration, browser, UI, idle, privacy, and recovery gates (FR-016, SC-007).
-- [ ] T003 [P] Add failing core tests for bounded runtime event values, monitoring lifecycle state transitions, browser-session lifecycle, and reload decisions in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/` (FR-002–FR-004, FR-009–FR-014).
-- [ ] T004 [P] Add failing app-model and UI-test scenarios for stopped/starting/watching/recovering/failed monitoring, server readiness/port conflict, client count, and manual reload in `ModernLiveReload/LiveReloadAppTests/` and `ModernLiveReload/LiveReloadAppUITests/` (FR-001–FR-002, FR-015, FR-017, SC-006).
+- [x] T001 Create sanitized protocol-7, raw-frame, browser, monitor, exclusion, and recovery fixture directories under `tests/fixtures/reload-loop/`, reusing Phase 0 evidence by reference rather than copying legacy runtime code (FR-010, FR-014, FR-016).
+- [x] T002 [P] Add a Phase 2 verification matrix and feature evidence index under `docs/modernization/evidence/reload-loop/` for core, integration, browser, UI, idle, privacy, and recovery gates (FR-016, SC-007).
+- [x] T003 [P] Add failing core tests for bounded runtime event values, monitoring lifecycle state transitions, browser-session lifecycle, and reload decisions in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/` (FR-002–FR-004, FR-009–FR-014).
+- [x] T004 [P] Add failing app-model and UI-test scenarios for stopped/starting/watching/recovering/failed monitoring, server readiness/port conflict, client count, and manual reload in `ModernLiveReload/LiveReloadAppTests/` and `ModernLiveReload/LiveReloadAppUITests/` (FR-001–FR-002, FR-015, FR-017, SC-006).
 
 **Checkpoint**: Fixture and test seams exist; no production monitor, listener, or pipeline is active.
 
@@ -25,7 +25,7 @@
 
 **Purpose**: Prevent implementation from proceeding against an internally inconsistent Phase 2 contract.
 
-- [ ] T005 Run and record a strictly read-only cross-artifact analysis over the approved Phase 2 spec, plan, task ledger, constitution, ADRs, and design artifacts; resolve every critical/high finding before starting runtime contracts (SC-007).
+- [x] T005 Run and record a strictly read-only cross-artifact analysis over the approved Phase 2 spec, plan, task ledger, constitution, ADRs, and design artifacts; resolve every critical/high finding before starting runtime contracts (SC-007).
 
 **Checkpoint**: The implementation contract is internally consistent; critical/high analysis findings are resolved and recorded before T006 begins.
 
@@ -35,10 +35,10 @@
 
 **Purpose**: Introduce bounded Sendable values and injectable boundaries that every story needs, while retaining Phase 1 persistence semantics.
 
-- [ ] T006 Define `MonitoringRuntimeState`, `MonitoringRecoveryReason`, `FileChangeSignal`, `ChangeBatch`, `ReloadDecision`, `ServerState`, and safe browser-session values in `Packages/LiveReloadCore/Sources/LiveReloadCore/Models/`; keep runtime state out of `ProjectStore` persistence (FR-002–FR-004, FR-011–FR-016).
-- [ ] T007 Define `FileEventSource`, `FileEventStream`, `ReloadServerControlling`, and injectable clock/test-double contracts in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` and `ReloadServer/` (FR-003–FR-004, FR-009–FR-014).
-- [ ] T008 Implement fake event source, fake reload server, fake browser session, and deterministic clock test support in `Packages/LiveReloadCore/Sources/LiveReloadCore/` and cover them in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/` (FR-003–FR-004, FR-011, FR-014).
-- [ ] T009 Verify model decoding, current configuration envelopes, and Phase 1 bookmark/project-store tests remain compatible after the new runtime contracts are introduced (FR-005, FR-016).
+- [x] T006 Define `MonitoringRuntimeState`, `MonitoringRecoveryReason`, `FileChangeSignal`, `ChangeBatch`, `ReloadDecision`, `ServerState`, and safe browser-session values in `Packages/LiveReloadCore/Sources/LiveReloadCore/Models/`; keep runtime state out of `ProjectStore` persistence (FR-002–FR-004, FR-011–FR-016).
+- [x] T007 Define `FileEventSource`, `FileEventStream`, `ReloadServerControlling`, and injectable clock/test-double contracts in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` and `ReloadServer/` (FR-003–FR-004, FR-009–FR-014).
+- [x] T008 Implement fake event source, fake reload server, fake browser session, and deterministic clock test support in `Packages/LiveReloadCore/Sources/LiveReloadCore/` and cover them in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/` (FR-003–FR-004, FR-011, FR-014).
+- [x] T009 Verify model decoding, current configuration envelopes, and Phase 1 bookmark/project-store tests remain compatible after the new runtime contracts are introduced (FR-005, FR-016).
 
 **Checkpoint**: Phase 2 services can be tested without SwiftUI, real FSEvents, sockets, or elapsed-time sleeps.
 
@@ -75,12 +75,12 @@
 
 ### Tests and policy first
 
-- [ ] T017 [US3] Add failing ignore-rule tests covering default paths, user glob grammar, precedence, hidden files, Unicode normalization, relative-root escape, symlinks, and invalid patterns in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/IgnoreRuleTests.swift` (FR-006–FR-007).
+- [x] T017 [US3] Add failing ignore-rule tests covering default paths, user glob grammar, precedence, hidden files, Unicode normalization, relative-root escape, symlinks, and invalid patterns in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/IgnoreRuleTests.swift` (FR-006–FR-007).
 - [ ] T018 [US3] Add failing fake-clock batching tests for ordering, de-duplication, 100–500 ms settling, stop/recovery cancellation, and a 10,000-event burst in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/MonitoringTests.swift` (FR-008, FR-016, SC-003).
 
 ### Implementation
 
-- [ ] T019 [US3] Implement normalized project-relative path handling, built-in exclusions, positive user glob rules, and bounded safe summaries in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` (FR-006–FR-007, FR-016).
+- [x] T019 [US3] Implement normalized project-relative path handling, built-in exclusions, positive user glob rules, and bounded safe summaries in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` (FR-006–FR-007, FR-016).
 - [ ] T020 [US3] Implement actor-owned `ChangeBatcher` with injected clock, one pending batch per project, ordered de-duplication, and cancellation in `Packages/LiveReloadCore/Sources/LiveReloadCore/Pipeline/` (FR-008, FR-016).
 - [ ] T021 [US3] Surface safe settled-batch activity rows and verify long/path-overflow behavior in `ModernLiveReload/LiveReloadApp/Views/` and `ModernLiveReload/LiveReloadAppUITests/` (FR-016, SC-006).
 
@@ -96,13 +96,13 @@
 
 ### Protocol and server tests first
 
-- [ ] T022 [US1] Add protocol-7 golden tests for hello negotiation, reload encoding, defaults, unsupported commands, malformed JSON, and bounded values in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/ReloadProtocolTests.swift` using `tests/fixtures/reload-loop/protocol/` (FR-010, FR-012–FR-014).
+- [x] T022 [US1] Add protocol-7 golden tests for hello negotiation, reload encoding, defaults, unsupported commands, malformed JSON, and bounded values in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/ReloadProtocolTests.swift` using `tests/fixtures/reload-loop/protocol/` (FR-010, FR-012–FR-014).
 - [ ] T023 [US1] Add raw RFC-6455 integration tests for loopback bind, endpoint rejection, masked frames, frame/message limits, ping/pong, close, multiple clients, disconnect cleanup, restart, and port conflict in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/ReloadServerTests.swift` (FR-009–FR-011, FR-014–FR-016, SC-004).
 - [ ] T024 [US1] Add failing project-pipeline tests for stylesheet-only, full-page, manual, excluded-only, stopped, recovering, no-client, and multi-client reload decisions in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/ProjectPipelineTests.swift` (FR-012–FR-013, FR-017, SC-001).
 
 ### Implementation
 
-- [ ] T025 [US1] Implement typed protocol-7 message validation/encoding and bounded RFC-6455 frame parsing in `Packages/LiveReloadCore/Sources/LiveReloadCore/ReloadProtocol/` (FR-010, FR-014, FR-016).
+- [x] T025 [US1] Implement typed protocol-7 message validation/encoding and bounded RFC-6455 frame parsing in `Packages/LiveReloadCore/Sources/LiveReloadCore/ReloadProtocol/` (FR-010, FR-014, FR-016).
 - [ ] T026 [US1] Implement actor-owned loopback `ReloadServer` on Darwin BSD sockets (not `Network.framework`) and isolated browser sessions in `Packages/LiveReloadCore/Sources/LiveReloadCore/ReloadServer/` (FR-009–FR-011, FR-014–FR-016).
 - [ ] T027 [US1] Implement `ProjectPipeline` to connect monitor batches and manual reload to one classified broadcast, with recovery/stopped/no-client suppression in `Packages/LiveReloadCore/Sources/LiveReloadCore/Pipeline/` (FR-008, FR-012–FR-013, FR-017).
 - [ ] T028 [US1] Compose server and per-project pipelines in `ModernLiveReload/LiveReloadApp/AppModel.swift`, expose safe connection count/manual reload state, and preserve existing project mutation gating (FR-011, FR-015, FR-017).

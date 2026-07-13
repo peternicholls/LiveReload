@@ -1,0 +1,41 @@
+{
+  "id": "RL-MONITOR-001",
+  "projectID": "fixture-project",
+  "root": "fixture-root",
+  "steps": [
+    {
+      "action": "start",
+      "expectedState": "watching"
+    },
+    {
+      "signal": "created",
+      "path": "src/new-file.swift",
+      "expected": "eligible-change"
+    },
+    {
+      "signal": "modified",
+      "path": "assets/site.css",
+      "expected": "eligible-change"
+    },
+    {
+      "signal": "renamed",
+      "path": "src/renamed.swift",
+      "expected": "eligible-change"
+    },
+    {
+      "signal": "deleted",
+      "path": "templates/old.html",
+      "expected": "eligible-change"
+    },
+    {
+      "action": "stop",
+      "expectedState": "stopped"
+    },
+    {
+      "signal": "modified",
+      "path": "index.html",
+      "expected": "ignored-while-stopped"
+    }
+  ]
+}
+

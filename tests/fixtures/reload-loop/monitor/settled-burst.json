@@ -1,0 +1,27 @@
+{
+  "id": "RL-MONITOR-002",
+  "settlingMilliseconds": 250,
+  "signals": [
+    {
+      "offsetMilliseconds": 0,
+      "path": "assets/site.css"
+    },
+    {
+      "offsetMilliseconds": 40,
+      "path": "assets/site.css"
+    },
+    {
+      "offsetMilliseconds": 80,
+      "path": "index.html"
+    }
+  ],
+  "expected": {
+    "paths": [
+      "assets/site.css",
+      "index.html"
+    ],
+    "decisionCount": 1,
+    "decision": "full-page"
+  }
+}
+

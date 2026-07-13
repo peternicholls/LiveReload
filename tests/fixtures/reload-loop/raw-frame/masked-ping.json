@@ -1,0 +1,11 @@
+{
+  "id": "RL-RFC6455-002",
+  "scenario": "final masked client ping with an empty payload",
+  "frameHex": "898001020304",
+  "expected": {
+    "accepted": true,
+    "opcode": "ping",
+    "response": "pong"
+  }
+}
+
