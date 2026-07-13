@@ -103,7 +103,7 @@ Proposed feature sequence (exact numbers are assigned by Spec Kit at creation ti
 | Roadmap phase | Proposed short name | Expected sprint coverage | Status |
 |---|---|---|---|
 | Phase 0 — Discovery and decision lock | `discovery-baseline` | Sprint 0 | `001` complete; Phase 1 short name: `modern-foundation` |
-| Phase 1 — Modern foundation and project lifecycle | `modern-foundation` | Sprints 1–2 | Not specified |
+| Phase 1 — Modern foundation and project lifecycle | `modern-foundation` | Sprints 1–2 | `002` specified; ready for `speckit.plan` |
 | Phase 2 — Minimum useful reload loop | `reload-loop` | Sprints 3–4 | Not specified |
 | Phase 3 — Developer workflow and daily usability | `developer-workflow` | Sprints 5–6 | Not specified |
 | Phase 4 — Quality, security, and private preview | `private-preview` | Sprints 7–8 | Not specified |
