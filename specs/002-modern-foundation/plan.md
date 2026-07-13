@@ -77,7 +77,7 @@ LiveReloadCore services
 - Build-command validation/execution is deferred to Phase 3; Phase 1 stores a non-executable placeholder configuration only.
 - App Sandbox/public-distribution work is deferred under ADR-003. Hardened Runtime/private signing remains required for app-target verification.
 - `ProjectDetailView` section extraction is deferred until section growth creates a concrete reuse or navigation boundary; splitting the current small form would add indirection without changing behavior.
-- A queued banner/toast presentation layer is deferred until recovery messages require stacking or non-modal dismissal; the single recovery alert remains the verified Phase 1 contract.
+- A queued banner/toast presentation layer is deferred until recoverable messages require stacking or non-modal dismissal. Write-protected configuration failures use a dedicated blocking state; transient recoverable notices retain the single-alert Phase 1 contract.
 
 ## Delivery Sequence
 

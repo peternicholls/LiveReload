@@ -113,4 +113,17 @@ final class LiveReloadAppUITests: XCTestCase {
         XCTAssertTrue(app.buttons["project.remove"].exists)
         XCTAssertTrue(identified("project.enabled", in: app).exists)
     }
+
+    @MainActor
+    func testFutureStoreShowsWriteProtectedRecoveryState() throws {
+        try FileManager.default.createDirectory(at: fixtureRoot, withIntermediateDirectories: true)
+        try Data(#"{"schemaVersion":999,"futureShape":true}"#.utf8).write(to: storeURL)
+        let app = application(["--ui-testing-empty"])
+
+        app.launch()
+
+        XCTAssertTrue(identified("state.configuration.newer", in: app).waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["empty.add"].exists)
+        XCTAssertFalse(app.buttons["project.add"].exists)
+    }
 }

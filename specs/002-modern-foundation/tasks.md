@@ -159,7 +159,14 @@ description: "Dependency-ordered Phase 1 modern foundation tasks"
 - [x] T060 [US3] Add model-owned per-project mutation gating and bind rename, enable, repair, and removal controls to the pending state in `ModernLiveReload/LiveReloadApp/AppModel.swift` and `ModernLiveReload/LiveReloadApp/Views/ProjectViews.swift` (FR-021).
 - [x] T061 Re-run core/app verification, reconcile evidence, and create a focused Lore commit; retain `ProjectDetailView` extraction and queued banner/toast presentation as trigger-based deferrals in `specs/002-modern-foundation/plan.md`.
 
-**Final checkpoint**: Phase 1 is complete only when T001–T061, all four story checkpoints, SC-001–SC-009, and the constitution gate pass. Phase 2 begins with a new `speckit.specify` flow; no Phase 2 production tasks are appended here.
+## Phase 9: Pull-request Hardening
+
+- [x] T062 [US3] Present unreadable, newer-version, and unavailable configuration stores as dedicated write-protected states; recover Application Support composition failures without crashing; cover both model and UI behavior.
+- [x] T063 [US3] Replace the mutation-gate-only regression with a deterministic `AppModel` concurrency test proving same-project rejection and cross-project independence.
+- [x] T064 [US4] Expand activity redaction for authorization headers, URL credentials, and common access-key names, with focused regressions.
+- [x] T065 Exclude volatile local agent runtime metadata while preserving durable planning artifacts, add a verification gate, purge the exposed branch commit, reconcile evidence, and complete the pull-request gate.
+
+**Final checkpoint**: Phase 1 is complete only when T001–T065, all four story checkpoints, SC-001–SC-009, and the constitution gate pass. Phase 2 begins with a new `speckit.specify` flow; no Phase 2 production tasks are appended here.
 
 ---
 
@@ -192,6 +199,7 @@ Foundation/Governance (T001–T005)
 | US4 Safe diagnostics | FR-013–FR-015 | SC-006 | T032–T035 |
 | Phase exit | All | SC-001–SC-008 | T044–T058 |
 | US3 concurrency hardening | FR-021 | SC-009 | T059–T061 |
+| Pull-request hardening | FR-005, FR-006, FR-012, FR-014, FR-015, FR-021 | SC-003, SC-005, SC-006, SC-009 | T062–T065 |
 
 ## Notes
 

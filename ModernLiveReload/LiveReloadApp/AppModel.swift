@@ -18,53 +18,91 @@ struct ProjectMutationGate {
     }
 }
 
+enum ConfigurationStoreState: Equatable {
+    case writable
+    case sourceRecoveryRequired
+    case newerVersion(Int)
+    case unavailable
+}
+
 @MainActor
 @Observable
 final class AppModel {
-    private(set) var isLoading = true
+    private(set) var isLoading: Bool
     private(set) var isAddingProject = false
     private(set) var projects: [ProjectConfiguration] = []
     private(set) var activities: [ActivityEvent] = []
+    private(set) var configurationStoreState: ConfigurationStoreState
     var selectedProjectID: UUID?
     var recoveryMessage: String?
 
-    private let store: ProjectStore
+    private let store: ProjectStore?
     private let activityStore = ActivityStore()
     private let provider: any FolderAccessProvider
-    private let accessCoordinator: ProjectAccessCoordinator
+    private let accessCoordinator: ProjectAccessCoordinator?
+    private let beforeProjectMutation: @Sendable (UUID) async -> Void
     private var projectMutationGate = ProjectMutationGate()
 
     convenience init() {
-        let arguments = ProcessInfo.processInfo.arguments
-        let environment = ProcessInfo.processInfo.environment
-        let isUITesting = arguments.contains { $0.hasPrefix("--ui-testing-") }
-        let url: URL
-        let provider: any FolderAccessProvider
-        if isUITesting, let testStorePath = environment["LIVERELOAD_UI_TEST_STORE"] {
-            url = URL(fileURLWithPath: testStorePath)
-            provider = FakeFolderAccessProvider()
-        } else {
-            url = try! ProjectStore.applicationSupportURL()
-            provider = SecurityScopedBookmarkProvider()
-        }
         self.init(
-            store: ProjectStore(fileURL: url),
-            provider: provider,
-            arguments: arguments,
-            corruptionFixtureURL: url
+            arguments: ProcessInfo.processInfo.arguments,
+            environment: ProcessInfo.processInfo.environment
         )
     }
 
+    convenience init(
+        arguments: [String],
+        environment: [String: String],
+        automaticallyLoad: Bool = true,
+        storeURLResolver: () throws -> URL = { try ProjectStore.applicationSupportURL() }
+    ) {
+        let isUITesting = arguments.contains { $0.hasPrefix("--ui-testing-") }
+        if isUITesting, let testStorePath = environment["LIVERELOAD_UI_TEST_STORE"] {
+            let url = URL(fileURLWithPath: testStorePath)
+            self.init(
+                store: ProjectStore(fileURL: url),
+                provider: FakeFolderAccessProvider(),
+                automaticallyLoad: automaticallyLoad,
+                arguments: arguments,
+                corruptionFixtureURL: url
+            )
+            return
+        }
+
+        do {
+            let url = try storeURLResolver()
+            self.init(
+                store: ProjectStore(fileURL: url),
+                provider: SecurityScopedBookmarkProvider(),
+                automaticallyLoad: automaticallyLoad,
+                arguments: arguments,
+                corruptionFixtureURL: url
+            )
+        } catch {
+            self.init(
+                store: nil,
+                provider: SecurityScopedBookmarkProvider(),
+                automaticallyLoad: false,
+                initialConfigurationStoreState: .unavailable
+            )
+        }
+    }
+
     init(
-        store: ProjectStore,
+        store: ProjectStore?,
         provider: any FolderAccessProvider,
         automaticallyLoad: Bool = true,
         arguments: [String] = [],
-        corruptionFixtureURL: URL? = nil
+        corruptionFixtureURL: URL? = nil,
+        initialConfigurationStoreState: ConfigurationStoreState = .writable,
+        beforeProjectMutation: @escaping @Sendable (UUID) async -> Void = { _ in }
     ) {
         self.store = store
         self.provider = provider
-        accessCoordinator = ProjectAccessCoordinator(store: store, provider: provider)
+        isLoading = automaticallyLoad
+        configurationStoreState = initialConfigurationStoreState
+        accessCoordinator = store.map { ProjectAccessCoordinator(store: $0, provider: provider) }
+        self.beforeProjectMutation = beforeProjectMutation
         guard automaticallyLoad else { return }
         Task {
             if arguments.contains("--ui-testing-delay-load") {
@@ -92,34 +130,51 @@ final class AppModel {
         projects.first { $0.id == selectedProjectID }
     }
 
+    var canMutateProjects: Bool {
+        configurationStoreState == .writable
+    }
+
     func isProjectMutationPending(_ projectID: UUID) -> Bool {
         projectMutationGate.contains(projectID)
     }
 
     func load() async {
+        guard let store else {
+            configurationStoreState = .unavailable
+            projects = []
+            selectedProjectID = nil
+            isLoading = false
+            return
+        }
         do {
             var shouldRefreshAccess = false
             switch try await store.load() {
             case .loaded(let envelope), .empty(let envelope):
+                configurationStoreState = .writable
                 projects = envelope.projects
                 shouldRefreshAccess = !projects.isEmpty
             case .recoveredFromCorruption(let envelope):
+                configurationStoreState = .writable
                 projects = envelope.projects
                 await presentRecovery(
                     "Configuration was reset safely. The unreadable file was preserved for diagnosis.",
                     severity: .warning
                 )
             case .recoveryRequired(let envelope):
+                configurationStoreState = .sourceRecoveryRequired
                 projects = envelope.projects
-                await presentRecovery(
+                await record(
+                    .storage,
+                    .error,
                     "Configuration could not be read and remains unchanged. Restore storage access and relaunch before changing projects.",
-                    severity: .error
                 )
-            case .unsupportedFutureVersion:
+            case .unsupportedFutureVersion(let version):
+                configurationStoreState = .newerVersion(version)
                 projects = []
-                await presentRecovery(
+                await record(
+                    .storage,
+                    .error,
                     "This configuration was created by a newer version and was preserved unchanged.",
-                    severity: .error
                 )
             }
             if shouldRefreshAccess {
@@ -129,15 +184,19 @@ final class AppModel {
                 selectedProjectID = projects.first?.id
             }
         } catch {
-            await presentRecovery(
+            configurationStoreState = .sourceRecoveryRequired
+            projects = []
+            selectedProjectID = nil
+            await record(
+                .storage,
+                .error,
                 "Projects could not be loaded. Your configuration was preserved; retry or restore it.",
-                severity: .error
             )
         }
     }
 
     func addProject() async {
-        guard !isAddingProject else { return }
+        guard canMutateProjects, let store, !isAddingProject else { return }
         isAddingProject = true
         defer { isAddingProject = false }
         guard let url = FolderPicker.chooseFolder() else { return }
@@ -162,8 +221,9 @@ final class AppModel {
     }
 
     func rename(_ project: ProjectConfiguration, to name: String) async {
-        guard beginMutation(for: project.id) else { return }
+        guard canMutateProjects, let store, beginMutation(for: project.id) else { return }
         defer { endMutation(for: project.id) }
+        await beforeProjectMutation(project.id)
         do {
             projects = try await store.rename(projectID: project.id, to: name).projects
         } catch {
@@ -175,8 +235,9 @@ final class AppModel {
     }
 
     func setEnabled(_ project: ProjectConfiguration, enabled: Bool) async {
-        guard beginMutation(for: project.id) else { return }
+        guard canMutateProjects, let store, beginMutation(for: project.id) else { return }
         defer { endMutation(for: project.id) }
+        await beforeProjectMutation(project.id)
         do {
             projects = try await store.setEnabled(projectID: project.id, enabled: enabled).projects
         } catch {
@@ -188,8 +249,9 @@ final class AppModel {
     }
 
     func repair(_ project: ProjectConfiguration) async {
-        guard beginMutation(for: project.id) else { return }
+        guard canMutateProjects, let store, beginMutation(for: project.id) else { return }
         defer { endMutation(for: project.id) }
+        await beforeProjectMutation(project.id)
         guard let url = FolderPicker.chooseFolder(prompt: "Repair Project Access") else { return }
         do {
             let reference = try await provider.repair(project.folderReference, with: url)
@@ -205,8 +267,9 @@ final class AppModel {
     }
 
     func remove(_ project: ProjectConfiguration) async {
-        guard beginMutation(for: project.id) else { return }
+        guard canMutateProjects, let store, beginMutation(for: project.id) else { return }
         defer { endMutation(for: project.id) }
+        await beforeProjectMutation(project.id)
         do {
             projects = try await store.remove(projectID: project.id).projects
             if selectedProjectID == project.id { selectedProjectID = projects.first?.id }
@@ -220,6 +283,7 @@ final class AppModel {
     }
 
     private func refreshRestoredAccess() async {
+        guard let accessCoordinator, let store else { return }
         for project in projects {
             do {
                 let state = try await accessCoordinator.refreshAccess(for: project.id)
@@ -277,7 +341,7 @@ final class AppModel {
         state: FolderAccessState,
         displayName: String = "Fixture Project"
     ) async {
-        guard projects.isEmpty else { return }
+        guard canMutateProjects, let store, projects.isEmpty else { return }
         do {
             let reference = try FolderReference(
                 bookmarkData: Data("synthetic-ui-test-bookmark".utf8),

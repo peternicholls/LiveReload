@@ -10,6 +10,8 @@ struct ProjectShellView: View {
                 .controlSize(.large)
                 .accessibilityIdentifier("state.loading")
                 .frame(minWidth: 760, minHeight: 500)
+        } else if !model.canMutateProjects {
+            ConfigurationRecoveryView(state: model.configurationStoreState)
         } else {
             projectNavigation
         }
@@ -29,7 +31,7 @@ struct ProjectShellView: View {
                     .buttonStyle(.borderedProminent)
                     .keyboardShortcut("n", modifiers: .command)
                     .accessibilityIdentifier("project.add")
-                    .disabled(model.isAddingProject)
+                    .disabled(!model.canMutateProjects || model.isAddingProject)
                     .padding()
             }
         } detail: {
@@ -68,6 +70,59 @@ struct ProjectShellView: View {
     }
 }
 
+private struct ConfigurationRecoveryView: View {
+    let state: ConfigurationStoreState
+
+    var body: some View {
+        ContentUnavailableView {
+            Label(title, systemImage: "externaldrive.badge.exclamationmark")
+                .accessibilityIdentifier(accessibilityIdentifier)
+        } description: {
+            Text(message)
+        }
+        .frame(minWidth: 760, minHeight: 500)
+    }
+
+    private var title: String {
+        switch state {
+        case .sourceRecoveryRequired:
+            "Configuration Needs Recovery"
+        case .newerVersion:
+            "Newer Configuration Detected"
+        case .unavailable:
+            "Configuration Storage Unavailable"
+        case .writable:
+            "Configuration Ready"
+        }
+    }
+
+    private var message: String {
+        switch state {
+        case .sourceRecoveryRequired:
+            "LiveReload preserved the existing configuration. Restore access to its storage, then relaunch before changing projects."
+        case .newerVersion(let version):
+            "This file uses configuration version \(version). Open it with a compatible LiveReload version; this version will not modify it."
+        case .unavailable:
+            "LiveReload could not open Application Support. Restore storage access, then relaunch before changing projects."
+        case .writable:
+            "Project configuration is available."
+        }
+    }
+
+    private var accessibilityIdentifier: String {
+        switch state {
+        case .sourceRecoveryRequired:
+            "state.configuration.source-recovery"
+        case .newerVersion:
+            "state.configuration.newer"
+        case .unavailable:
+            "state.configuration.unavailable"
+        case .writable:
+            "state.configuration.writable"
+        }
+    }
+}
+
 private struct EmptyProjectView: View {
     let model: AppModel
 
@@ -80,7 +135,7 @@ private struct EmptyProjectView: View {
         } actions: {
             Button("Add Project") { Task { await model.addProject() } }
                 .accessibilityIdentifier("empty.add")
-                .disabled(model.isAddingProject)
+                .disabled(!model.canMutateProjects || model.isAddingProject)
         }
     }
 }

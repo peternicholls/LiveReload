@@ -47,33 +47,114 @@ final class LiveReloadAppTests: XCTestCase {
     }
 
     @MainActor
-    func testProjectMutationGateRejectsDuplicateAndAllowsDifferentProject() {
-        let first = UUID()
-        let second = UUID()
-        var gate = ProjectMutationGate()
+    func testAppModelRejectsDuplicateMutationWithoutBlockingAnotherProject() async throws {
+        let fixture = try AppModelFixture()
+        defer { fixture.remove() }
+        _ = try await fixture.store.load()
+        let first = try fixture.project(named: "First")
+        let second = try fixture.project(named: "Second")
+        _ = try await fixture.store.add(first)
+        _ = try await fixture.store.add(second)
+        let checkpoint = MutationCheckpoint()
+        let model = AppModel(
+            store: fixture.store,
+            provider: FakeFolderAccessProvider(),
+            automaticallyLoad: false,
+            beforeProjectMutation: { projectID in await checkpoint.pause(projectID) }
+        )
+        await model.load()
 
-        XCTAssertTrue(gate.begin(first))
-        XCTAssertFalse(gate.begin(first))
-        XCTAssertTrue(gate.begin(second))
-        XCTAssertTrue(gate.contains(first))
-        XCTAssertTrue(gate.contains(second))
+        let firstMutation = Task { await model.rename(first, to: "First accepted") }
+        await checkpoint.waitUntilPaused(first.id)
+        XCTAssertTrue(model.isProjectMutationPending(first.id))
 
-        gate.end(first)
+        await model.rename(first, to: "Duplicate rejected")
+        let secondMutation = Task { await model.rename(second, to: "Second accepted") }
+        await checkpoint.waitUntilPaused(second.id)
 
-        XCTAssertFalse(gate.contains(first))
-        XCTAssertTrue(gate.begin(first))
+        XCTAssertTrue(model.isProjectMutationPending(first.id))
+        XCTAssertTrue(model.isProjectMutationPending(second.id))
+        await checkpoint.resume(first.id)
+        await checkpoint.resume(second.id)
+        await firstMutation.value
+        await secondMutation.value
+
+        XCTAssertEqual(model.projects.first { $0.id == first.id }?.displayName, "First accepted")
+        XCTAssertEqual(model.projects.first { $0.id == second.id }?.displayName, "Second accepted")
+        XCTAssertFalse(model.isProjectMutationPending(first.id))
+        XCTAssertFalse(model.isProjectMutationPending(second.id))
+    }
+
+    @MainActor
+    func testFutureConfigurationEntersWriteProtectedRecoveryState() async throws {
+        let fixture = try AppModelFixture()
+        defer { fixture.remove() }
+        try Data(#"{"schemaVersion":999,"futureShape":true}"#.utf8)
+            .write(to: fixture.storeURL)
+        let model = AppModel(
+            store: fixture.store,
+            provider: FakeFolderAccessProvider(),
+            automaticallyLoad: false
+        )
+
+        await model.load()
+
+        XCTAssertEqual(model.configurationStoreState, .newerVersion(999))
+        XCTAssertFalse(model.canMutateProjects)
+    }
+
+    @MainActor
+    func testApplicationSupportFailureEntersRecoveryStateWithoutCrashing() {
+        let model = AppModel(
+            arguments: [],
+            environment: [:],
+            automaticallyLoad: false,
+            storeURLResolver: { throw StoreLocationError.unavailable }
+        )
+
+        XCTAssertEqual(model.configurationStoreState, .unavailable)
+        XCTAssertFalse(model.canMutateProjects)
+        XCTAssertFalse(model.isLoading)
+    }
+}
+
+private enum StoreLocationError: Error {
+    case unavailable
+}
+
+private actor MutationCheckpoint {
+    private var pausedProjectIDs: Set<UUID> = []
+    private var continuations: [UUID: CheckedContinuation<Void, Never>] = [:]
+
+    func pause(_ projectID: UUID) async {
+        pausedProjectIDs.insert(projectID)
+        await withCheckedContinuation { continuation in
+            continuations[projectID] = continuation
+        }
+    }
+
+    func waitUntilPaused(_ projectID: UUID) async {
+        while !pausedProjectIDs.contains(projectID) {
+            await Task.yield()
+        }
+    }
+
+    func resume(_ projectID: UUID) {
+        continuations.removeValue(forKey: projectID)?.resume()
     }
 }
 
 private struct AppModelFixture {
     let directory: URL
     let store: ProjectStore
+    let storeURL: URL
 
     init() throws {
         directory = FileManager.default.temporaryDirectory
             .appending(path: "LiveReloadAppTests-\(UUID().uuidString)", directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        store = ProjectStore(fileURL: directory.appending(path: "projects.json"))
+        storeURL = directory.appending(path: "projects.json")
+        store = ProjectStore(fileURL: storeURL)
     }
 
     func project(named name: String) throws -> ProjectConfiguration {
