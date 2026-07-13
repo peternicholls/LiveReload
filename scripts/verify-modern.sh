@@ -90,4 +90,9 @@ if git -C "$ROOT" ls-files | rg '(^|/)(\.build|DerivedData)/|^ModernLiveReload/B
 fi
 pass "tracked build-product privacy gate"
 
+if git -C "$ROOT" ls-files '.omx/logs/**' '.omx/state/**' '.omx/metrics.json' | rg -q .; then
+  fail "local agent runtime metadata is tracked"
+fi
+pass "tracked agent-runtime privacy gate"
+
 printf 'Modern verification completed successfully.\n'
