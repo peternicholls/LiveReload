@@ -1,0 +1,17 @@
+{
+  "id": "FXT-001",
+  "direction": "client-to-server",
+  "scenario": "valid protocol 7 hello",
+  "payload": {
+    "command": "hello",
+    "protocols": ["http://livereload.com/protocols/official-7"],
+    "id": "browser-fixture",
+    "name": "Browser Fixture",
+    "version": "1.0"
+  },
+  "expectedResult": {
+    "kind": "connected",
+    "negotiatedProtocols": { "monitoring": 7 }
+  },
+  "sourceEvidence": "node_modules/livereload-protocol/lib/parser.coffee:39-77, 117-155"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "FXT-005",
+  "direction": "client-to-server",
+  "scenario": "invalid JSON frame",
+  "rawPayload": "{not-json",
+  "expectedResult": {
+    "kind": "protocolError",
+    "code": "DATA",
+    "messageContains": "not a valid JSON message"
+  },
+  "sourceEvidence": "node_modules/livereload-protocol/lib/parser.coffee:117-129"
+}

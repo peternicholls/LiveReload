@@ -1,0 +1,15 @@
+{
+  "id": "FXT-004",
+  "direction": "server-to-client",
+  "scenario": "invalid reload with non-string path",
+  "payload": {
+    "command": "reload",
+    "path": 42
+  },
+  "expectedResult": {
+    "kind": "protocolError",
+    "code": "ATTR",
+    "messageContains": "Attribute 'path' must be a string"
+  },
+  "sourceEvidence": "node_modules/livereload-protocol/lib/parser.coffee:23-31, 72-76"
+}

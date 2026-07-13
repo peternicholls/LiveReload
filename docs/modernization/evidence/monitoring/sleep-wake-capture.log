@@ -1,0 +1,3 @@
+STARTED
+EVENT path=$FIXTURE_ROOT/after-wake.txt recovery=false
+STOPPED count=1

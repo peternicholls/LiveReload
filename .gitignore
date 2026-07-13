@@ -3,12 +3,28 @@
 *.xcworkspace
 *.sublime-*
 *.swp
+*.tmp
 npm-debug.log
 xcuserdata
 /LiveReload/build
 /interim/node_modules
 /dist
 /node_modules/.bin/
+
+# macOS
+.DS_Store
+
+# Xcode
+*.xcuserstate
+DerivedData/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Local research harness output
+/Research/SigningPrototype/SigningPrototype
+/Research/BrowserFixture/.playwright-cli/
 
 # Windows
 /WinApp
