@@ -15,4 +15,14 @@
 - New code, package, asset, generator, tool, service, or copied material: update the inclusion register and `NOTICE.md` if required.
 - Releasable change: update `CHANGELOG.md` and select/version according to `VERSIONING.md`.
 
-Phase 1 will replace this planning workflow with exact `scripts/verify-modern.sh` commands once that script exists.
+## Phase 1 build and test
+
+Prerequisites are Xcode 26.3 or a compatible Swift 6.2 toolchain, an Apple-silicon Mac, a valid local Apple Development signing identity, and macOS developer mode enabled with `sudo DevToolsSecurity -enable`. From repository root run:
+
+```sh
+scripts/verify-modern.sh
+```
+
+The command fails on package tests/Release build, app Debug/Release or test build, UI-framework leakage into core, third-party/legacy dependencies, non-arm64 output, deployment below macOS 15, missing Hardened Runtime signing, version mismatch, tracked build products, or missing governance documents. macOS must permit Xcode UI automation for XCUITest execution; absence of that host permission is a blocking verification failure, not a skipped pass.
+
+For focused core work use `swift test --package-path Packages/LiveReloadCore -Xswiftc -warnings-as-errors`. The package owns models, persistence, folder-access contracts/fakes, and diagnostics. AppKit is limited to `FolderPicker` and the production bookmark adapter; SwiftUI/Observation/OSLog stay in the app target. `ModernLiveReload/Version.xcconfig` is the single version source.

@@ -7,10 +7,12 @@ All notable modern application changes are recorded here. Entries describe user-
 ### Added
 
 - Project-wide versioning, changelog, software-inclusion, and living-guide governance.
+- Native arm64 macOS 15+ SwiftUI project lifecycle foundation with versioned configuration, recoverable folder access, atomic persistence, bounded redacted activity, and accessible empty/available/repair/removal states.
+- Dependency-free `LiveReloadCore` package and repeatable modern verification command.
 
 ### Changed
 
-- No modern application build has been released yet; Phase 1 remains planning-only.
+- No modern application build has been released yet; monitoring, browser reload, build execution, App Sandbox, and public distribution remain deferred.
 
 ## 0.0.0 — Unreleased baseline
 

@@ -22,7 +22,7 @@ Phase 1 creates the native, testable base for the rewrite: a SwiftUI macOS shell
 
 **Project Type**: Native macOS desktop application with a local Swift package core
 
-**Performance Goals**: App launches to a populated project list in under 1 second with 100 projects on the development host; activity history remains bounded to 200 events; no synchronous disk I/O on the main actor
+**Performance Goals**: Activity history remains bounded to 200 events and no synchronous disk I/O runs on the main actor. Quantitative launch/load targets require a separately specified performance criterion and are not claimed in Phase 1.
 
 **Constraints**: arm64 only; warnings are errors in Debug and Release; no legacy runtimes/dependencies; project paths/bookmarks are untrusted input; diagnostics never retain full absolute paths, source contents, credentials, or environments; all mutable persistence state has one actor owner
 

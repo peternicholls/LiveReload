@@ -21,6 +21,10 @@ Track everything incorporated into the modern product or required to build/test/
 | INC-001 | approved | legacy reference | Original LiveReload repository at merged upstream baseline `af9b5ce8` | Repository notice and licence history summarized in `NOTICE.md` and `docs/modernization/distribution-research.md` | Reference source only; excluded from modern release archive | Retain `NOTICE.md`; do not represent as official affiliation |
 | INC-002 | approved | system framework | Apple SDK frameworks selected by the modern Xcode target; exact SDK/Xcode captured per release | Apple platform SDK; no copied framework binary is shipped | Production target: Foundation, SwiftUI, Observation, OSLog; AppKit only via bridge | Record SDK/Xcode in release evidence; review entitlement/distribution impact |
 | INC-003 | needs-verification | development tool | Spec Kit/OMX workspace tooling | Tooling licence/provenance must be verified before any redistribution | Development/planning only; never embedded in app/archive | No product notice assumed; exclude from app distribution |
+| INC-004 | approved | local package/source | Repository-authored `Packages/LiveReloadCore`, Phase 1 | Repository licence/NOTICE applies; no copied source | Production domain/persistence/access/diagnostics and tests | Included as source and statically linked product; retain repository NOTICE |
+| INC-005 | approved | development tool | Swift 6.2 / Xcode 26.3 toolchain | Apple developer-tool terms; tool binaries are not redistributed | Build and XCTest/Swift Testing only | Record tool version in evidence; exclude DerivedData/build products |
+| INC-006 | approved | generated source/metadata | Xcode-generated Info.plist and build metadata from `Version.xcconfig` | Generated from repository configuration | App bundle metadata | Reproducible; no external attribution required |
+| INC-007 | excluded | asset | Historical LiveReload artwork | Provenance not re-approved for modern target | No modern target asset catalogue or copied artwork | Must remain excluded until provenance review passes |
 
 ## Operating rules
 
