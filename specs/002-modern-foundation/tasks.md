@@ -145,8 +145,10 @@ description: "Dependency-ordered Phase 1 modern foundation tasks"
 - [ ] T049 Run Spec Kit cross-artifact analysis across the feature spec, plan, tasks, constitution, Phase 0 ADRs, and implementation evidence; resolve critical/high findings and save the result in `docs/modernization/evidence/foundation/cross-artifact-analysis.md`.
 - [ ] T050 Complete the Phase 1 readiness verdict in `docs/modernization/sprint-reviews/sprint-1.md`, requiring all T001–T049 evidence, no critical/high security issue, and explicit confirmation that monitoring/reload/build execution remain deferred.
 - [ ] T051 Synchronize Phase 1 completion/evidence to `.omx/plans/modern-apple-silicon-rewrite.md` and identify the next Spec Kit short name `reload-loop`.
+- [ ] T052 [P] Audit every `Packages/LiveReloadCore/Sources/` and `Packages/LiveReloadCore/Tests/` import as part of `scripts/verify-modern.sh`; fail on `SwiftUI` or `AppKit`, and record the result in `docs/modernization/evidence/foundation/core-boundary-audit.md` (FR-005, FR-015).
+- [ ] T053 [P] Generate and review the final package/project dependency inventory in `scripts/verify-modern.sh`; fail if a third-party package, CocoaPods, Node.js, Ruby, or CoffeeScript runtime is introduced, and record the sanitized result in `docs/modernization/evidence/foundation/dependency-final-audit.md` (FR-003, FR-015, SC-002).
 
-**Final checkpoint**: Phase 1 is complete only when T001–T051, all four story checkpoints, SC-001–SC-007, and the constitution gate pass. Phase 2 begins with a new `speckit.specify` flow; no Phase 2 production tasks are appended here.
+**Final checkpoint**: Phase 1 is complete only when T001–T053, all four story checkpoints, SC-001–SC-007, and the constitution gate pass. Phase 2 begins with a new `speckit.specify` flow; no Phase 2 production tasks are appended here.
 
 ---
 
@@ -177,7 +179,7 @@ Foundation/Governance (T001–T005)
 | US2 Native baseline | FR-001–FR-003, FR-015–FR-016 | SC-001, SC-002 | T006–T014 |
 | US3 Accessible management | FR-011–FR-012, FR-015 | SC-005 | T036–T043 |
 | US4 Safe diagnostics | FR-013–FR-015 | SC-006 | T032–T035 |
-| Phase exit | All | SC-001–SC-007 | T044–T051 |
+| Phase exit | All | SC-001–SC-007 | T044–T053 |
 
 ## Notes
 
