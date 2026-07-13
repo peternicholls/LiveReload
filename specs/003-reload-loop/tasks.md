@@ -59,7 +59,7 @@
 
 - [x] T012 [US2] Implement the actor-owned `ProjectMonitor` lifecycle and explicit recovery transitions in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` (FR-001–FR-005).
 - [x] T013 [US2] Implement the narrow direct-FSEvents adapter that copies callback paths/flags into bounded Sendable signals and maps required-scan/dropped/root-change conditions to recovery in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` (FR-003–FR-004).
-- [ ] T014 [US2] Extend `AppModel` composition and runtime projection for explicit per-project start/stop/retry actions without changing Phase 1 persistence ownership in `ModernLiveReload/LiveReloadApp/AppModel.swift` (FR-001–FR-005).
+- [x] T014 [US2] Extend `AppModel` composition and runtime projection for explicit per-project start/stop/retry actions without changing Phase 1 persistence ownership in `ModernLiveReload/LiveReloadApp/AppModel.swift` (FR-001–FR-005).
 - [ ] T015 [US2] Add accessible stopped/starting/watching/recovering/failed views, controls, safe recovery copy, and identifiers in `ModernLiveReload/LiveReloadApp/Views/` (FR-002, FR-015, SC-006).
 - [ ] T016 [US2] Complete app-model/UI regression tests for user start/stop and folder/stream recovery states in `ModernLiveReload/LiveReloadAppTests/` and `ModernLiveReload/LiveReloadAppUITests/` (FR-001–FR-005, SC-006).
 
@@ -105,7 +105,7 @@
 - [x] T025 [US1] Implement typed protocol-7 message validation/encoding and bounded RFC-6455 frame parsing in `Packages/LiveReloadCore/Sources/LiveReloadCore/ReloadProtocol/` (FR-010, FR-014, FR-016).
 - [x] T026 [US1] Implement actor-owned loopback `ReloadServer` on Darwin BSD sockets (not `Network.framework`) and isolated browser sessions in `Packages/LiveReloadCore/Sources/LiveReloadCore/ReloadServer/` (FR-009–FR-011, FR-014–FR-016).
 - [x] T027 [US1] Implement `ProjectPipeline` to connect monitor batches and manual reload to one classified broadcast, with recovery/stopped/no-client suppression in `Packages/LiveReloadCore/Sources/LiveReloadCore/Pipeline/` (FR-008, FR-012–FR-013, FR-017).
-- [ ] T028 [US1] Compose server and per-project pipelines in `ModernLiveReload/LiveReloadApp/AppModel.swift`, expose safe connection count/manual reload state, and preserve existing project mutation gating (FR-011, FR-015, FR-017).
+- [x] T028 [US1] Compose server and per-project pipelines in `ModernLiveReload/LiveReloadApp/AppModel.swift`, expose safe connection count/manual reload state, and preserve existing project mutation gating (FR-011, FR-015, FR-017).
 - [ ] T029 [US1] Add accessible local-server/no-client/client-count/manual-reload UI and identifiers in `ModernLiveReload/LiveReloadApp/Views/` with corresponding app/UI tests (FR-011, FR-015, FR-017, SC-006).
 - [ ] T030 [US1] Run the existing Safari and Chromium browser fixtures against the production server and capture sanitized compatibility evidence in `docs/modernization/evidence/reload-loop/` (FR-010–FR-013, SC-001, SC-004, SC-007).
 

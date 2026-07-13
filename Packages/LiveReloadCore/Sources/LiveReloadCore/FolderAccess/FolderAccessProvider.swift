@@ -39,6 +39,7 @@ public final class ScopedAccessToken: @unchecked Sendable {
 public protocol FolderAccessProvider: Sendable {
     func createReference(for selectedURL: URL) async throws -> FolderReference
     func resolve(_ reference: FolderReference) async -> FolderAccessOutcome
+    func resolvedURL(for reference: FolderReference) async throws -> URL
     func beginAccess(to reference: FolderReference) async throws -> ScopedAccessToken
     func repair(_ reference: FolderReference, with selectedURL: URL?) async throws -> FolderReference
 }

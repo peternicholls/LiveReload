@@ -15,6 +15,7 @@
 		C10000000000000000000003 /* FolderPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000003 /* FolderPicker.swift */; };
 		C10000000000000000000004 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000004 /* AppLogger.swift */; };
 		C10000000000000000000005 /* ProjectViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000005 /* ProjectViews.swift */; };
+		C10000000000000000000008 /* ReloadLoopRuntimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000008 /* ReloadLoopRuntimeService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 		C20000000000000000000005 /* ProjectViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectViews.swift; sourceTree = "<group>"; };
 		C20000000000000000000006 /* ProjectLifecycleCopy.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ProjectLifecycleCopy.md; sourceTree = "<group>"; };
 		C20000000000000000000007 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
+		C20000000000000000000008 /* ReloadLoopRuntimeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReloadLoopRuntimeService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,7 +76,7 @@
 		A50000000000000000000003 /* LiveReloadAppTests */ = {isa = PBXGroup; children = (A20000000000000000000002 /* LiveReloadAppTests.swift */,); path = LiveReloadAppTests; sourceTree = "<group>"; };
 		A50000000000000000000004 /* LiveReloadAppUITests */ = {isa = PBXGroup; children = (A20000000000000000000003 /* LiveReloadAppUITests.swift */,); path = LiveReloadAppUITests; sourceTree = "<group>"; };
 		A50000000000000000000005 /* Products */ = {isa = PBXGroup; children = (A20000000000000000000004 /* LiveReloadApp.app */, A20000000000000000000005 /* LiveReloadAppTests.xctest */, A20000000000000000000006 /* LiveReloadAppUITests.xctest */,); name = Products; sourceTree = "<group>"; };
-		C50000000000000000000001 /* Services */ = {isa = PBXGroup; children = (C20000000000000000000002 /* SecurityScopedBookmarkProvider.swift */,); path = Services; sourceTree = "<group>"; };
+		C50000000000000000000001 /* Services */ = {isa = PBXGroup; children = (C20000000000000000000002 /* SecurityScopedBookmarkProvider.swift */, C20000000000000000000008 /* ReloadLoopRuntimeService.swift */,); path = Services; sourceTree = "<group>"; };
 		C50000000000000000000002 /* Bridges */ = {isa = PBXGroup; children = (C20000000000000000000003 /* FolderPicker.swift */,); path = Bridges; sourceTree = "<group>"; };
 		C50000000000000000000003 /* Diagnostics */ = {isa = PBXGroup; children = (C20000000000000000000004 /* AppLogger.swift */,); path = Diagnostics; sourceTree = "<group>"; };
 		C50000000000000000000004 /* Views */ = {isa = PBXGroup; children = (C20000000000000000000005 /* ProjectViews.swift */,); path = Views; sourceTree = "<group>"; };
@@ -154,7 +156,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A80000000000000000000001 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001 /* LiveReloadApp.swift in Sources */, C10000000000000000000001 /* AppModel.swift in Sources */, C10000000000000000000002 /* SecurityScopedBookmarkProvider.swift in Sources */, C10000000000000000000003 /* FolderPicker.swift in Sources */, C10000000000000000000004 /* AppLogger.swift in Sources */, C10000000000000000000005 /* ProjectViews.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
+		A80000000000000000000001 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001 /* LiveReloadApp.swift in Sources */, C10000000000000000000001 /* AppModel.swift in Sources */, C10000000000000000000002 /* SecurityScopedBookmarkProvider.swift in Sources */, C10000000000000000000008 /* ReloadLoopRuntimeService.swift in Sources */, C10000000000000000000003 /* FolderPicker.swift in Sources */, C10000000000000000000004 /* AppLogger.swift in Sources */, C10000000000000000000005 /* ProjectViews.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
 		A80000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000002 /* LiveReloadAppTests.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
 		A80000000000000000000003 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000003 /* LiveReloadAppUITests.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
