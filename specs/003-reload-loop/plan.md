@@ -12,7 +12,7 @@ Phase 2 delivers the first useful LiveReload outcome: a user explicitly starts m
 
 **Language/Version**: Swift 6.2 with complete strict-concurrency checking
 
-**Primary Dependencies**: Foundation, CoreServices FSEvents through a narrow adapter, Network primitives for local TCP listening, SwiftUI/Observation in the app target, OSLog; no third-party dependencies
+**Primary Dependencies**: Foundation, CoreServices FSEvents through a narrow adapter, Darwin BSD socket primitives for the owned loopback TCP listener, SwiftUI/Observation in the app target, OSLog; no third-party dependencies
 
 **Storage**: Existing versioned JSON project configuration in Application Support; runtime monitoring/session/client state is in-memory and is not restored as active after relaunch
 
@@ -65,7 +65,7 @@ typed, bounded, Sendable events and safe activity summaries
 
 - `ProjectMonitor` is the sole owner of one project's FSEvents stream and its scoped folder-access lifetime. Its callback copies raw values immediately into bounded `FileChangeSignal` values before entering actor isolation.
 - `ChangeBatcher` belongs to a project pipeline. It applies path normalization and exclusion policy before maintaining one ordered, de-duplicated pending batch. It uses an injected clock to make settling and cancellation deterministic in tests.
-- `ReloadServer` owns the loopback listener, port-conflict result, and browser session registry. Every `BrowserSession` owns one RFC 6455 connection and has a bounded handshake/message state machine.
+- `ReloadServer` owns the `127.0.0.1` BSD-socket listener, port-conflict result, and browser session registry. Every `BrowserSession` owns one RFC 6455 connection and has a bounded handshake/message state machine. `Network.framework` is not used for the server in this phase; ADR-001 rejected that option on route-boundary and Safari-compatibility evidence.
 - `ProjectPipeline` owns the monitor-to-reload decision for one project. It serializes start, stop, recovery, manual reload, settled batches, and server broadcasts. There is no build branch in this feature.
 - `AppModel` owns only presentation state and launches owned service operations. It derives controls from service states and keeps project mutations separate from runtime operations.
 - `ProjectStore` remains the sole persistence owner. Runtime session state and browser connections are deliberately not persisted; monitoring always starts from an explicit user action after launch.

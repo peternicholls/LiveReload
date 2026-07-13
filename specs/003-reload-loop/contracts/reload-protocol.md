@@ -2,7 +2,7 @@
 
 ## Exposure
 
-- Bind only to `127.0.0.1` on the documented LiveReload port.
+- Bind only to `127.0.0.1` on the documented LiveReload port using the owned Darwin BSD-socket listener; do not substitute the rejected `Network.framework` server path.
 - Accept only the `/livereload` endpoint.
 - Reject requests that cannot complete a valid WebSocket upgrade or exceed bounded header, frame, message, or client limits.
 

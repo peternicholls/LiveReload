@@ -16,8 +16,8 @@
 
 ## Decision 3: Use a small owned RFC 6455 server with protocol 7 messages
 
-- **Decision**: Implement the accepted ADR-001 design: a local-only owned server that validates the HTTP upgrade and `/livereload` path, supports bounded RFC 6455 frames, and negotiates typed protocol-7 messages.
-- **Rationale**: The Network.framework prototype did not provide the needed explicit route boundary and had inconsistent Safari behavior. An owned minimal implementation makes masking, size bounds, ping/pong, close, client isolation, and diagnostics testable without a dependency.
+- **Decision**: Implement the accepted ADR-001 design with Darwin BSD sockets as the local-only TCP transport. The owned server validates the HTTP upgrade and `/livereload` path, supports bounded RFC 6455 frames, and negotiates typed protocol-7 messages.
+- **Rationale**: The Network.framework prototype did not provide the needed explicit route boundary and had inconsistent Safari behavior, so `Network.framework` is excluded from this server implementation rather than used beneath the owned protocol parser. An owned BSD-socket implementation makes masking, size bounds, ping/pong, close, client isolation, and diagnostics testable without a dependency.
 - **Limits**: Plan exact header, frame, message, and client-count ceilings as named constants with tests. Their numeric values are implementation details, but every untrusted allocation must have a ceiling.
 - **Alternatives rejected**: Network.framework server (Safari and route-boundary evidence), external package (unneeded dependency), and legacy Node service (constitution violation).
 
