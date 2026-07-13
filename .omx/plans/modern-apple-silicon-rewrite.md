@@ -103,8 +103,8 @@ Proposed feature sequence (exact numbers are assigned by Spec Kit at creation ti
 | Roadmap phase | Proposed short name | Expected sprint coverage | Status |
 |---|---|---|---|
 | Phase 0 — Discovery and decision lock | `discovery-baseline` | Sprint 0 | `001` complete; Phase 1 short name: `modern-foundation` |
-| Phase 1 — Modern foundation and project lifecycle | `modern-foundation` | Sprints 1–2 | `002` complete; verification and readiness PASS |
-| Phase 2 — Minimum useful reload loop | `reload-loop` | Sprints 3–4 | Next Spec Kit short name; not yet specified |
+| Phase 1 — Modern foundation and project lifecycle | `modern-foundation` | Sprints 1–2 | `002` complete; final verification passed 27 core tests, 6 app tests, and 5 UI tests |
+| Phase 2 — Minimum useful reload loop | `reload-loop` | Sprints 3–4 | `003` specified; ready for planning |
 | Phase 3 — Developer workflow and daily usability | `developer-workflow` | Sprints 5–6 | Not specified |
 | Phase 4 — Quality, security, and private preview | `private-preview` | Sprints 7–8 | Not specified |
 
@@ -233,7 +233,7 @@ Tasks:
 
 **Outcome:** a clean arm64 app can add projects, retain access, display status, and run a testable service core.
 
-**Completion evidence (2026-07-13):** `specs/002-modern-foundation/tasks.md` is the executable record. A clean `scripts/verify-modern.sh` run passed 15 core tests, a real disposable bookmark round trip, Debug/Release builds, four lifecycle XCUITests, arm64/macOS 15 and Hardened Runtime checks, documentation/version checks, and the tracked-build-product privacy gate. The Phase 1 readiness verdict is recorded in `docs/modernization/sprint-reviews/sprint-1.md`.
+**Completion evidence (2026-07-13):** `specs/002-modern-foundation/tasks.md` is the executable record. The final `scripts/verify-modern.sh` run passed 27 core tests, 6 app tests, 5 lifecycle/recovery UI tests, a real disposable bookmark round trip, Debug/Release builds, arm64/macOS 15 and Hardened Runtime checks, documentation/version checks, and tracked build-product and agent-runtime privacy gates. The Phase 1 readiness verdict is recorded in `docs/modernization/sprint-reviews/sprint-1.md`.
 
 #### Sprint 1 — Build system and domain foundation
 
