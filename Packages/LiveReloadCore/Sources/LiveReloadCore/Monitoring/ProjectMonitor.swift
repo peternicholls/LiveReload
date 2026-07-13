@@ -38,7 +38,6 @@ public actor ProjectMonitor {
             let stream = try await source.makeStream(projectID: projectID, rootURL: rootURL)
             guard activeGeneration == generation, state == .starting else {
                 await stream.stop()
-                releaseAccess()
                 return
             }
             self.stream = stream
@@ -52,6 +51,7 @@ public actor ProjectMonitor {
                 await self?.streamEnded(generation: activeGeneration)
             }
         } catch {
+            guard activeGeneration == generation, state == .starting else { return }
             releaseAccess()
             await transition(to: .failed, reason: .sourceFailure)
         }

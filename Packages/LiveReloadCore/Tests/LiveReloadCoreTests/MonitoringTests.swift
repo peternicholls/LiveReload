@@ -20,6 +20,35 @@ struct ProjectMonitorTests {
         #expect(await monitor.currentState() == .stopped)
     }
 
+    @Test("stop wins when stream creation fails after suspension")
+    func stopDuringSuspendedStartup() async {
+        let source = ControlledFailingEventSource()
+        let releases = ReleaseCounter()
+        let states = StateRecorder()
+        let monitor = ProjectMonitor(
+            source: source,
+            onStateChange: { state, _ in await states.append(state) }
+        )
+        let startTask = Task {
+            await monitor.start(
+                projectID: UUID(),
+                rootURL: URL(fileURLWithPath: "/tmp/suspended"),
+                accessToken: ScopedAccessToken { releases.increment() }
+            )
+        }
+        await eventually { await source.hasPendingRequest() }
+        #expect(await source.hasPendingRequest())
+
+        await monitor.stop()
+        await source.failPendingRequest()
+        await startTask.value
+
+        #expect(await monitor.currentState() == .stopped)
+        #expect(await monitor.recoveryReason() == nil)
+        #expect(await states.values() == [.starting, .stopped])
+        #expect(releases.value == 1)
+    }
+
     @Test("workspace FSEvents reports create, modify, rename, and delete")
     func workspaceEvents() async throws {
         let root = FileManager.default.temporaryDirectory
@@ -138,6 +167,46 @@ struct ProjectMonitorTests {
 
         #expect(await received.values().count == FileChangeKind.allCases.count)
     }
+
+    @Test("bounded event buffering converts overflow into one recovery signal")
+    func boundedEventBufferOverflow() async throws {
+        let projectID = UUID()
+        let buffer = FileEventSignalBuffer(projectID: projectID, capacity: 2)
+        let signals = buffer.signals()
+
+        #expect(buffer.yield(try .change(
+            projectID: projectID,
+            relativePath: "first.html",
+            kind: .modified,
+            sequence: 1
+        )) == .accepted)
+        #expect(buffer.yield(try .change(
+            projectID: projectID,
+            relativePath: "second.html",
+            kind: .modified,
+            sequence: 2
+        )) == .accepted)
+        #expect(buffer.yield(try .change(
+            projectID: projectID,
+            relativePath: "third.html",
+            kind: .modified,
+            sequence: 3
+        )) == .overflowed)
+        #expect(buffer.yield(try .change(
+            projectID: projectID,
+            relativePath: "late.html",
+            kind: .modified,
+            sequence: 4
+        )) == .terminated)
+
+        var received: [FileChangeSignal] = []
+        for await signal in signals { received.append(signal) }
+
+        #expect(received.count <= 2)
+        #expect(received.filter { $0.recoveryReason == .eventsDropped }.count == 1)
+        #expect(received.last?.recoveryReason == .eventsDropped)
+        #expect(received.last?.sequence == 3)
+    }
 }
 
 private extension FileHandle {
@@ -178,6 +247,47 @@ struct ChangeBatcherTests {
         let batch = try #require(await batches.values().first)
         #expect(batch.relativePaths == ["styles/site.css", "index.html"])
         #expect(batch.classification == .fullPage)
+    }
+
+    @Test("settling accepts the documented boundaries and rejects values outside them")
+    func settlingBoundaries() async throws {
+        for interval in [Duration.milliseconds(100), .milliseconds(500)] {
+            let clock = DeterministicReloadClock()
+            let batches = BatchRecorder()
+            let projectID = UUID()
+            let batcher = try ChangeBatcher(
+                projectID: projectID,
+                policy: ExclusionPolicy(),
+                clock: clock,
+                settlingInterval: interval
+            )
+            await batcher.submit(try .change(
+                projectID: projectID,
+                relativePath: "index.html",
+                kind: .modified,
+                sequence: 1
+            )) { await batches.append($0) }
+            await eventually { await clock.pendingSleepCount() == 1 }
+            await clock.advance(by: interval - .milliseconds(1))
+            #expect(await batches.values().isEmpty)
+            await clock.advance(by: .milliseconds(1))
+            await eventually { await batches.values().count == 1 }
+        }
+
+        #expect(throws: ChangeBatcherError.settlingIntervalOutOfRange) {
+            try ChangeBatcher(
+                projectID: UUID(),
+                policy: ExclusionPolicy(),
+                settlingInterval: .milliseconds(99)
+            )
+        }
+        #expect(throws: ChangeBatcherError.settlingIntervalOutOfRange) {
+            try ChangeBatcher(
+                projectID: UUID(),
+                policy: ExclusionPolicy(),
+                settlingInterval: .milliseconds(501)
+            )
+        }
     }
 
     @Test("stylesheet-only and excluded-only bursts classify correctly")
@@ -263,6 +373,23 @@ private final class ReleaseCounter: @unchecked Sendable {
 private struct FailingEventSource: FileEventSource {
     func makeStream(projectID: UUID, rootURL: URL) async throws -> any FileEventStream {
         throw FSEventsSourceError.streamCreationFailed
+    }
+}
+
+private actor ControlledFailingEventSource: FileEventSource {
+    private var continuation: CheckedContinuation<any FileEventStream, any Error>?
+
+    func makeStream(projectID: UUID, rootURL: URL) async throws -> any FileEventStream {
+        try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+        }
+    }
+
+    func hasPendingRequest() -> Bool { continuation != nil }
+
+    func failPendingRequest() {
+        continuation?.resume(throwing: FSEventsSourceError.streamCreationFailed)
+        continuation = nil
     }
 }
 

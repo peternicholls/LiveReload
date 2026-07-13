@@ -16,6 +16,7 @@ public protocol ReloadServerControlling: Sendable {
     func start() async
     func stop() async
     func currentState() async -> ServerState
+    func stateUpdates() async -> AsyncStream<ServerState>
     func broadcast(_ decision: ReloadDecision) async -> ReloadBroadcastResult
 }
 

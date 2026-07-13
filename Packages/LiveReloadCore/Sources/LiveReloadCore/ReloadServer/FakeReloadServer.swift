@@ -48,12 +48,16 @@ public actor FakeReloadServer: ReloadServerControlling {
     private var sessions: [FakeBrowserSession] = []
     private var state: ServerState = .stopped
     private var startState: ServerState
+    private var stateContinuations: [UUID: AsyncStream<ServerState>.Continuation] = [:]
 
     public init(startState: ServerState = try! .listening(clientCount: 0)) {
         self.startState = startState
     }
 
-    public func addSession(_ session: FakeBrowserSession) { sessions.append(session) }
+    public func addSession(_ session: FakeBrowserSession) async {
+        sessions.append(session)
+        await publishState()
+    }
     public func setStartState(_ state: ServerState) { startState = state }
 
     public func start() async {
@@ -62,11 +66,13 @@ public actor FakeReloadServer: ReloadServerControlling {
         } else {
             state = startState
         }
+        await publishState()
     }
 
     public func stop() async {
         for session in sessions { await session.close() }
         state = .stopped
+        await publishState()
     }
 
     public func currentState() async -> ServerState {
@@ -76,24 +82,33 @@ public actor FakeReloadServer: ReloadServerControlling {
         return state
     }
 
-    public func broadcast(_ decision: ReloadDecision) async -> ReloadBroadcastResult {
-        let ready = await readySessions()
-        var sent = 0
-        var failed = 0
-        for session in ready {
-            do {
-                try await session.send(decision)
-                sent += 1
-            } catch {
-                failed += 1
-            }
+    public func stateUpdates() async -> AsyncStream<ServerState> {
+        let id = UUID()
+        let pair = AsyncStream<ServerState>.makeStream(bufferingPolicy: .bufferingNewest(8))
+        stateContinuations[id] = pair.continuation
+        pair.continuation.onTermination = { [weak self] _ in
+            Task { await self?.removeStateContinuation(id) }
         }
-        return ReloadBroadcastResult(readyClientCount: ready.count, sentCount: sent, failedCount: failed)
+        pair.continuation.yield(await currentState())
+        return pair.stream
+    }
+
+    public func broadcast(_ decision: ReloadDecision) async -> ReloadBroadcastResult {
+        await ReloadServer.deliver(decision, to: sessions, closeFailures: false)
     }
 
     private func readySessions() async -> [FakeBrowserSession] {
         var result: [FakeBrowserSession] = []
         for session in sessions where await session.snapshot().isReady { result.append(session) }
         return result
+    }
+
+    private func publishState() async {
+        let value = await currentState()
+        for continuation in stateContinuations.values { continuation.yield(value) }
+    }
+
+    private func removeStateContinuation(_ id: UUID) {
+        stateContinuations.removeValue(forKey: id)
     }
 }

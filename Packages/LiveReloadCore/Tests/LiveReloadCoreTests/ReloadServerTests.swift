@@ -30,6 +30,38 @@ struct ReloadServerTests {
         #expect(String(data: reload.payload, encoding: .utf8)?.contains(#""command":"reload""#) == true)
     }
 
+    @Test("state updates report listener and ready-client changes without polling")
+    func stateUpdates() async throws {
+        let server = ReloadServer(port: 0)
+        let updates = await server.stateUpdates()
+        let collector = Task { () -> [ServerState] in
+            var values: [ServerState] = []
+            for await value in updates {
+                values.append(value)
+                if values.contains(where: { $0.clientCount == 1 }) { break }
+            }
+            return values
+        }
+        await server.start()
+        defer { Task { await server.stop() } }
+        let client = try RawWebSocketClient(port: try #require(await server.listeningPort()))
+        defer { client.close() }
+        try client.upgrade(path: "/livereload")
+        try client.sendClientFrame(
+            opcode: .text,
+            payload: Data(#"{"command":"hello","protocols":["http://livereload.com/protocols/official-7"]}"#.utf8)
+        )
+        _ = try client.receiveServerFrame()
+
+        let states = await collector.value
+        let noClients = try ServerState.listening(clientCount: 0)
+        let oneClient = try ServerState.listening(clientCount: 1)
+        #expect(states.first == ServerState.stopped)
+        #expect(states.contains(ServerState.starting))
+        #expect(states.contains(noClients))
+        #expect(states.last == oneClient)
+    }
+
     @Test("incorrect endpoint is rejected without registering a client")
     func endpointRejection() async throws {
         let server = ReloadServer(port: 0)
@@ -167,6 +199,144 @@ struct ReloadServerTests {
         _ = try? client.receiveServerFrame()
         await eventually { (await server.currentState()).clientCount == 0 }
     }
+
+    @Test("closing a session while its read source is active owns and closes the descriptor once")
+    func closeDuringRead() async throws {
+        var descriptors: [Int32] = [-1, -1]
+        #expect(Darwin.socketpair(AF_UNIX, SOCK_STREAM, 0, &descriptors) == 0)
+        let peer = descriptors[1]
+        defer { if peer >= 0 { Darwin.close(peer) } }
+        var noSignal: Int32 = 1
+        setsockopt(peer, SOL_SOCKET, SO_NOSIGPIPE, &noSignal, socklen_t(MemoryLayout<Int32>.size))
+        let closes = LockedCounter()
+        let session = SocketBrowserSession(
+            id: BrowserSessionID(),
+            descriptor: descriptors[0],
+            onReady: { _ in },
+            onClose: { _ in closes.increment() }
+        )
+        let writer = Task.detached {
+            let fragment = Data("GET /livereload HTTP/1.1\r\n".utf8)
+            for _ in 0..<1_000 {
+                let sent = fragment.withUnsafeBytes {
+                    Darwin.send(peer, $0.baseAddress, $0.count, 0)
+                }
+                if sent <= 0 { break }
+                await Task.yield()
+            }
+        }
+
+        await Task.yield()
+        await session.close()
+        await session.close()
+        _ = await writer.value
+
+        #expect((await session.snapshot()).state == .closed)
+        #expect(closes.value == 1)
+    }
+
+    @Test("a stalled client does not delay another ready client and cancellation bounds completed sends")
+    func stalledClientIsolation() async throws {
+        let stalled = ControlledBrowserSession(stalls: true)
+        let fast = ControlledBrowserSession(stalls: false)
+        let delivery = Task {
+            await ReloadServer.deliver(
+                .manual(projectID: UUID()),
+                to: [stalled, fast]
+            )
+        }
+
+        await eventually { await stalled.didStartSending() }
+        await eventually { await fast.sendCount() == 1 }
+        delivery.cancel()
+        let result = await delivery.value
+
+        #expect(result == ReloadBroadcastResult(readyClientCount: 1, sentCount: 1, failedCount: 0))
+        #expect(await stalled.sendCount() == 0)
+        #expect(await fast.sendCount() == 1)
+    }
+
+    @Test("closing one session during broadcast fails only that delivery")
+    func closeDuringBroadcast() async throws {
+        let closing = ControlledBrowserSession(stalls: true)
+        let fast = ControlledBrowserSession(stalls: false)
+        let delivery = Task {
+            await ReloadServer.deliver(
+                .manual(projectID: UUID()),
+                to: [closing, fast]
+            )
+        }
+
+        await eventually { await closing.didStartSending() }
+        await closing.close()
+        let result = await delivery.value
+
+        #expect(result == ReloadBroadcastResult(readyClientCount: 2, sentCount: 1, failedCount: 1))
+        #expect(await closing.sendCount() == 0)
+        #expect(await fast.sendCount() == 1)
+    }
+
+    @Test("cancelling a bounded broadcast prevents sessions outside the active delivery window")
+    func broadcastCancellationStopsQueuedClients() async throws {
+        let active = (0..<4).map { _ in ControlledBrowserSession(stalls: true) }
+        let queued = ControlledBrowserSession(stalls: false)
+        let delivery = Task {
+            await ReloadServer.deliver(
+                .manual(projectID: UUID()),
+                to: active + [queued]
+            )
+        }
+
+        await eventually {
+            for session in active where await !session.didStartSending() { return false }
+            return true
+        }
+        delivery.cancel()
+        let result = await delivery.value
+
+        #expect(result == ReloadBroadcastResult(readyClientCount: 0, sentCount: 0, failedCount: 0))
+        #expect(await queued.sendCount() == 0)
+    }
+}
+
+private actor ControlledBrowserSession: BrowserSessionControlling {
+    private let id = BrowserSessionID()
+    private let stalls: Bool
+    private var state: BrowserSessionState = .ready
+    private var startedSending = false
+    private var completedSendCount = 0
+
+    init(stalls: Bool) {
+        self.stalls = stalls
+    }
+
+    func snapshot() -> BrowserSessionSnapshot {
+        try! BrowserSessionSnapshot(id: id, state: state, negotiatedProtocolVersion: 7)
+    }
+
+    func send(_ decision: ReloadDecision) async throws {
+        startedSending = true
+        while stalls, state == .ready {
+            try await Task.sleep(for: .milliseconds(1))
+        }
+        try Task.checkCancellation()
+        guard state == .ready else { throw SocketBrowserSessionError.closed }
+        completedSendCount += 1
+    }
+
+    func close() {
+        state = .closed
+    }
+
+    func didStartSending() -> Bool { startedSending }
+    func sendCount() -> Int { completedSendCount }
+}
+
+private final class LockedCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var count = 0
+    var value: Int { lock.withLock { count } }
+    func increment() { lock.withLock { count += 1 } }
 }
 
 private enum RawClientError: Error {

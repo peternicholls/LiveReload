@@ -24,8 +24,7 @@ public final class FSEventsFileEventStream: @unchecked Sendable, FileEventStream
     private let rootURL: URL
     private let queue = DispatchQueue(label: "com.livereload.monitor.fsevents")
     private let lock = NSLock()
-    private let signalStream: AsyncStream<FileChangeSignal>
-    private let continuation: AsyncStream<FileChangeSignal>.Continuation
+    private let signalBuffer: FileEventSignalBuffer
     private var nativeStream: FSEventStreamRef?
     private var stopped = false
 
@@ -36,9 +35,7 @@ public final class FSEventsFileEventStream: @unchecked Sendable, FileEventStream
         }
         self.projectID = projectID
         self.rootURL = rootURL.standardizedFileURL.resolvingSymlinksInPath()
-        let pair = AsyncStream<FileChangeSignal>.makeStream(bufferingPolicy: .bufferingNewest(20_000))
-        signalStream = pair.stream
-        continuation = pair.continuation
+        signalBuffer = FileEventSignalBuffer(projectID: projectID, capacity: FileEventSignalBuffer.maximumCapacity)
 
         var context = FSEventStreamContext(
             version: 0,
@@ -78,7 +75,7 @@ public final class FSEventsFileEventStream: @unchecked Sendable, FileEventStream
         nativeStream = created
     }
 
-    public func signals() async -> AsyncStream<FileChangeSignal> { signalStream }
+    public func signals() async -> AsyncStream<FileChangeSignal> { signalBuffer.signals() }
 
     public func stop() async { stopSynchronously() }
 
@@ -93,7 +90,7 @@ public final class FSEventsFileEventStream: @unchecked Sendable, FileEventStream
             let eventFlags = flags[index]
             let sequence = UInt64(eventIDs[index])
             if let recovery = Self.recoveryReason(for: eventFlags) {
-                continuation.yield(.recovery(projectID: projectID, reason: recovery, sequence: sequence))
+                guard emit(.recovery(projectID: projectID, reason: recovery, sequence: sequence)) else { return }
                 continue
             }
             guard let relativePath = try? RelativeProjectPath(
@@ -107,8 +104,20 @@ public final class FSEventsFileEventStream: @unchecked Sendable, FileEventStream
                     kind: kind,
                     sequence: sequence
                 ) else { continue }
-                continuation.yield(signal)
+                guard emit(signal) else { return }
             }
+        }
+    }
+
+    private func emit(_ signal: FileChangeSignal) -> Bool {
+        switch signalBuffer.yield(signal) {
+        case .accepted:
+            return true
+        case .overflowed:
+            queue.async { [weak self] in self?.stopSynchronously() }
+            return false
+        case .terminated:
+            return false
         }
     }
 
@@ -140,7 +149,7 @@ public final class FSEventsFileEventStream: @unchecked Sendable, FileEventStream
         FSEventStreamStop(stream)
         FSEventStreamInvalidate(stream)
         FSEventStreamRelease(stream)
-        continuation.finish()
+        signalBuffer.finish()
     }
 
     deinit { stopSynchronously() }
