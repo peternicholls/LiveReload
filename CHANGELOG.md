@@ -12,6 +12,9 @@ All notable modern application changes are recorded here. Entries describe user-
 
 ### Changed
 
+- Restored folder bookmarks are now resolved and access-checked on launch; unavailable projects remain configured and surface a repair state.
+- Configuration loading now validates nested persisted values, detects newer schemas before decoding their shape, and prevents writes when an unreadable source could not be preserved.
+- Activity summaries now redact arbitrary absolute paths and file URLs, including persisted events decoded from storage.
 - No modern application build has been released yet; monitoring, browser reload, build execution, App Sandbox, and public distribution remain deferred.
 
 ## 0.0.0 — Unreleased baseline

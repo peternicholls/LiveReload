@@ -44,7 +44,7 @@ For every genuine problem, verify: `TNNN` → `ISS-NNN` → evidence → `SOL/LR
 
 ## Metrics and risks
 
-- Relevant measurements: 15 core tests passing; activity capacity 200; app arm64/macOS 15; Swift 6.2 strict concurrency
+- Relevant measurements: 23 core tests passing; activity capacity 200; app arm64/macOS 15; Swift 6.2 strict concurrency
 - New or changed risks: no open Phase 1 critical/high security or acceptance blocker
 - Constitution exceptions and expiry: none
 
