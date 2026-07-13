@@ -19,11 +19,11 @@ description: "Dependency-ordered Phase 1 modern foundation tasks"
 
 **Purpose**: Create the isolated modern target boundaries and verification scaffolding before durable behavior is implemented.
 
-- [ ] T001 Confirm `002-modern-foundation` begins from merged `develop`; record the base SHA and Phase 1 start in `docs/modernization/sprint-reviews/sprint-1.md`.
-- [ ] T002 [P] Create the Sprint 1/2 review record from the project template at `docs/modernization/sprint-reviews/sprint-1.md` with constitution/version, capacity, and evidence sections.
-- [ ] T003 [P] Create Phase 1 fixture and evidence directories: `tests/fixtures/modern-foundation/` and `docs/modernization/evidence/foundation/`, each with a purpose/handling README.
-- [ ] T004 [P] Add a Phase 1 ledger-traceability entry template/checkpoint linking task → issue → evidence → solution/learning/ADR → sprint review in `docs/modernization/sprint-reviews/sprint-1.md`.
-- [ ] T005 Verify no Phase 1 production source imports legacy targets, Node/Ruby/CoffeeScript, CocoaPods, or third-party packages; record the baseline scan in `docs/modernization/evidence/foundation/dependency-baseline.md` (FR-003, FR-016).
+- [x] T001 Confirm `002-modern-foundation` begins from merged `develop`; record the base SHA and Phase 1 start in `docs/modernization/sprint-reviews/sprint-1.md` (evidence: Sprint 1/2 review).
+- [x] T002 [P] Create the Sprint 1/2 review record from the project template at `docs/modernization/sprint-reviews/sprint-1.md` with constitution/version, capacity, and evidence sections.
+- [x] T003 [P] Create Phase 1 fixture and evidence directories: `tests/fixtures/modern-foundation/` and `docs/modernization/evidence/foundation/`, each with a purpose/handling README.
+- [x] T004 [P] Add a Phase 1 ledger-traceability entry template/checkpoint linking task → issue → evidence → solution/learning/ADR → sprint review in `docs/modernization/sprint-reviews/sprint-1.md`.
+- [x] T005 Verify no Phase 1 production source imports legacy targets, Node/Ruby/CoffeeScript, CocoaPods, or third-party packages; record the baseline scan in `docs/modernization/evidence/foundation/dependency-baseline.md` (FR-003, FR-016; evidence: dependency baseline).
 
 **Checkpoint**: Phase 1 has a clean branch identity, durable evidence locations, and scope guard before code is created.
 
