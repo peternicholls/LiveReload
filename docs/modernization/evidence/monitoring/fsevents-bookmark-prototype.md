@@ -33,9 +33,12 @@ BOOKMARK-CREATED
 BOOKMARK-RESTORED stale=true access=true path=Renamed
 
 FAILED The file couldn’t be opened because it isn’t in the correct format.
+
+BOOKMARK-REPAIRED projectID=project-phase0 folder=replacement
+BOOKMARK-RESTORED stale=false access=true path=replacement
 ```
 
-The final failure is the intentional corrupt-bookmark test. The moving-folder result preserves access while reporting `stale=true`, so the production UI must request repair/re-save rather than delete the project.
+The final failure is the intentional corrupt-bookmark test. The moving-folder result preserves access while reporting `stale=true`, so the production UI must request repair/re-save rather than delete the project. The repair harness overwrites the bookmark with a replacement folder while retaining the supplied project identity, demonstrated by `project-phase0` in the result.
 
 ## Result
 

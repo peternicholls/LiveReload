@@ -26,4 +26,3 @@
 ## Promotion rule
 
 A later Spec Kit phase may promote an algorithm or type only after restating its production requirements, adding lifecycle/security tests, and explicitly listing the promoted files in that phase's plan and tasks. Copying the entire harness is not presumed acceptable.
-

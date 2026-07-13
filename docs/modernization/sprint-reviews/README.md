@@ -46,4 +46,3 @@ Task IDs, reason, and destination sprint/backlog.
 
 Dependencies, research, and decisions required before commitment.
 ```
-

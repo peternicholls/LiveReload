@@ -1,6 +1,6 @@
 # Implementation Plan: Discovery Baseline
 
-**Branch**: `001-discovery-baseline` | **Date**: 2026-07-11 | **Status**: Complete 2026-07-12 | **Spec**: [spec.md](./spec.md)
+**Branch**: `001-discovery-baseline` | **Date**: 2026-07-11 | **Status**: Review changes requested (ISS-004) | **Spec**: [spec.md](./spec.md)
 
 **Input**: Feature specification from `/specs/001-discovery-baseline/spec.md`
 
@@ -10,14 +10,14 @@ Phase 0 establishes the verified behavioral and architectural baseline for the A
 
 ## Technical Context
 
-**Language/Version**: Swift 6.2 for executable research harnesses; Markdown and JSON for durable artifacts  
-**Primary Dependencies**: Apple Foundation, Network.framework, CoreServices/FSEvents, AppKit for folder-selection/bookmark harness; no third-party production dependency  
-**Storage**: Version-controlled Markdown, sanitized JSON fixtures, small local fixture files; no database  
-**Testing**: Swift Testing or XCTest for harness tests, shell-driven fixture checks, Safari/Chromium manual-observation protocol with captured evidence  
-**Target Platform**: Apple-silicon Mac; research host macOS 26.5.2/Xcode 26.3; proposed production floor macOS 15+ remains subject to prototype evidence  
-**Project Type**: Research harnesses and architecture documentation for a desktop application rewrite  
-**Performance Goals**: Capture WebSocket event-to-message latency; verify FSEvents behavior under a 10,000-event synthetic burst; no production performance commitment in this phase  
-**Constraints**: Private/personal scope; no obsolete runtime execution unless isolated and safe; loopback-only networking; sanitized artifacts; prototypes cannot become production dependencies by accident  
+**Language/Version**: Swift 6.2 for executable research harnesses; Markdown and JSON for durable artifacts
+**Primary Dependencies**: Apple Foundation, Network.framework, CoreServices/FSEvents, AppKit for folder-selection/bookmark harness; no third-party production dependency
+**Storage**: Version-controlled Markdown, sanitized JSON fixtures, small local fixture files; no database
+**Testing**: Swift Testing or XCTest for harness tests, shell-driven fixture checks, Safari/Chromium manual-observation protocol with captured evidence
+**Target Platform**: Apple-silicon Mac; research host macOS 26.5.2/Xcode 26.3; proposed production floor macOS 15+ remains subject to prototype evidence
+**Project Type**: Research harnesses and architecture documentation for a desktop application rewrite
+**Performance Goals**: Capture WebSocket event-to-message latency; verify FSEvents behavior under a 10,000-event synthetic burst; no production performance commitment in this phase
+**Constraints**: Private/personal scope; no obsolete runtime execution unless isolated and safe; loopback-only networking; sanitized artifacts; prototypes cannot become production dependencies by accident
 **Scale/Scope**: Five research stories, three ADRs, four executable research harnesses (browser fixture, WebSocket, FSEvents/bookmarks, and signing), one browser compatibility matrix, one behavior inventory, and governance/ledger validation
 
 ## Constitution Check

@@ -85,6 +85,12 @@ func restoreBookmark(at file: URL) throws -> (url: URL, stale: Bool, accessGrant
     return (url, stale, accessGranted)
 }
 
+func repairBookmark(projectID: String, folder: URL, at file: URL) throws {
+    let data = try bookmarkData(for: folder)
+    try data.write(to: file, options: .atomic)
+    log("BOOKMARK-REPAIRED projectID=\(projectID) folder=\(folder.lastPathComponent)")
+}
+
 @MainActor
 func selectFolder() -> URL? {
     let panel = NSOpenPanel()
@@ -125,8 +131,11 @@ do {
         guard arguments.count >= 2 else { throw NSError(domain: "FSEventsPrototype", code: 7, userInfo: [NSLocalizedDescriptionKey: "restore-bookmark requires file"]) }
         let restored = try restoreBookmark(at: URL(fileURLWithPath: arguments[1]))
         log("BOOKMARK-RESTORED stale=\(restored.stale) access=\(restored.accessGranted) path=\(restored.url.lastPathComponent)")
+    case "repair-bookmark":
+        guard arguments.count >= 4 else { throw NSError(domain: "FSEventsPrototype", code: 8, userInfo: [NSLocalizedDescriptionKey: "repair-bookmark requires project ID, replacement folder, and output file"]) }
+        try repairBookmark(projectID: arguments[1], folder: URL(fileURLWithPath: arguments[2], isDirectory: true), at: URL(fileURLWithPath: arguments[3]))
     default:
-        log("usage: watch PATH | simulate-recovery | create-bookmark FOLDER FILE | restore-bookmark FILE | select-bookmark FILE")
+        log("usage: watch PATH | simulate-recovery | create-bookmark FOLDER FILE | restore-bookmark FILE | repair-bookmark PROJECT-ID FOLDER FILE | select-bookmark FILE")
     }
 } catch {
     fputs("FAILED \(error.localizedDescription)\n", stderr)

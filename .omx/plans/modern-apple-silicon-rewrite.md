@@ -102,7 +102,7 @@ Proposed feature sequence (exact numbers are assigned by Spec Kit at creation ti
 
 | Roadmap phase | Proposed short name | Expected sprint coverage | Status |
 |---|---|---|---|
-| Phase 0 — Discovery and decision lock | `discovery-baseline` | Sprint 0 | `001` complete; Phase 1 short name: `modern-foundation` |
+| Phase 0 — Discovery and decision lock | `discovery-baseline` | Sprint 0 | `001` review changes requested; Safari corrected-CSS revalidation pending (ISS-004) |
 | Phase 1 — Modern foundation and project lifecycle | `modern-foundation` | Sprints 1–2 | Not specified |
 | Phase 2 — Minimum useful reload loop | `reload-loop` | Sprints 3–4 | Not specified |
 | Phase 3 — Developer workflow and daily usability | `developer-workflow` | Sprints 5–6 | Not specified |
@@ -129,7 +129,7 @@ Later phase specifications may refine their roadmap stories and tasks, but may n
 
 **Sprint goal:** produce enough executable evidence to choose the WebSocket, monitoring, security, and packaging approaches without resurrecting legacy dependencies.
 
-**R-01 — Inventory observable legacy behavior (M)**  
+**R-01 — Inventory observable legacy behavior (M)**
 As the rewrite maintainer, I want a behavior inventory so that implementation follows user-visible outcomes instead of old internal architecture.
 
 Acceptance criteria:
@@ -146,7 +146,7 @@ Tasks:
 - [x] `R-01.4` Write `docs/modernization/behavior-inventory.md` with v1/deferred/rejected classifications.
 - [x] `R-01.5` Create sanitized JSON fixtures for valid/invalid handshakes and reload messages.
 
-**R-02 — Validate current browser compatibility (M)**  
+**R-02 — Validate current browser compatibility (M)**
 As a user, I want modern browser clients to connect without a bespoke extension so that the app is immediately useful.
 
 Acceptance criteria:
@@ -159,10 +159,10 @@ Tasks:
 
 - [x] `R-02.1` Identify the maintained LiveReload browser client and its protocol expectations from primary source/documentation.
 - [x] `R-02.2` Build a minimal local HTML/CSS/JS browser fixture independent of the macOS app.
-- [x] `R-02.3` Capture handshake and reload traffic for Safari and Chromium.
+- [>] `R-02.3` Revalidate Safari handshake and corrected CSS reload traffic; Chromium passed.
 - [x] `R-02.4` Save `docs/modernization/browser-compatibility.md` and commit reusable fixtures.
 
-**R-03 — Prototype Network.framework WebSocket serving (L)**  
+**R-03 — Prototype Network.framework WebSocket serving (L)**
 As the implementer, I want to prove the server API before committing architecture so that protocol work does not stall inside UI development.
 
 Acceptance criteria:
@@ -178,7 +178,7 @@ Tasks:
 - [x] `R-03.3` Test it against the Sprint 0 browser fixture and malformed frames.
 - [x] `R-03.4` Record latency, API limitations, and decision in `docs/adr/001-websocket-server.md`.
 
-**R-04 — Prototype FSEvents and permission lifecycle (M)**  
+**R-04 — Prototype FSEvents and permission lifecycle (M)**
 As a user, I want reliable watching across restart, rename, and sleep so that reloads do not silently stop.
 
 Acceptance criteria:
@@ -194,7 +194,7 @@ Tasks:
 - [x] `R-04.3` Prototype bookmark persistence in a minimal GUI harness.
 - [x] `R-04.4` Write `docs/adr/002-monitoring-and-folder-access.md`.
 
-**R-05 — Resolve licensing, signing, and sandbox posture (S)**  
+**R-05 — Resolve licensing, signing, and sandbox posture (S)**
 As the maintainer, I want documented distribution constraints so that implementation and assets do not create avoidable legal or packaging debt.
 
 Acceptance criteria:
@@ -210,7 +210,7 @@ Tasks:
 - [x] `R-05.3` Test an empty hardened-runtime app with local signing.
 - [x] `R-05.4` Write `NOTICE.md` and `docs/adr/003-distribution-security.md`.
 
-**R-06 — Establish project governance and memory (S)**  
+**R-06 — Establish project governance and memory (S)**
 As the maintainer, I want durable principles and linked records so that decisions, failures, fixes, and discoveries survive long-running work.
 
 Acceptance criteria:
@@ -237,7 +237,7 @@ Tasks:
 
 **Sprint goal:** launch a clean Swift 6.2 application and establish package/test boundaries with no legacy runtime dependencies.
 
-**F-01 — Create the modern project (M)**  
+**F-01 — Create the modern project (M)**
 As a contributor, I want a deterministic modern build so that every later slice starts from a trusted baseline.
 
 Acceptance criteria:
@@ -254,7 +254,7 @@ Tasks:
 - [ ] `F-01.4` Add shared schemes and `scripts/verify-modern.sh`.
 - [ ] `F-01.5` Add repository documentation for building only the modern target.
 
-**F-02 — Define the domain model (M)**  
+**F-02 — Define the domain model (M)**
 As the app, I need versioned project configuration so that persisted user choices remain migratable.
 
 Acceptance criteria:
@@ -270,7 +270,7 @@ Tasks:
 - [ ] `F-02.3` Add fixtures and unit tests for all model states.
 - [ ] `F-02.4` Document invariants and identifier/path semantics.
 
-**F-03 — Establish diagnostics (S)**  
+**F-03 — Establish diagnostics (S)**
 As a user and maintainer, I want structured diagnostics so that failures are actionable without attaching a debugger.
 
 Acceptance criteria:
@@ -291,7 +291,7 @@ Tasks:
 
 **Sprint goal:** a user can add a project, restart the app, and recover folder access failures.
 
-**P-01 — Persist projects safely (L)**  
+**P-01 — Persist projects safely (L)**
 As a user, I want my project list restored after relaunch so that setup is one-time.
 
 Acceptance criteria:
@@ -307,7 +307,7 @@ Tasks:
 - [ ] `P-01.3` Implement normalized duplicate detection.
 - [ ] `P-01.4` Add temporary-directory integration tests.
 
-**P-02 — Manage security-scoped bookmarks (M)**  
+**P-02 — Manage security-scoped bookmarks (M)**
 As a user, I want the app to regain selected-folder access and guide me when permission is stale.
 
 Acceptance criteria:
@@ -322,7 +322,7 @@ Tasks:
 - [ ] `P-02.2` Add stale/failure/replacement tests using a fake provider.
 - [ ] `P-02.3` Add integration coverage for a real selected temporary folder.
 
-**P-03 — Build project-list UI (M)**  
+**P-03 — Build project-list UI (M)**
 As a user, I want to add, inspect, rename, enable, repair, and remove watched projects.
 
 Acceptance criteria:
@@ -349,7 +349,7 @@ Tasks:
 
 **Sprint goal:** convert FSEvents into deterministic, filtered, debounced project change batches.
 
-**M-01 — Monitor project roots (L)**  
+**M-01 — Monitor project roots (L)**
 As a user, I want file changes detected reliably without high idle resource usage.
 
 Acceptance criteria:
@@ -365,7 +365,7 @@ Tasks:
 - [ ] `M-01.3` Handle dropped-event/root-change flags with rescan/restart policy.
 - [ ] `M-01.4` Add fake-source unit tests and temporary-directory integration tests.
 
-**M-02 — Filter and debounce changes (M)**  
+**M-02 — Filter and debounce changes (M)**
 As a user, I want noisy/generated files ignored and save bursts collapsed into one action.
 
 Acceptance criteria:
@@ -381,7 +381,7 @@ Tasks:
 - [ ] `M-02.3` Implement injectable-clock debounce and deduplication.
 - [ ] `M-02.4` Add boundary, Unicode, hidden-file, symlink, and 10,000-event tests.
 
-**M-03 — Surface monitoring state (S)**  
+**M-03 — Surface monitoring state (S)**
 As a user, I want visible monitoring status and recent file events so that I can trust the app.
 
 Tasks:
@@ -396,7 +396,7 @@ Tasks:
 
 **Sprint goal:** complete the first vertical slice from a disk change to a browser reload.
 
-**W-01 — Implement protocol 7 (M)**  
+**W-01 — Implement protocol 7 (M)**
 As a browser client, I want a valid LiveReload handshake and reload message so that existing integrations work unchanged.
 
 Acceptance criteria:
@@ -411,7 +411,7 @@ Tasks:
 - [ ] `W-01.2` Implement JSON decoding/encoding and negotiation state machine.
 - [ ] `W-01.3` Run golden fixtures shared with Sprint 0 browser research.
 
-**W-02 — Serve browser connections (L)**  
+**W-02 — Serve browser connections (L)**
 As a user, I want browsers to connect locally and reconnect safely.
 
 Acceptance criteria:
@@ -426,7 +426,7 @@ Tasks:
 - [ ] `W-02.2` Add lifecycle, multiple-client, invalid-handshake, disconnect, and port-conflict integration tests.
 - [ ] `W-02.3` Add manual-reload API and connection-status events.
 
-**W-03 — Connect monitoring to reload (M)**  
+**W-03 — Connect monitoring to reload (M)**
 As a user, I want saving a source file to refresh my browser automatically.
 
 Acceptance criteria:
@@ -452,7 +452,7 @@ Tasks:
 
 **Sprint goal:** run optional project build commands predictably without overlapping work or shell injection.
 
-**B-01 — Configure structured commands (M)**  
+**B-01 — Configure structured commands (M)**
 As a user, I want to choose an executable, arguments, working directory, and environment additions without hand-editing configuration files.
 
 Acceptance criteria:
@@ -467,7 +467,7 @@ Tasks:
 - [ ] `B-01.2` Build command editor with executable picker and argument list.
 - [ ] `B-01.3` Add validation and persistence tests.
 
-**B-02 — Execute and observe builds (L)**  
+**B-02 — Execute and observe builds (L)**
 As a user, I want output, exit status, timeout, and cancellation visible so that build failures are actionable.
 
 Acceptance criteria:
@@ -483,7 +483,7 @@ Tasks:
 - [ ] `B-02.3` Add fixture executables and integration tests for every result.
 - [ ] `B-02.4` Add build output/result activity views.
 
-**B-03 — Serialize build and reload pipeline (M)**  
+**B-03 — Serialize build and reload pipeline (M)**
 As a user, I want rapid saves to produce predictable builds and reload only valid output.
 
 Acceptance criteria:
@@ -504,7 +504,7 @@ Tasks:
 
 **Sprint goal:** make the app comfortable and trustworthy during a full development day.
 
-**U-01 — Deliver menu-bar workflow (M)**  
+**U-01 — Deliver menu-bar workflow (M)**
 As a user, I want essential controls available without keeping a window open.
 
 Acceptance criteria:
@@ -519,7 +519,7 @@ Tasks:
 - [ ] `U-01.2` Design healthy/paused/building/error status presentation.
 - [ ] `U-01.3` Add menu command and accessibility UI tests.
 
-**U-02 — Complete settings and ignore UX (M)**  
+**U-02 — Complete settings and ignore UX (M)**
 As a user, I want to configure port, debounce, default ignores, history, and launch behavior safely.
 
 Tasks:
@@ -529,7 +529,7 @@ Tasks:
 - [ ] `U-02.3` Implement per-project ignore editor with match preview.
 - [ ] `U-02.4` Add reset/default/migration tests.
 
-**U-03 — Recover from expected failures (M)**  
+**U-03 — Recover from expected failures (M)**
 As a user, I want the app to explain and recover from lost folders, occupied ports, sleep/wake, and failed builds.
 
 Acceptance criteria:

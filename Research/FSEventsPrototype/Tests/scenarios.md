@@ -19,4 +19,4 @@
 | Restore | The bookmark resolves to a file URL and balances `startAccessingSecurityScopedResource` / stop. |
 | Stale | Resolution reports `stale=true` without deleting the persisted project record. |
 | Failure | A corrupt/missing bookmark returns a repair-required result. |
-| Repair | Selecting a replacement directory creates a new bookmark while retaining the caller-provided project identity. |
+| Repair | `repair-bookmark PROJECT-ID FOLDER FILE` creates a replacement bookmark and emits the unchanged caller-provided project identity. |

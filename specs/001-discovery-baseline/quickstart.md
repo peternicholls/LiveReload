@@ -39,4 +39,3 @@ Do not begin production application targets in this feature.
 ## 5. Verify phase exit
 
 Run prerequisite and cross-artifact checks, then complete `docs/modernization/sprint-reviews/sprint-0.md`. Phase 0 is ready only when all tasks and requirements pass, ADR-001/002/003 are accepted, compatibility/prototypes are reproducible, the constitution check passes, and no architecture-blocking issue is open.
-

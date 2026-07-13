@@ -1,7 +1,7 @@
 # LiveReload Modernization Constitution
 
-**Version:** 1.0.0  
-**Ratified:** 2026-07-11  
+**Version:** 1.0.0
+**Ratified:** 2026-07-11
 **Last amended:** 2026-07-11
 
 ## Purpose

@@ -22,4 +22,3 @@ Every research output must satisfy this contract before its task is checked comp
 - `superseded`: retained for history and linked to replacement evidence.
 
 Only validated evidence may close an architecture-blocking question.
-

@@ -50,4 +50,3 @@
 ## Research completion rule
 
 A research item is complete only when it produces an ADR, fixture, compatibility row, benchmark, or reproducible observation. Notes without a decision or evidence do not close a task.
-

@@ -85,4 +85,3 @@ Rules: `unknown` assets are excluded from the release path.
 - `evidence[]`
 
 Rule: `ready` requires an empty `openBlockingIssues` list.
-

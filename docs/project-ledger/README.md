@@ -28,4 +28,3 @@ This directory is the durable operational memory for the modernization. It compl
 - Learnings: `candidate`, `validated`, `superseded`.
 
 IDs are never reused. Resolved and superseded records remain in place so history is searchable.
-

@@ -18,9 +18,10 @@ swift package clean
 swift build -Xswiftc -warnings-as-errors                  PASS
 swift build -c release -Xswiftc -warnings-as-errors       PASS
 .build/debug/FSEventsPrototype simulate-recovery          PASS (RECOVERY-REQUIRED)
+.build/debug/FSEventsPrototype repair-bookmark …          PASS (project identity retained; replacement restores)
 
 Research/BrowserFixture
 node --check server.mjs                                   PASS
 ```
 
-The FSEvents physical sleep/wake manual exercise remains ISS-003; it does not invalidate the reproducibility of the harnesses or the accepted Phase 0 architecture decision.
+The physical sleep/wake exercise passed on 2026-07-12; the sanitized capture is retained at `monitoring/sleep-wake-capture.log`.

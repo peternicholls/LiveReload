@@ -4,6 +4,22 @@ Record product defects, blockers, risks, and unanswered technical questions here
 
 ## Open
 
+### ISS-004 — Safari corrected stylesheet fixture requires interactive revalidation
+
+- Status: open
+- Severity: medium
+- Found: 2026-07-13
+- Owner: Phase 0 maintainer
+- Related tasks: T022, T025, T055–T057
+- Related ADRs: none
+- Reproduction: Run `Research/BrowserFixture` in Safari 26.5.2, trigger the CSS reload, and verify both the initial and cache-busted `/styles.css` requests return 200.
+- Expected: Safari connects using protocol 7 and reloads the corrected stylesheet without a failed resource request.
+- Actual: The historical Safari observation predates the addition of `Research/BrowserFixture/styles.css`. Safari WebDriver cannot run because Safari Settings → Developer → Allow remote automation is disabled on this host.
+- Evidence: `docs/modernization/evidence/browser/fixture-run-2026-07-11.md`; SafariDriver session-creation output on 2026-07-13.
+- Hypotheses: Manual Safari interaction or enabling remote automation will reproduce the corrected Chromium result.
+- Next action: Enable Safari remote automation or manually repeat the fixture, then capture the 200 stylesheet requests and resolve this issue.
+- Review/expiry: 2026-10-13
+
 ### ISS-001 — Archived binary observation lacks the required isolated runtime
 
 - Status: blocked

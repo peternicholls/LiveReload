@@ -40,4 +40,3 @@ What is chosen and where does the boundary sit?
 
 Prototype, tests, benchmarks, or primary documentation that validates the choice.
 ```
-

@@ -1,7 +1,7 @@
 # Requirements Quality Checklist: Discovery Baseline
 
-**Purpose**: Validate that the Phase 0 specification is complete, testable, technology-appropriate, and ready for technical planning.  
-**Created**: 2026-07-11  
+**Purpose**: Validate that the Phase 0 specification is complete, testable, technology-appropriate, and ready for technical planning.
+**Created**: 2026-07-11
 **Feature**: [Discovery Baseline specification](../spec.md)
 
 ## Content Quality
