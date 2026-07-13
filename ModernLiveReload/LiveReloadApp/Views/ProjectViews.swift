@@ -34,6 +34,7 @@ struct ProjectShellView: View {
         } detail: {
             if let project = model.selectedProject {
                 ProjectDetailView(model: model, project: project)
+                    .id(project.id)
             } else {
                 EmptyProjectView(model: model)
             }

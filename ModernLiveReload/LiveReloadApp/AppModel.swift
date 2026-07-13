@@ -14,12 +14,14 @@ final class AppModel {
     private let store: ProjectStore
     private let activityStore = ActivityStore()
     private let provider: any FolderAccessProvider
+    private let accessCoordinator: ProjectAccessCoordinator
 
-    init() {
+    convenience init() {
         let arguments = ProcessInfo.processInfo.arguments
         let environment = ProcessInfo.processInfo.environment
         let isUITesting = arguments.contains { $0.hasPrefix("--ui-testing-") }
         let url: URL
+        let provider: any FolderAccessProvider
         if isUITesting, let testStorePath = environment["LIVERELOAD_UI_TEST_STORE"] {
             url = URL(fileURLWithPath: testStorePath)
             provider = FakeFolderAccessProvider()
@@ -27,13 +29,31 @@ final class AppModel {
             url = try! ProjectStore.applicationSupportURL()
             provider = SecurityScopedBookmarkProvider()
         }
-        store = ProjectStore(fileURL: url)
+        self.init(
+            store: ProjectStore(fileURL: url),
+            provider: provider,
+            arguments: arguments,
+            corruptionFixtureURL: url
+        )
+    }
+
+    init(
+        store: ProjectStore,
+        provider: any FolderAccessProvider,
+        automaticallyLoad: Bool = true,
+        arguments: [String] = [],
+        corruptionFixtureURL: URL? = nil
+    ) {
+        self.store = store
+        self.provider = provider
+        accessCoordinator = ProjectAccessCoordinator(store: store, provider: provider)
+        guard automaticallyLoad else { return }
         Task {
             if arguments.contains("--ui-testing-delay-load") {
                 try? await Task.sleep(for: .seconds(3))
             }
-            if arguments.contains("--ui-testing-corrupt") {
-                try? Data("not-json".utf8).write(to: url)
+            if arguments.contains("--ui-testing-corrupt"), let corruptionFixtureURL {
+                try? Data("not-json".utf8).write(to: corruptionFixtureURL)
             }
             await load()
             if arguments.contains("--ui-testing-seeded") {
@@ -56,23 +76,41 @@ final class AppModel {
 
     func load() async {
         do {
+            var shouldRefreshAccess = false
             switch try await store.load() {
             case .loaded(let envelope), .empty(let envelope):
                 projects = envelope.projects
+                shouldRefreshAccess = !projects.isEmpty
             case .recoveredFromCorruption(let envelope):
                 projects = envelope.projects
-                recoveryMessage = "Configuration was reset safely. The unreadable file was preserved for diagnosis."
-                await record(.storage, .warning, recoveryMessage!)
+                await presentRecovery(
+                    "Configuration was reset safely. The unreadable file was preserved for diagnosis.",
+                    severity: .warning
+                )
+            case .recoveryRequired(let envelope):
+                projects = envelope.projects
+                await presentRecovery(
+                    "Configuration could not be read and remains unchanged. Restore storage access and relaunch before changing projects.",
+                    severity: .error
+                )
             case .unsupportedFutureVersion:
-                recoveryMessage = "This configuration was created by a newer version and was preserved unchanged."
-                await record(.storage, .error, recoveryMessage!)
+                projects = []
+                await presentRecovery(
+                    "This configuration was created by a newer version and was preserved unchanged.",
+                    severity: .error
+                )
+            }
+            if shouldRefreshAccess {
+                await refreshRestoredAccess()
             }
             if selectedProjectID == nil || !projects.contains(where: { $0.id == selectedProjectID }) {
                 selectedProjectID = projects.first?.id
             }
         } catch {
-            recoveryMessage = "Projects could not be loaded. Your configuration was preserved; retry or restore it."
-            await record(.storage, .error, recoveryMessage!)
+            await presentRecovery(
+                "Projects could not be loaded. Your configuration was preserved; retry or restore it.",
+                severity: .error
+            )
         }
     }
 
@@ -85,27 +123,39 @@ final class AppModel {
             selectedProjectID = project.id
             await record(.folderAccess, .info, "Project access added.", projectID: project.id)
         } catch ProjectStoreError.duplicateFolderIdentity {
-            recoveryMessage = "That folder is already configured. The existing project was preserved."
+            await presentRecovery(
+                "That folder is already configured. The existing project was preserved.",
+                category: .folderAccess,
+                severity: .warning
+            )
         } catch {
-            recoveryMessage = "The project could not be added. No existing configuration was changed."
+            await presentRecovery(
+                "The project could not be added. No existing configuration was changed.",
+                severity: .error
+            )
         }
     }
 
     func rename(_ project: ProjectConfiguration, to name: String) async {
         do {
-            var updated = project
-            try updated.rename(to: name)
-            projects = try await store.update(updated).projects
+            projects = try await store.rename(projectID: project.id, to: name).projects
         } catch {
-            recoveryMessage = "The name was not changed. Enter a name between 1 and 120 characters."
+            await presentRecovery(
+                "The name was not changed. Enter a name between 1 and 120 characters.",
+                severity: .warning
+            )
         }
     }
 
     func setEnabled(_ project: ProjectConfiguration, enabled: Bool) async {
-        var updated = project
-        updated.isEnabled = enabled
-        do { projects = try await store.update(updated).projects }
-        catch { recoveryMessage = "The setting could not be saved. The previous value was preserved." }
+        do {
+            projects = try await store.setEnabled(projectID: project.id, enabled: enabled).projects
+        } catch {
+            await presentRecovery(
+                "The setting could not be saved. The previous value was preserved.",
+                severity: .error
+            )
+        }
     }
 
     func repair(_ project: ProjectConfiguration) async {
@@ -115,18 +165,59 @@ final class AppModel {
             projects = try await store.replaceFolderAccess(projectID: project.id, reference: reference).projects
             await record(.folderAccess, .info, "Project access repaired.", projectID: project.id)
         } catch {
-            recoveryMessage = "Access was not repaired. The project and its settings were preserved."
+            await presentRecovery(
+                "Access was not repaired. The project and its settings were preserved.",
+                category: .folderAccess,
+                severity: .error
+            )
         }
     }
 
     func remove(_ project: ProjectConfiguration) async {
         do {
             projects = try await store.remove(projectID: project.id).projects
-            if selectedProjectID == project.id { selectedProjectID = nil }
+            if selectedProjectID == project.id { selectedProjectID = projects.first?.id }
             await record(.app, .info, "Project configuration removed; source files were not changed.")
         } catch {
-            recoveryMessage = "The project could not be removed. Its configuration was preserved."
+            await presentRecovery(
+                "The project could not be removed. Its configuration was preserved.",
+                severity: .error
+            )
         }
+    }
+
+    private func refreshRestoredAccess() async {
+        for project in projects {
+            do {
+                let state = try await accessCoordinator.refreshAccess(for: project.id)
+                guard state != .available else { continue }
+                await record(
+                    .folderAccess,
+                    .warning,
+                    "Saved folder access needs attention. Repair the project to continue.",
+                    projectID: project.id
+                )
+            } catch {
+                await record(
+                    .folderAccess,
+                    .error,
+                    "Saved folder access could not be verified. The project was preserved.",
+                    projectID: project.id
+                )
+            }
+        }
+        if let snapshot = try? await store.snapshot() {
+            projects = snapshot.projects
+        }
+    }
+
+    private func presentRecovery(
+        _ message: String,
+        category: ActivityCategory = .storage,
+        severity: ActivitySeverity
+    ) async {
+        recoveryMessage = message
+        await record(category, severity, message)
     }
 
     private func record(
