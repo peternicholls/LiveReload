@@ -6,6 +6,11 @@ enum LiveReloadBrowserHarness {
     private static let projectID = UUID(uuidString: "4EF814BF-63AA-46EC-9B87-58B91F0A459D")!
 
     static func main() async {
+        guard let rootURL = requestedRootURL() else {
+            write(HarnessEvent(event: "startup-failed", phase: "missing-root"))
+            Foundation.exit(EXIT_FAILURE)
+        }
+
         let port = requestedPort()
         let server = ReloadServer(port: port)
         await server.start()
@@ -13,6 +18,46 @@ enum LiveReloadBrowserHarness {
         let state = await server.currentState()
         guard state.phase == .listening, let listeningPort = await server.listeningPort() else {
             write(HarnessEvent(event: "startup-failed", phase: state.phase.rawValue))
+            await server.stop()
+            Foundation.exit(EXIT_FAILURE)
+        }
+
+        let pipeline: ProjectPipeline
+        do {
+            pipeline = try ProjectPipeline(
+                projectID: projectID,
+                server: server,
+                policy: ExclusionPolicy(),
+                onSettled: { batch, result in
+                    write(HarnessEvent(
+                        event: "broadcast",
+                        mode: batch.classification == .stylesheetOnly ? "stylesheet" : "full-page",
+                        readyClientCount: result.readyClientCount,
+                        sentCount: result.sentCount,
+                        failedCount: result.failedCount
+                    ))
+                }
+            )
+        } catch {
+            write(HarnessEvent(event: "startup-failed", phase: "invalid-pipeline"))
+            await server.stop()
+            Foundation.exit(EXIT_FAILURE)
+        }
+
+        let monitor = ProjectMonitor(
+            source: FSEventsFileEventSource(),
+            onSignal: { signal in
+                await pipeline.receive(signal)
+            },
+            onStateChange: { state, reason in
+                await pipeline.setMonitoringState(state, reason: reason)
+            }
+        )
+        await monitor.start(projectID: projectID, rootURL: rootURL)
+        guard await monitor.currentState() == .watching else {
+            write(HarnessEvent(event: "startup-failed", phase: "monitor-failed"))
+            await monitor.stop()
+            await pipeline.stop()
             await server.stop()
             Foundation.exit(EXIT_FAILURE)
         }
@@ -28,29 +73,9 @@ enum LiveReloadBrowserHarness {
                     phase: current.phase.rawValue,
                     readyClientCount: current.clientCount
                 ))
-            case "stylesheet":
-                await deliver(
-                    ReloadDecision(
-                        projectID: projectID,
-                        reason: .settledChanges,
-                        mode: .stylesheet,
-                        relativePaths: ["styles.css"]
-                    ),
-                    mode: "stylesheet",
-                    using: server
-                )
-            case "full-page":
-                await deliver(
-                    ReloadDecision(
-                        projectID: projectID,
-                        reason: .settledChanges,
-                        mode: .fullPage,
-                        relativePaths: ["index.html"]
-                    ),
-                    mode: "full-page",
-                    using: server
-                )
             case "stop":
+                await monitor.stop()
+                await pipeline.stop()
                 await server.stop()
                 write(HarnessEvent(event: "stopped", phase: ServerPhase.stopped.rawValue))
                 return
@@ -61,22 +86,9 @@ enum LiveReloadBrowserHarness {
             }
         }
 
+        await monitor.stop()
+        await pipeline.stop()
         await server.stop()
-    }
-
-    private static func deliver(
-        _ decision: ReloadDecision,
-        mode: String,
-        using server: ReloadServer
-    ) async {
-        let result = await server.broadcast(decision)
-        write(HarnessEvent(
-            event: "broadcast",
-            mode: mode,
-            readyClientCount: result.readyClientCount,
-            sentCount: result.sentCount,
-            failedCount: result.failedCount
-        ))
     }
 
     private static func requestedPort() -> UInt16 {
@@ -88,12 +100,21 @@ enum LiveReloadBrowserHarness {
         return port
     }
 
+    private static func requestedRootURL() -> URL? {
+        guard let index = CommandLine.arguments.firstIndex(of: "--root"),
+              CommandLine.arguments.indices.contains(index + 1) else {
+            return nil
+        }
+        return URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
+    }
+
     private static func write(_ event: HarnessEvent) {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
         guard let data = try? encoder.encode(event) else { return }
-        FileHandle.standardOutput.write(data)
-        FileHandle.standardOutput.write(Data([0x0A]))
+        var line = data
+        line.append(0x0A)
+        FileHandle.standardOutput.write(line)
     }
 }
 

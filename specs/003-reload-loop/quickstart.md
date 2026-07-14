@@ -15,7 +15,7 @@
 4. Connect the Safari and Chromium fixtures to the local endpoint and confirm the compatible client count.
 5. Save a CSS file, then an HTML file. Verify one settled stylesheet refresh and one settled full-page refresh respectively.
 6. Exercise default exclusions, a user exclusion, a mixed burst, repeated start/stop, root removal, lost-event recovery, and a port conflict. Confirm every failure preserves configuration and exposes the matching recovery state.
-7. After a 30-second warm-up with one project monitoring and the local server ready, collect the app process CPU value once per second for five minutes. Record the mean and peak with resource-cleanup evidence, without retaining absolute paths, browser peer addresses, or private source contents.
+7. Start the release-built idle probe with one production project monitor and local server. After its 30-second warm-up, collect that owning process's CPU value once per second for five minutes. Record the mean and peak with resource-cleanup evidence, without retaining absolute paths, browser peer addresses, or private source contents.
 
 ## Expected results
 

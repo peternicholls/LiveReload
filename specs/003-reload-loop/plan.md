@@ -42,6 +42,7 @@ Phase 2 delivers the first useful LiveReload outcome: a user explicitly starts m
 | Accessible/actionable experience | Active, stopped, recovering, permission-loss, root-loss, and port-conflict states have UI and keyboard acceptance | PASS |
 | Durable project memory | This feature receives its own spec, plan, task ledger, evidence, and phase review | PASS |
 | Scope/attribution/release integrity | Existing notices and release posture remain; no new third-party inclusion is planned | PASS |
+| Versioning, inclusions, and living guides | Phase exit reconciles the changelog, inclusion register, NOTICE, and user/developer guides | PASS |
 
 **Pre-design verdict:** PASS. No constitutional exception is requested.
 
@@ -103,6 +104,7 @@ typed, bounded, Sendable events and safe activity summaries
 | Privacy and diagnostics | [reload-protocol.md](./contracts/reload-protocol.md), [ui-states.md](./contracts/ui-states.md) | PASS |
 | User recovery/accessibility | [ui-states.md](./contracts/ui-states.md), [quickstart.md](./quickstart.md) | PASS |
 | Verification and release integrity | [quickstart.md](./quickstart.md), task-level evidence gates | PASS |
+| Versioning, inclusions, and living guides | T036–T037 documentation review and Sprint 2 evidence | PASS |
 
 **Post-design verdict:** PASS. No complexity exception or constitutional amendment is required.
 

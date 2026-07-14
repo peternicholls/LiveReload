@@ -10,6 +10,7 @@ DESTINATION="platform=macOS,arch=arm64"
 RELOAD_FIXTURES="$ROOT/tests/fixtures/reload-loop"
 RELOAD_EVIDENCE="$ROOT/docs/modernization/evidence/reload-loop"
 BROWSER_HARNESS="$ROOT/Research/BrowserFixture/run-production-compatibility.mjs"
+BROWSER_SWIFT_HARNESS="$ROOT/Packages/LiveReloadCore/Sources/LiveReloadBrowserHarness/main.swift"
 BROWSER_EVIDENCE="$RELOAD_EVIDENCE/browser-compatibility-2026-07-14.md"
 IDLE_HARNESS="$ROOT/scripts/verify-reload-idle.sh"
 IDLE_EVIDENCE="$RELOAD_EVIDENCE/idle-resources.md"
@@ -44,10 +45,24 @@ while IFS= read -r -d '' fixture; do
     || fail "invalid Phase 2 JSON fixture: ${fixture#$ROOT/}"
 done < <(find "$RELOAD_FIXTURES" -type f -name '*.json' -print0)
 [[ -s "$BROWSER_HARNESS" ]] || fail "production browser compatibility harness is missing"
+[[ -s "$BROWSER_SWIFT_HARNESS" ]] || fail "production Swift browser harness is missing"
 [[ -s "$IDLE_HARNESS" ]] || fail "idle resource harness is missing"
 node --check "$ROOT/Research/BrowserFixture/server.mjs"
 node --check "$BROWSER_HARNESS"
 bash -n "$IDLE_HARNESS"
+rg -q 'FSEventsFileEventSource' "$BROWSER_SWIFT_HARNESS" \
+  || fail "browser harness does not use the production file-event source"
+rg -q 'ProjectPipeline' "$BROWSER_SWIFT_HARNESS" \
+  || fail "browser harness bypasses the production project pipeline"
+rg -q "writeFile\(join\(browserWorkspace, 'styles\.css'\)" "$BROWSER_HARNESS" \
+  || fail "browser harness does not drive a real stylesheet file change"
+rg -q "writeFile\(join\(browserWorkspace, 'index\.html'\)" "$BROWSER_HARNESS" \
+  || fail "browser harness does not drive a real HTML file change"
+rg -q 'exerciseMalformedThirdClient' "$BROWSER_HARNESS" \
+  || fail "browser harness does not isolate a malformed third client"
+if rg -q "stdin\.write\('(stylesheet|full-page)" "$BROWSER_HARNESS"; then
+  fail "browser harness still drives direct broadcast commands"
+fi
 pass "Phase 2 fixture and harness integrity"
 
 if rg -n '^import (SwiftUI|AppKit)$' "$ROOT/Packages/LiveReloadCore/Sources" "$ROOT/Packages/LiveReloadCore/Tests"; then
@@ -74,6 +89,10 @@ rg -q '^\*\*Result:\*\* PASS$' "$BROWSER_EVIDENCE" \
   || fail "production browser compatibility evidence does not pass"
 rg -q 'production `LiveReloadCore\.ReloadServer`' "$BROWSER_EVIDENCE" \
   || fail "browser evidence does not identify the production reload server"
+rg -q '`FSEventsFileEventSource`.*`ProjectMonitor`.*`ProjectPipeline`' "$BROWSER_EVIDENCE" \
+  || fail "browser evidence does not identify the production file-to-pipeline path"
+rg -q '"malformedThirdClientIsolated": true' "$BROWSER_EVIDENCE" \
+  || fail "browser evidence does not prove malformed-third-client isolation with real browsers"
 rg -q '"fixtureWebSocketClients": 0' "$BROWSER_EVIDENCE" \
   || fail "browser evidence does not prove isolation from the research WebSocket server"
 if [[ "${RUN_BROWSER_COMPATIBILITY_GATE:-0}" == "1" ]]; then

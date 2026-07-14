@@ -6,17 +6,23 @@
 
 ## Scope
 
-The accepted Phase 0 direct protocol fixture was run against the Phase 2
-production `LiveReloadCore.ReloadServer` at
+The accepted Phase 0 direct protocol fixture was run against the complete
+Phase 2 production `LiveReloadCore.ReloadServer` path at
 `127.0.0.1:35729/livereload`. The reusable Swift harness imports
-`LiveReloadCore`, starts `ReloadServer`, and submits typed `ReloadDecision`
-values to `ReloadServer.broadcast`. It does not copy or reimplement the
-WebSocket or LiveReload protocol.
+`LiveReloadCore` and composes
+`FSEventsFileEventSource` → `ProjectMonitor` → `ProjectPipeline` →
+`ReloadServer`. The Node runner creates an ignored, workspace-backed
+disposable project, edits its CSS and HTML files, and observes the resulting
+browser behavior. Neither harness copies or reimplements the production
+monitoring, batching, WebSocket, or LiveReload protocol behavior.
 
 The fixture HTTP server remained on `127.0.0.1:35731`. Its separate research
-WebSocket endpoint reported zero connected clients throughout both runs. This
-guards against accidentally validating the old fixture server instead of the
-production implementation.
+WebSocket endpoint reported zero connected clients throughout both runs. An
+additional raw connection completed a valid upgrade, sent an invalid unmasked
+frame, and was closed before the file edits; both real browsers remained ready
+and received the later reloads. These checks guard against validating the old
+fixture server or proving browser and malformed-client behavior only in
+separate test paths.
 
 ## Environment
 
@@ -61,6 +67,7 @@ Both consecutive compatibility runs produced the same result:
     "Chromium": "Google Chrome 149.0.7827.201"
   },
   "readyClientCount": 2,
+  "malformedThirdClientIsolated": true,
   "stylesheetReloads": {
     "Safari": 1,
     "Chromium": 1
@@ -88,9 +95,16 @@ security hardening preserves current Safari and Chromium compatibility.
 
 ## Acceptance interpretation
 
+- The CSS and HTML inputs were real writes beneath the disposable monitored
+  root. Production FSEvents signals crossed the monitor, exclusion/batching,
+  project-pipeline, and server boundaries; no harness command called
+  `ReloadServer.broadcast` directly.
 - Each browser sent the official protocol-7 client hello and acknowledged the
   production server hello. The production server reported exactly two ready
   clients before delivery.
+- A third upgraded client sent an invalid unmasked browser frame and was
+  isolated. Safari and Chromium remained ready and subsequently received both
+  valid reload decisions, satisfying the two-browser isolation scenario.
 - One stylesheet decision produced exactly one `styles.css` reload event per
   browser with `liveCSS=true`. Exactly one browser-labelled cache-busted
   stylesheet request followed in each client, proving both browsers applied the
@@ -108,6 +122,7 @@ security hardening preserves current Safari and Chromium compatibility.
 - Chromium was exercised headlessly; Safari used the installed desktop browser
   through WebDriver. This is compatibility evidence for the recorded versions,
   not a claim about every historical browser release.
-- The run validates negotiation and classified reload delivery through the
-  production local server. Build execution, remote-network exposure, and URL
-  override are outside Phase 2 scope.
+- The run validates real file-change monitoring, settlement, classification,
+  negotiation, failure isolation, and reload delivery through the production
+  local path. Build execution, remote-network exposure, and URL override are
+  outside Phase 2 scope.

@@ -1,6 +1,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { connect } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
@@ -14,6 +15,7 @@ const chromeBinary = '/Applications/Google Chrome.app/Contents/MacOS/Google Chro
 const children = [];
 let safariSession;
 let chromeProfile;
+let browserWorkspace;
 
 function start(command, args, options = {}) {
   const child = spawn(command, args, {
@@ -158,6 +160,57 @@ async function cleanup() {
     });
   })));
   if (chromeProfile) await rm(chromeProfile, { recursive: true, force: true });
+  if (browserWorkspace) await rm(browserWorkspace, { recursive: true, force: true });
+}
+
+async function exerciseMalformedThirdClient() {
+  await new Promise((resolve, reject) => {
+    const socket = connect({ host: '127.0.0.1', port: 35729 });
+    let response = '';
+    let malformedFrameSent = false;
+    const timer = setTimeout(() => {
+      socket.destroy();
+      reject(new Error('Malformed third client was not isolated within five seconds'));
+    }, 5_000);
+    socket.on('connect', () => {
+      socket.write([
+        'GET /livereload HTTP/1.1',
+        'Host: 127.0.0.1:35729',
+        'Upgrade: websocket',
+        'Connection: Upgrade',
+        'Origin: http://127.0.0.1:35731',
+        'Sec-WebSocket-Version: 13',
+        'Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==',
+        '',
+        ''
+      ].join('\r\n'));
+    });
+    socket.on('data', chunk => {
+      response += chunk.toString('latin1');
+      if (!malformedFrameSent && response.includes('\r\n\r\n')) {
+        if (!response.startsWith('HTTP/1.1 101')) {
+          clearTimeout(timer);
+          socket.destroy();
+          reject(new Error(`Malformed third client was not upgraded: ${response.split('\r\n')[0]}`));
+          return;
+        }
+        malformedFrameSent = true;
+        socket.write(Buffer.from([0x81, 0x01, 0x7b])); // Unmasked browser text frame.
+      }
+    });
+    socket.on('close', () => {
+      clearTimeout(timer);
+      if (!malformedFrameSent) {
+        reject(new Error('Malformed third client closed before the invalid frame was sent'));
+      } else {
+        resolve();
+      }
+    });
+    socket.on('error', error => {
+      clearTimeout(timer);
+      reject(error);
+    });
+  });
 }
 
 async function main() {
@@ -166,11 +219,18 @@ async function main() {
   if (chromeVersionResult.status !== 0) throw new Error('Google Chrome is not installed at the expected application path');
   const chromeVersion = chromeVersionResult.stdout.trim();
 
+  const workspaceParent = join(repositoryRoot, '.build', 'browser-evidence');
+  await mkdir(workspaceParent, { recursive: true });
+  browserWorkspace = await mkdtemp(join(workspaceParent, 'workspace-'));
+  await writeFile(join(browserWorkspace, 'styles.css'), 'body { color: black; }\n');
+  await writeFile(join(browserWorkspace, 'index.html'), '<!doctype html><title>Fixture</title>\n');
+
   const productionServer = start('swift', [
     'run',
     '--package-path', 'Packages/LiveReloadCore',
     'LiveReloadBrowserHarness',
-    '--port', '35729'
+    '--port', '35729',
+    '--root', browserWorkspace
   ]);
   const harnessEvents = jsonLines(productionServer);
   const listening = await waitForHarness(
@@ -220,12 +280,21 @@ async function main() {
     throw new Error(`Expected two ready production clients, received ${ready.readyClientCount ?? 0}`);
   }
 
+  await exerciseMalformedThirdClient();
+  const isolationPromise = waitForHarness(harnessEvents, event => event.event === 'status', 'valid clients after malformed third');
+  productionServer.stdin.write('status\n');
+  const isolated = await isolationPromise;
+  if (isolated.phase !== 'listening' || isolated.readyClientCount !== 2) {
+    throw new Error(`Malformed third client disrupted the two ready browsers (${isolated.readyClientCount ?? 0} remain)`);
+  }
+
   const stylesheetBroadcastPromise = waitForHarness(
     harnessEvents,
     event => event.event === 'broadcast' && event.mode === 'stylesheet',
-    'stylesheet broadcast'
+    'stylesheet file-change broadcast',
+    10_000
   );
-  productionServer.stdin.write('stylesheet\n');
+  await writeFile(join(browserWorkspace, 'styles.css'), 'body { color: rebeccapurple; }\n');
   const stylesheetBroadcast = await stylesheetBroadcastPromise;
   const stylesheetStatus = await waitFor('one stylesheet reload per browser', async () => {
     const status = await requestJSON(fixtureStatusURL);
@@ -255,9 +324,10 @@ async function main() {
   const pageBroadcastPromise = waitForHarness(
     harnessEvents,
     event => event.event === 'broadcast' && event.mode === 'full-page',
-    'full-page broadcast'
+    'HTML file-change broadcast',
+    10_000
   );
-  productionServer.stdin.write('full-page\n');
+  await writeFile(join(browserWorkspace, 'index.html'), '<!doctype html><title>Updated fixture</title>\n');
   const pageBroadcast = await pageBroadcastPromise;
   const finalStatus = await waitFor('one full-page reload and reconnect per browser', async () => {
     const status = await requestJSON(fixtureStatusURL);
@@ -293,6 +363,7 @@ async function main() {
       Chromium: chromeVersion
     },
     readyClientCount: ready.readyClientCount,
+    malformedThirdClientIsolated: true,
     stylesheetReloads: stylesheetCounts,
     cacheBustedStylesheetRequests: stylesheetRequests,
     fullPageReloads: pageCounts,
