@@ -76,8 +76,12 @@ const server = createServer(async (request, response) => {
     record({
       type: 'client-event',
       browser: url.searchParams.get('browser') ?? 'unknown',
+      client: url.searchParams.get('client') ?? 'unknown',
       event: url.searchParams.get('event') ?? 'unknown',
-      path: url.searchParams.get('path') ?? null
+      path: url.searchParams.get('path') ?? null,
+      liveCSS: url.searchParams.has('liveCSS')
+        ? url.searchParams.get('liveCSS') === 'true'
+        : null
     });
     response.statusCode = 204;
     response.end();
@@ -93,6 +97,13 @@ const server = createServer(async (request, response) => {
   }
   try {
     const content = await readFile(resolved);
+    if (url.pathname === '/styles.css') {
+      record({
+        type: 'stylesheet-request',
+        cacheBusted: url.searchParams.has('livereload'),
+        client: url.searchParams.get('client') ?? 'unknown'
+      });
+    }
     response.setHeader('content-type', extname(resolved) === '.css' ? 'text/css' : 'text/html');
     response.end(content);
   } catch {

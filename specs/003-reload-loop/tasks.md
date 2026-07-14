@@ -107,7 +107,7 @@
 - [x] T027 [US1] Implement `ProjectPipeline` to connect monitor batches and manual reload to one classified broadcast, with recovery/stopped/no-client suppression in `Packages/LiveReloadCore/Sources/LiveReloadCore/Pipeline/` (FR-008, FR-012–FR-013, FR-017).
 - [x] T028 [US1] Compose server and per-project pipelines in `ModernLiveReload/LiveReloadApp/AppModel.swift`, expose safe connection count/manual reload state, and preserve existing project mutation gating (FR-011, FR-015, FR-017).
 - [x] T029 [US1] Add accessible local-server/no-client/client-count/manual-reload UI and identifiers in `ModernLiveReload/LiveReloadApp/Views/` with corresponding app/UI tests (FR-011, FR-015, FR-017, SC-006).
-- [ ] T030 [US1] Run the existing Safari and Chromium browser fixtures against the production server and capture sanitized compatibility evidence in `docs/modernization/evidence/reload-loop/` (FR-010–FR-013, SC-001, SC-004, SC-007).
+- [x] T030 [US1] Run the existing Safari and Chromium browser fixtures against the production server and capture sanitized compatibility evidence in `docs/modernization/evidence/reload-loop/` (FR-010–FR-013, SC-001, SC-004, SC-007).
 
 **Checkpoint**: US1 passes raw-server and browser-fixture acceptance tests; a meaningful settled change produces exactly one appropriate reload per ready client.
 
@@ -131,7 +131,7 @@
 
 **Purpose**: Prove the complete reload loop, resource limits, privacy, documentation, and release posture before closing Phase 2.
 
-- [ ] T034 [P] Add and run a five-minute idle CPU/resource sample after a 30-second warm-up, recording one process CPU sample per second plus the mean and peak, and repeated monitor/server start-stop cleanup evidence using a disposable workspace fixture; capture sanitized output in `docs/modernization/evidence/reload-loop/` (SC-005).
+- [x] T034 [P] Add and run a five-minute idle CPU/resource sample after a 30-second warm-up, recording one process CPU sample per second plus the mean and peak, and repeated monitor/server start-stop cleanup evidence using a disposable workspace fixture; capture sanitized output in `docs/modernization/evidence/reload-loop/` (SC-005).
 - [ ] T035 [P] Extend `scripts/verify-modern.sh` with Phase 2 core/integration/browser/fixture and privacy gates, ensuring it still rejects UI-framework leakage, third-party runtime dependencies, build products, and volatile agent metadata (FR-016, SC-007).
 - [ ] T036 [P] Update `docs/guides/user-guide.md`, `docs/guides/developer-guide.md`, `CHANGELOG.md`, `docs/project-ledger/software-inclusions.md`, and `NOTICE.md` disposition for verified Phase 2 behavior and retained deferrals (FR-018, SC-007).
 - [ ] T037 [P] Run the feature requirements checklist, full Debug/Release/unit/integration/UI/browser/privacy verification, and record evidence plus a constitution check in `docs/modernization/sprint-reviews/sprint-2.md` (SC-001–SC-007).
