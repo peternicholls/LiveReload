@@ -3,10 +3,10 @@
 ## Current workflow
 
 1. Start feature work from the active Spec Kit feature branch; the feature `tasks.md` is the execution ledger.
-2. Follow the constitution and Phase 0 ADRs. Do not import legacy implementation or add dependencies without recorded justification.
-3. Add tests/fixtures before behavior where practical. Run the applicable Debug, Release, unit, integration, UI, privacy, and signing checks before marking a task complete.
-4. Update the issue, solution, learning, ADR, sprint-review, guide, changelog, and inclusion-register records affected by the change.
-5. Use Lore-format commits. Before release/merge, run the documented verification command and review `VERSIONING.md`, `CHANGELOG.md`, `NOTICE.md`, and `docs/project-ledger/software-inclusions.md`.
+2. Follow the constitution and accepted ADRs. Do not import legacy implementation or add dependencies without recorded justification.
+3. Add tests and sanitized fixtures before behavior where practical. Run the applicable Debug, Release, unit, integration, UI, browser, privacy, signing, and resource checks before marking a task complete.
+4. Update the issue, solution, learning, ADR, sprint-review, guide, changelog, inclusion-register, behavior-inventory, and roadmap records affected by the change.
+5. Use Lore-format commits. Before release or merge, run the documented verification command and review `VERSIONING.md`, `CHANGELOG.md`, `NOTICE.md`, and `docs/project-ledger/software-inclusions.md`.
 
 ## Documentation change checklist
 
@@ -14,15 +14,48 @@
 - Build, test, architecture, dependency, signing, or release workflow changed: update this guide.
 - New code, package, asset, generator, tool, service, or copied material: update the inclusion register and `NOTICE.md` if required.
 - Releasable change: update `CHANGELOG.md` and select/version according to `VERSIONING.md`.
+- Accepted behavior or deferral changed: update the behavior inventory and, when architectural, supersede or amend the relevant ADR.
 
-## Phase 1 build and test
+## Build and verification
 
-Prerequisites are Xcode 26.3 or a compatible Swift 6.2 toolchain, an Apple-silicon Mac, a valid local Apple Development signing identity, and macOS developer mode enabled with `sudo DevToolsSecurity -enable`. From repository root run:
+Prerequisites are Xcode 26.3 or a compatible Swift 6.2 toolchain, host Node.js for fixture validation/browser automation, an Apple-silicon Mac, a valid local Apple Development signing identity, and macOS developer mode enabled with `sudo DevToolsSecurity -enable`. From the repository root run:
 
 ```sh
 scripts/verify-modern.sh
 ```
 
-The command fails on package tests/Release build, app Debug/Release or test build, UI-framework leakage into core, third-party/legacy dependencies, non-arm64 output, deployment below macOS 15, missing Hardened Runtime signing, version mismatch, tracked build products, or missing governance documents. macOS must permit Xcode UI automation for XCUITest execution; absence of that host permission is a blocking verification failure, not a skipped pass.
+The command verifies the core package and disposable integration suites, app Debug/Release builds, app and UI tests, Phase 2 fixtures and browser-harness integrity, production-browser evidence, privacy boundaries, arm64/macOS 15 output, Hardened Runtime signing, documentation, and inclusion/version consistency. It also rejects UI-framework leakage into core, third-party or legacy production runtimes, tracked build products, and volatile agent metadata.
 
-For focused core work use `swift test --package-path Packages/LiveReloadCore -Xswiftc -warnings-as-errors`. The package owns models, persistence, folder-access contracts/fakes, and diagnostics. Persisted models reapply constructor invariants during decoding. `ProjectStore` preflights the schema header, owns field-level mutations, and write-protects sources that are newer or could not be preserved; the app must handle every `ProjectStoreLoadOutcome`. `AppModel` mirrors that protection with a dedicated configuration-store state, and a failure to resolve Application Support enters the unavailable state instead of crashing. Restored bookmarks pass through `ProjectAccessCoordinator`, which resolves and briefly opens scoped access before recording availability. `AppModel` owns a main-actor `ProjectMutationGate`: acquire it before any project mutation, release it with `defer`, and derive control disabled state from the same gate. AppKit is limited to `FolderPicker` and the production bookmark adapter; SwiftUI/Observation/OSLog stay in the app target. `ModernLiveReload/Version.xcconfig` is the single version source.
+The interactive browser and five-minute idle samples are intentionally explicit gates rather than hidden additions to every local run:
+
+```sh
+RUN_BROWSER_COMPATIBILITY_GATE=1 scripts/verify-modern.sh
+RUN_IDLE_RESOURCE_GATE=1 scripts/verify-modern.sh
+```
+
+The browser gate requires Safari remote automation plus installed Safari and Chrome/Chromium. The idle gate performs a 30-second warm-up followed by exactly 300 one-second CPU samples, so it adds more than five minutes. A phase/release exit must either run those gates or validate the checked-in, sanitized evidence generated by the same harnesses; host-permission failures are blocking results, not skipped passes.
+
+Focused commands:
+
+```sh
+swift test --package-path Packages/LiveReloadCore -Xswiftc -warnings-as-errors
+swift build --package-path Packages/LiveReloadCore -c release -Xswiftc -warnings-as-errors
+node Research/BrowserFixture/run-production-compatibility.mjs
+scripts/verify-reload-idle.sh
+```
+
+## Phase 2 architecture
+
+`LiveReloadCore` owns the runtime values and services. `ProjectMonitor` is the sole owner of a project's FSEvents stream and scoped folder-access lifetime. The direct adapter copies callback values into bounded `Sendable` signals; root changes or lost events enter recovery instead of guessing filesystem contents. `ChangeBatcher` applies normalized project-relative exclusions, keeps one ordered de-duplicated batch, and settles through an injectable clock.
+
+`ReloadServer` owns a Darwin BSD listener bound to `127.0.0.1:35729`. It accepts only `/livereload`, absent Origin or exact loopback HTTP(S) browser origins, and a valid protocol-7 hello. Headers, frames, messages, client count, and pre-negotiation lifetime are bounded; each RFC 6455 session is isolated. `ProjectPipeline` serializes monitor batches, recovery, stop, manual reload, classification, and bounded broadcasts. A stylesheet-only batch uses live CSS; other supported batches use a full-page reload. Recovery, stopped, excluded-only, and no-client paths emit no reload.
+
+`ReloadLoopRuntimeService` composes the monitor and pipeline actors for the app. `AppModel` projects immutable runtime state from service updates and gates conflicting mutations; it does not poll or persist runtime activity. SwiftUI views contain presentation and user intent only. AppKit remains limited to folder selection and security-scoped bookmark access.
+
+Production code has no third-party package or embedded browser runtime. The Node browser fixture, SafariDriver, Safari, and Chrome/Chromium are development-only compatibility tools and are never linked, bundled, or copied into the application.
+
+## Retained boundaries
+
+Phase 3 owns structured build execution, output, timeout/cancellation, and build-gated reload. Automatic monitoring restoration, launch at login, menu-bar-only workflow, App Sandbox, public distribution, extension bundling, URL override, and broad network exposure require later specifications. Do not add recursive rescan guesses to the Phase 2 lost-event path; it deliberately requires visible recovery.
+
+`ModernLiveReload/Version.xcconfig` remains the single version source. Persisted project models continue to reapply constructor invariants during decoding, and `ProjectStore` remains the only configuration persistence owner.

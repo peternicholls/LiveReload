@@ -1,0 +1,11 @@
+{
+  "id": "RL-RFC6455-001",
+  "scenario": "final masked client text frame containing hi",
+  "frameHex": "818201020304696b",
+  "expected": {
+    "accepted": true,
+    "opcode": "text",
+    "payloadUTF8": "hi"
+  }
+}
+

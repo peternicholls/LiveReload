@@ -1,0 +1,48 @@
+{
+  "id": "RL-EXCLUSION-001",
+  "userRules": [
+    "generated/",
+    "**/*.snapshot"
+  ],
+  "cases": [
+    {
+      "path": ".git/HEAD",
+      "excluded": true,
+      "source": "built-in"
+    },
+    {
+      "path": "node_modules/pkg/index.js",
+      "excluded": true,
+      "source": "built-in"
+    },
+    {
+      "path": "generated/app.css",
+      "excluded": true,
+      "source": "user"
+    },
+    {
+      "path": "tests/output.snapshot",
+      "excluded": true,
+      "source": "user"
+    },
+    {
+      "path": ".env.example",
+      "excluded": false
+    },
+    {
+      "path": ".well-known/site",
+      "excluded": false
+    },
+    {
+      "path": "café/menu.html",
+      "excluded": false,
+      "normalization": "unicode-stable"
+    },
+    {
+      "path": "../outside.txt",
+      "excluded": true,
+      "source": "outside-project-root"
+    }
+  ]
+}
+

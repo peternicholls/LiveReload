@@ -125,6 +125,10 @@ private struct ResolvesAvailableButDeniesAccessProvider: FolderAccessProvider {
         .available(reference: reference)
     }
 
+    func resolvedURL(for reference: FolderReference) async throws -> URL {
+        throw FolderAccessError.accessDenied
+    }
+
     func beginAccess(to reference: FolderReference) async throws -> ScopedAccessToken {
         throw FolderAccessError.accessDenied
     }

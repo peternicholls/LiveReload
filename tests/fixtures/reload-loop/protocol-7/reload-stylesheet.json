@@ -1,0 +1,16 @@
+{
+  "id": "RL-P7-003",
+  "direction": "server-to-client",
+  "scenario": "stylesheet-only settled batch",
+  "payload": {
+    "command": "reload",
+    "path": "assets/site.css",
+    "liveCSS": true
+  },
+  "expected": {
+    "decision": "stylesheet",
+    "fullPageReload": false
+  },
+  "phase0Reference": "tests/fixtures/livereload-protocol/FXT-002-server-reload-valid.json"
+}
+

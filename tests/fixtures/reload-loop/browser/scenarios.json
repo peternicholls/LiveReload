@@ -1,0 +1,31 @@
+{
+  "id": "RL-BROWSER-001",
+  "fixtureReference": "Research/BrowserFixture/",
+  "historicalEvidence": "docs/modernization/evidence/browser/fixture-run-2026-07-11.md",
+  "browsers": [
+    "Safari",
+    "Chromium"
+  ],
+  "scenarios": [
+    {
+      "name": "protocol-7-negotiation",
+      "expected": "one ready client per compatible browser"
+    },
+    {
+      "name": "stylesheet-reload",
+      "changedPath": "assets/site.css",
+      "expected": "stylesheet updates without a full page refresh"
+    },
+    {
+      "name": "full-page-reload",
+      "changedPath": "index.html",
+      "expected": "page refreshes and the client may reconnect"
+    },
+    {
+      "name": "two-client-isolation",
+      "expected": "one disconnect does not interrupt the remaining client"
+    }
+  ],
+  "capturePolicy": "Record browser name, sanitized outcome, and command only; omit profiles, peer addresses, and page contents."
+}
+

@@ -39,6 +39,15 @@ public actor FakeFolderAccessProvider: FolderAccessProvider {
         }
     }
 
+    public func resolvedURL(for reference: FolderReference) throws -> URL {
+        guard case .available = mode,
+              let path = String(data: reference.bookmarkData, encoding: .utf8),
+              !path.isEmpty else {
+            throw FolderAccessError.accessDenied
+        }
+        return URL(fileURLWithPath: path, isDirectory: true)
+    }
+
     public func beginAccess(to reference: FolderReference) throws -> ScopedAccessToken {
         guard case .available = mode else { throw FolderAccessError.accessDenied }
         beginCount += 1

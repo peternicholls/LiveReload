@@ -1,0 +1,20 @@
+{
+  "id": "RL-P7-002",
+  "direction": "client-to-server",
+  "scenario": "unsupported protocol negotiation",
+  "payload": {
+    "command": "hello",
+    "protocols": [
+      "http://example.invalid/protocol/1"
+    ],
+    "id": "synthetic-browser",
+    "name": "Reload Loop Fixture",
+    "version": "1.0"
+  },
+  "expected": {
+    "accepted": false,
+    "reason": "unsupported-protocol"
+  },
+  "phase0Reference": "tests/fixtures/livereload-protocol/FXT-003-client-hello-missing-protocols.json"
+}
+

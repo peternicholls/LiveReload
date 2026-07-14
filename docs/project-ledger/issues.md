@@ -58,6 +58,57 @@ Record product defects, blockers, risks, and unanswered technical questions here
 
 Move records here without changing their IDs. Add resolution date, linked solution/commit/test, and why the disposition is justified.
 
+### ISS-008 — Browser evidence bypassed the file-to-pipeline production path
+
+- Status: resolved
+- Severity: high
+- Found: 2026-07-14
+- Resolved: 2026-07-14
+- Owner: Phase 2 maintainer
+- Related tasks: T024, T030, T037, T039
+- Related ADRs: ADR-001, ADR-002
+- Reproduction: Inspect the original `LiveReloadBrowserHarness`: `stylesheet` and `full-page` stdin commands constructed `ReloadDecision` values and called `ReloadServer.broadcast` directly. The browser runner did not edit a monitored workspace, and malformed-third behavior passed only in a separate raw-client test.
+- Expected: SC-001 evidence traverses a real disposable-project save through FSEvents, batching, project pipeline, and production server; SC-004 observes two compatible browser fixtures while a malformed third client fails.
+- Actual: Each component had green coverage, but no single executable acceptance path crossed every boundary claimed by the end-to-end criteria.
+- Evidence: The strengthened browser fixture first timed out waiting for a stylesheet broadcast against the direct harness, then passed twice after the production composition change; `RUN_BROWSER_COMPATIBILITY_GATE=1 scripts/verify-modern.sh` passed the full gate.
+- Resolution: Compose `FSEventsFileEventSource`, `ProjectMonitor`, `ProjectPipeline`, and `ReloadServer` in the Swift harness; drive real CSS/HTML writes from the Node runner; inject an upgraded third client with an invalid unmasked frame; and make the repository verifier reject restored direct-broadcast shortcuts.
+- Next action: Preserve the full-path source assertions and live compatibility gate whenever monitoring, batching, protocol, or browser behavior changes.
+- Review/expiry: 2026-10-14
+
+### ISS-007 — Loopback clients could bypass origin and negotiation-lifetime boundaries
+
+- Status: resolved
+- Severity: medium
+- Found: 2026-07-14
+- Resolved: 2026-07-14
+- Owner: Phase 2 maintainer
+- Related tasks: T026, T030, T031, T032, T037
+- Related ADRs: ADR-001
+- Reproduction: Send an otherwise valid WebSocket upgrade with `Origin: https://attacker.example`; separately hold 32 TCP connections open without completing the HTTP upgrade or protocol-7 hello, then attempt one valid browser connection.
+- Expected: Browser origins are restricted to local development contexts, and incomplete negotiation cannot occupy the bounded client registry indefinitely.
+- Actual: Before the fix, the untrusted origin received `101 Switching Protocols`; 32 idle pre-negotiation sockets prevented a valid thirty-third client from upgrading until an idle peer disconnected.
+- Evidence: `ReloadProtocolTests.swift`, `ReloadServerTests.swift`, production Safari/Chromium revalidation, and `docs/modernization/evidence/reload-loop/security-privacy-review.md`.
+- Resolution: Accept absent Origin only for native/raw clients, allow exact loopback HTTP(S) browser origins, reject all other or duplicate origins, and close connected or upgraded non-ready sessions through a queue-owned two-second negotiation deadline. Independent probes confirmed rejected origins return 400, incomplete sessions close after about 2.06 seconds, and a ready client remains connected beyond the deadline.
+- Next action: Preserve the origin and negotiation-lifetime regressions; any future non-loopback or browser-extension origin requires its own threat model and explicit contract.
+- Review/expiry: 2026-10-14
+
+### ISS-006 — Background completion could outlive its runtime owner
+
+- Status: resolved
+- Severity: high
+- Found: 2026-07-14
+- Resolved: 2026-07-14
+- Owner: Phase 2 maintainer
+- Related tasks: T012, T013, T020, T026, T027, T031, T032
+- Related ADRs: ADR-001, ADR-002
+- Reproduction: Race monitor start against stop; close a browser session while its read source is active; trigger recovery while a broadcast is pending; overflow the event stream; or include a slow client in a multi-client broadcast.
+- Expected: A stopped/recovering owner cannot be revived by late work, descriptors have one serialized owner, overflow is visible recovery, and one client cannot delay independent peers.
+- Actual: Review found stale start completion, descriptor/read close races, recovery/broadcast overlap, silent `AsyncStream` drop, and serial fan-out paths.
+- Evidence: generation/lifecycle regressions in `MonitoringTests.swift`, `ProjectPipelineTests.swift`, `ReloadServerTests.swift`, and `RuntimeTestDoubleTests.swift`; implementation commits `98f6668d` and `9d843b55`.
+- Resolution: Fence monitor and pipeline work by generation, serialize session descriptor/source state, convert first buffer overflow to recovery, cancel owned broadcast tasks on recovery/stop, and use bounded concurrent delivery.
+- Next action: Preserve these ownership regressions when extending the pipeline for builds in Phase 3.
+- Review/expiry: 2026-10-14
+
 ### ISS-005 — macOS UI-test runner does not complete automation-mode startup
 
 - Status: resolved

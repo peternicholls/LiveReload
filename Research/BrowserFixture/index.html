@@ -18,9 +18,12 @@
       const connection = document.querySelector('#connection');
       const reload = document.querySelector('#reload');
       const stylesheet = document.querySelector('#fixture-style');
-      const websocketPort = new URLSearchParams(location.search).get('wsPort') ?? location.port;
+      const parameters = new URLSearchParams(location.search);
+      const websocketPort = parameters.get('wsPort') ?? location.port;
+      const fixtureClient = parameters.get('client') ?? 'unknown';
       const socket = new WebSocket(`ws://${location.hostname}:${websocketPort}/livereload`);
       const browser = encodeURIComponent(navigator.userAgent);
+      const client = encodeURIComponent(fixtureClient);
 
       socket.addEventListener('open', () => socket.send(JSON.stringify({
         command: 'hello',
@@ -33,14 +36,15 @@
         const message = JSON.parse(event.data);
         if (message.command === 'hello') {
           connection.textContent = 'Connected with protocol 7.';
-          fetch(`/client-event?event=hello&browser=${browser}`);
+          fetch(`/client-event?event=hello&browser=${browser}&client=${client}`);
           return;
         }
         if (message.command === 'reload') {
-          reload.textContent = `Reload: ${message.path} (liveCSS=${Boolean(message.liveCSS)})`;
-          fetch(`/client-event?event=reload&path=${encodeURIComponent(message.path)}&browser=${browser}`);
-          if (message.liveCSS && message.path.endsWith('.css')) {
-            stylesheet.href = `/styles.css?livereload=${Date.now()}`;
+          const liveCSS = Boolean(message.liveCSS);
+          reload.textContent = `Reload: ${message.path} (liveCSS=${liveCSS})`;
+          fetch(`/client-event?event=reload&path=${encodeURIComponent(message.path)}&liveCSS=${liveCSS}&browser=${browser}&client=${client}`);
+          if (liveCSS && message.path.endsWith('.css')) {
+            stylesheet.href = `/styles.css?livereload=${Date.now()}&client=${client}`;
           } else {
             location.reload();
           }

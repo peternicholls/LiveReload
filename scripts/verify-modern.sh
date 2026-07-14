@@ -7,6 +7,13 @@ SCHEME="LiveReload"
 BUILD_ROOT="$ROOT/ModernLiveReload/Build"
 APP="$BUILD_ROOT/Products/Release/LiveReloadApp.app"
 DESTINATION="platform=macOS,arch=arm64"
+RELOAD_FIXTURES="$ROOT/tests/fixtures/reload-loop"
+RELOAD_EVIDENCE="$ROOT/docs/modernization/evidence/reload-loop"
+BROWSER_HARNESS="$ROOT/Research/BrowserFixture/run-production-compatibility.mjs"
+BROWSER_SWIFT_HARNESS="$ROOT/Packages/LiveReloadCore/Sources/LiveReloadBrowserHarness/main.swift"
+BROWSER_EVIDENCE="$RELOAD_EVIDENCE/browser-compatibility-2026-07-14.md"
+IDLE_HARNESS="$ROOT/scripts/verify-reload-idle.sh"
+IDLE_EVIDENCE="$RELOAD_EVIDENCE/idle-resources.md"
 
 fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
 pass() { printf 'PASS: %s\n' "$*"; }
@@ -28,6 +35,35 @@ run_with_timeout() {
 
 [[ -d "$PROJECT" ]] || fail "modern Xcode project is missing"
 [[ -f "$ROOT/ModernLiveReload/LiveReload.xctestplan" ]] || fail "stable test plan is missing"
+command -v node >/dev/null || fail "host Node.js is required for Phase 2 fixture and browser verification"
+
+for fixture_group in protocol-7 raw-frame browser monitor exclusion recovery; do
+  [[ -d "$RELOAD_FIXTURES/$fixture_group" ]] || fail "Phase 2 fixture group is missing: $fixture_group"
+done
+while IFS= read -r -d '' fixture; do
+  node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' "$fixture" \
+    || fail "invalid Phase 2 JSON fixture: ${fixture#$ROOT/}"
+done < <(find "$RELOAD_FIXTURES" -type f -name '*.json' -print0)
+[[ -s "$BROWSER_HARNESS" ]] || fail "production browser compatibility harness is missing"
+[[ -s "$BROWSER_SWIFT_HARNESS" ]] || fail "production Swift browser harness is missing"
+[[ -s "$IDLE_HARNESS" ]] || fail "idle resource harness is missing"
+node --check "$ROOT/Research/BrowserFixture/server.mjs"
+node --check "$BROWSER_HARNESS"
+bash -n "$IDLE_HARNESS"
+rg -q 'FSEventsFileEventSource' "$BROWSER_SWIFT_HARNESS" \
+  || fail "browser harness does not use the production file-event source"
+rg -q 'ProjectPipeline' "$BROWSER_SWIFT_HARNESS" \
+  || fail "browser harness bypasses the production project pipeline"
+rg -q "writeFile\(join\(browserWorkspace, 'styles\.css'\)" "$BROWSER_HARNESS" \
+  || fail "browser harness does not drive a real stylesheet file change"
+rg -q "writeFile\(join\(browserWorkspace, 'index\.html'\)" "$BROWSER_HARNESS" \
+  || fail "browser harness does not drive a real HTML file change"
+rg -q 'exerciseMalformedThirdClient' "$BROWSER_HARNESS" \
+  || fail "browser harness does not isolate a malformed third client"
+if rg -q "stdin\.write\('(stylesheet|full-page)" "$BROWSER_HARNESS"; then
+  fail "browser harness still drives direct broadcast commands"
+fi
+pass "Phase 2 fixture and harness integrity"
 
 if rg -n '^import (SwiftUI|AppKit)$' "$ROOT/Packages/LiveReloadCore/Sources" "$ROOT/Packages/LiveReloadCore/Tests"; then
   fail "LiveReloadCore imports a UI framework"
@@ -44,9 +80,43 @@ pass "dependency inventory"
 
 swift test --package-path "$ROOT/Packages/LiveReloadCore" -Xswiftc -warnings-as-errors
 swift build --package-path "$ROOT/Packages/LiveReloadCore" -c release -Xswiftc -warnings-as-errors
-pass "core Debug tests and Release build"
+pass "core Debug, reload-loop integration tests, and Release build"
 "$ROOT/scripts/verify-bookmark.sh"
 pass "workspace-backed security-scoped bookmark adapter boundary"
+
+[[ -s "$BROWSER_EVIDENCE" ]] || fail "production browser compatibility evidence is missing"
+rg -q '^\*\*Result:\*\* PASS$' "$BROWSER_EVIDENCE" \
+  || fail "production browser compatibility evidence does not pass"
+rg -q 'production `LiveReloadCore\.ReloadServer`' "$BROWSER_EVIDENCE" \
+  || fail "browser evidence does not identify the production reload server"
+rg -q '`FSEventsFileEventSource`.*`ProjectMonitor`.*`ProjectPipeline`' "$BROWSER_EVIDENCE" \
+  || fail "browser evidence does not identify the production file-to-pipeline path"
+rg -q '"malformedThirdClientIsolated": true' "$BROWSER_EVIDENCE" \
+  || fail "browser evidence does not prove malformed-third-client isolation with real browsers"
+rg -q '"fixtureWebSocketClients": 0' "$BROWSER_EVIDENCE" \
+  || fail "browser evidence does not prove isolation from the research WebSocket server"
+if [[ "${RUN_BROWSER_COMPATIBILITY_GATE:-0}" == "1" ]]; then
+  run_with_timeout 180 node "$BROWSER_HARNESS" \
+    || fail "production Safari/Chromium compatibility gate failed or exceeded 180 seconds"
+  pass "live production Safari/Chromium compatibility"
+else
+  pass "sanitized production Safari/Chromium evidence (set RUN_BROWSER_COMPATIBILITY_GATE=1 to rerun)"
+fi
+
+[[ -s "$IDLE_EVIDENCE" ]] || fail "five-minute idle resource evidence is missing"
+rg -q '^\*\*Result:\*\* PASS$' "$IDLE_EVIDENCE" \
+  || fail "idle resource evidence does not pass"
+[[ "$(awk '/^[0-9]+,[0-9.]+$/ { count++ } END { print count + 0 }' "$IDLE_EVIDENCE")" == "300" ]] \
+  || fail "idle resource evidence does not contain exactly 300 per-second samples"
+rg -q '^\| Mean process CPU \| [0-9.]+% \| PASS .* below 1% \|$' "$IDLE_EVIDENCE" \
+  || fail "idle resource evidence does not record a passing mean below 1%"
+if [[ "${RUN_IDLE_RESOURCE_GATE:-0}" == "1" ]]; then
+  run_with_timeout 420 "$IDLE_HARNESS" \
+    || fail "idle resource gate failed or exceeded 420 seconds"
+  pass "live five-minute idle resource and cleanup gate"
+else
+  pass "sanitized five-minute idle resource evidence (set RUN_IDLE_RESOURCE_GATE=1 to rerun)"
+fi
 
 IDENTITY_LINE="$(security find-identity -v -p codesigning | rg 'Apple Development:' | head -1 || true)"
 [[ -n "$IDENTITY_LINE" ]] || fail "Apple Development signing identity is required"
@@ -94,5 +164,15 @@ if git -C "$ROOT" ls-files '.omx/logs/**' '.omx/state/**' '.omx/metrics.json' | 
   fail "local agent runtime metadata is tracked"
 fi
 pass "tracked agent-runtime privacy gate"
+
+if rg -n --hidden \
+  '(/Users/[^/[:space:]`"]+|/home/[^/[:space:]`"]+|/private/var/folders/[^[:space:]`"]+|/Volumes/[^/[:space:]`"]+|file:///(Users|home|private/var/folders|Volumes)/|https?://[^/@:[:space:]]+:[^/@[:space:]]+@|Authorization:[[:space:]]*(Basic|Bearer)[[:space:]]+[^[:space:]`"]+|AKIA[0-9A-Z]{16}|\b(10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}|192\.168\.[0-9]{1,3}\.[0-9]{1,3}|172\.(1[6-9]|2[0-9]|3[01])\.[0-9]{1,3}\.[0-9]{1,3})\b)' \
+  "$RELOAD_EVIDENCE" "$RELOAD_FIXTURES"; then
+  fail "private path or credential-shaped value found in Phase 2 evidence/fixtures"
+fi
+if find "$RELOAD_EVIDENCE" -type f \( -name '*.xcresult' -o -name '*.profraw' -o -name '*.trace' -o -name '*.logarchive' \) -print -quit | rg -q .; then
+  fail "volatile diagnostic artifact found in Phase 2 evidence"
+fi
+pass "Phase 2 evidence and fixture privacy gate"
 
 printf 'Modern verification completed successfully.\n'

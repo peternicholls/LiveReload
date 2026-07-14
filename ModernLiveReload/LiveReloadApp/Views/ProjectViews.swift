@@ -131,7 +131,7 @@ private struct EmptyProjectView: View {
             Label("No Projects Yet", systemImage: "folder.badge.plus")
                 .accessibilityIdentifier("state.empty")
         } description: {
-            Text("LiveReload will remember folders you explicitly select. Monitoring and reload are not enabled in this foundation release.")
+            Text("LiveReload remembers folders you explicitly select. Monitoring begins only when you start it for a project.")
         } actions: {
             Button("Add Project") { Task { await model.addProject() } }
                 .accessibilityIdentifier("empty.add")
@@ -148,23 +148,25 @@ private struct ProjectDetailView: View {
 
     var body: some View {
         let mutationPending = model.isProjectMutationPending(project.id)
+        let runtimePending = model.isRuntimeOperationPending(project.id)
+        let projectOperationPending = mutationPending || runtimePending
         Form {
             Section("Project") {
                 TextField("Display name", text: $draftName)
                     .onAppear { draftName = project.displayName }
                     .onSubmit { Task { await model.rename(project, to: draftName) } }
                     .accessibilityIdentifier("project.name")
-                    .disabled(mutationPending)
+                    .disabled(projectOperationPending)
                 Text(project.folderReference.displayLabel)
                     .lineLimit(1)
                     .truncationMode(.middle)
                     .accessibilityLabel("Selected folder: \(project.folderReference.displayLabel)")
-                Toggle("Enabled for future monitoring", isOn: Binding(
+                Toggle("Enabled for monitoring", isOn: Binding(
                     get: { project.isEnabled },
                     set: { value in Task { await model.setEnabled(project, enabled: value) } }
                 ))
                 .accessibilityIdentifier("project.enabled")
-                .disabled(mutationPending)
+                .disabled(projectOperationPending)
                 if mutationPending {
                     ProgressView("Saving project changes…")
                         .accessibilityIdentifier("project.mutation.pending")
@@ -175,15 +177,12 @@ private struct ProjectDetailView: View {
                     Text("The folder is unavailable, but this project and its settings are preserved.")
                     Button("Repair Access") { Task { await model.repair(project) } }
                         .accessibilityIdentifier("project.repair")
-                        .disabled(mutationPending)
+                        .disabled(projectOperationPending)
                 }
             }
-            Section("Activity") {
-                if model.activities.isEmpty { Text("No recent activity") }
-                ForEach(model.activities.suffix(20)) { event in
-                    Label(event.summary, systemImage: event.severity == .error ? "exclamationmark.triangle" : "info.circle")
-                }
-            }
+            ProjectMonitoringSection(model: model, project: project)
+            LocalReloadServerSection(model: model, project: project)
+            ProjectActivitySection(model: model, project: project)
             Section("About") {
                 let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Development"
                 let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Local"
@@ -193,7 +192,7 @@ private struct ProjectDetailView: View {
             Section {
                 Button("Remove Project…", role: .destructive) { confirmingRemoval = true }
                     .accessibilityIdentifier("project.remove")
-                    .disabled(mutationPending)
+                    .disabled(projectOperationPending)
             }
         }
         .formStyle(.grouped)

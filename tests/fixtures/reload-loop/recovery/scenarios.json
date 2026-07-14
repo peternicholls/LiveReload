@@ -1,0 +1,38 @@
+{
+  "id": "RL-RECOVERY-001",
+  "projectID": "fixture-project",
+  "scenarios": [
+    {
+      "trigger": "root-changed",
+      "expectedState": "recovering",
+      "configurationPreserved": true,
+      "nextAction": "restart-monitoring"
+    },
+    {
+      "trigger": "events-dropped",
+      "expectedState": "recovering",
+      "configurationPreserved": true,
+      "nextAction": "restart-monitoring"
+    },
+    {
+      "trigger": "folder-access-unavailable",
+      "expectedState": "failed",
+      "configurationPreserved": true,
+      "nextAction": "repair-folder-access"
+    },
+    {
+      "trigger": "port-conflict",
+      "expectedServerState": "conflict",
+      "monitoringUnaffected": true,
+      "nextAction": "retry-server"
+    },
+    {
+      "trigger": "malformed-client",
+      "expectedClientState": "closed",
+      "otherClientsUnaffected": true,
+      "nextAction": "none"
+    }
+  ],
+  "diagnosticPolicy": "Use bounded categories only; omit absolute paths, raw frames, peer addresses, and bookmark data."
+}
+

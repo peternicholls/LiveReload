@@ -1,0 +1,11 @@
+{
+  "id": "RL-RFC6455-003",
+  "scenario": "unmasked client text frame",
+  "frameHex": "81026869",
+  "expected": {
+    "accepted": false,
+    "reason": "client-frame-must-be-masked",
+    "scope": "session-only"
+  }
+}
+
