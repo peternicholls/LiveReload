@@ -3,7 +3,7 @@
 - Status: accepted
 - Date: 2026-07-11
 - Deciders: Phase 0 maintainer
-- Related tasks/issues: T026–T031, ISS-002, LRN-001
+- Related tasks/issues: `specs/003-reload-loop/tasks.md` T022–T032, ISS-002, ISS-006, SOL-001, LRN-001
 - Supersedes: none
 
 ## Context
@@ -37,3 +37,9 @@ Implement a small local RFC 6455 server in the Phase 2 `reload-loop` feature. It
 
 - `Research/WebSocketPrototype/scripts/exercise.mjs` passed raw handshake, reload, multiple-client, malformed-input, disconnect, and port-collision scenarios.
 - `docs/modernization/evidence/websocket/network-framework-prototype.md` records the Safari inconsistency that invalidates the framework option for v1.
+
+## Phase 2 implementation outcome
+
+The accepted boundary is implemented in `Packages/LiveReloadCore/Sources/LiveReloadCore/ReloadProtocol/` and `ReloadServer/`. Golden and raw integration tests cover route rejection, masked frames, bounded headers/frames/messages/client count, ping/pong, close, multiple clients, disconnect cleanup, slow/failing-client isolation, cancellation, restart, and port conflict. Delivery is bounded to four concurrent session writes so a slow client cannot serialize every peer.
+
+The reusable production compatibility harness is `Research/BrowserFixture/run-production-compatibility.mjs`; its sanitized result is linked from `docs/modernization/evidence/reload-loop/README.md`. The app does not bundle or serve `livereload.js`, accept non-loopback clients, or implement URL override.

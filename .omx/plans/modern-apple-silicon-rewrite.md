@@ -104,7 +104,7 @@ Proposed feature sequence (exact numbers are assigned by Spec Kit at creation ti
 |---|---|---|---|
 | Phase 0 — Discovery and decision lock | `discovery-baseline` | Sprint 0 | `001` complete; Phase 1 short name: `modern-foundation` |
 | Phase 1 — Modern foundation and project lifecycle | `modern-foundation` | Sprints 1–2 | `002` complete; final verification passed 27 core tests, 6 app tests, and 5 UI tests |
-| Phase 2 — Minimum useful reload loop | `reload-loop` | Sprints 3–4 | `003` specified; ready for planning |
+| Phase 2 — Minimum useful reload loop | `reload-loop` | Sprints 3–4 | `003` implementation complete; phase-exit verification in progress |
 | Phase 3 — Developer workflow and daily usability | `developer-workflow` | Sprints 5–6 | Not specified |
 | Phase 4 — Quality, security, and private preview | `private-preview` | Sprints 7–8 | Not specified |
 
@@ -347,6 +347,8 @@ Tasks:
 
 **Outcome:** a real file change in a selected project causes a standards-compatible reload message in a connected modern browser.
 
+**Implementation evidence (2026-07-14):** `specs/003-reload-loop/tasks.md` is the executable record. Phase 2 now has actor-owned FSEvents monitoring, bounded filtering/batching, an owned loopback protocol-7/RFC 6455 server, classified pipeline delivery, event-driven app composition, accessible runtime/recovery UI, raw-server and production Safari/Chromium compatibility coverage. Runtime activity is deliberately not persisted. Build execution, automatic monitoring restoration, browser-client/extension bundling, URL override, broad-network access, App Sandbox, and public distribution remain assigned to later specifications.
+
 #### Sprint 3 — Reliable filesystem monitoring
 
 **Sprint goal:** convert FSEvents into deterministic, filtered, debounced project change batches.
@@ -362,10 +364,10 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `M-01.1` Implement `FileEventSource` protocol and FSEvents adapter per ADR-002.
-- [ ] `M-01.2` Implement `ProjectMonitor` actor lifecycle and event normalization.
-- [ ] `M-01.3` Handle dropped-event/root-change flags with rescan/restart policy.
-- [ ] `M-01.4` Add fake-source unit tests and temporary-directory integration tests.
+- [x] `M-01.1` Implement `FileEventSource` protocol and FSEvents adapter per ADR-002.
+- [x] `M-01.2` Implement `ProjectMonitor` actor lifecycle and event normalization.
+- [x] `M-01.3` Handle dropped-event/root-change flags with explicit recovery/restart policy.
+- [x] `M-01.4` Add fake-source unit tests and workspace-backed disposable-directory integration tests.
 
 **M-02 — Filter and debounce changes (M)**
 As a user, I want noisy/generated files ignored and save bursts collapsed into one action.
@@ -378,21 +380,21 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `M-02.1` Specify ignore syntax and precedence in an ADR or design note.
-- [ ] `M-02.2` Implement path normalization, default filters, and user rules.
-- [ ] `M-02.3` Implement injectable-clock debounce and deduplication.
-- [ ] `M-02.4` Add boundary, Unicode, hidden-file, symlink, and 10,000-event tests.
+- [x] `M-02.1` Specify ignore syntax and precedence in the Phase 2 ignore-rule contract.
+- [x] `M-02.2` Implement path normalization, default filters, and user rules.
+- [x] `M-02.3` Implement injectable-clock debounce and deduplication.
+- [x] `M-02.4` Add boundary, Unicode, hidden-file, symlink, and 10,000-event tests.
 
 **M-03 — Surface monitoring state (S)**
 As a user, I want visible monitoring status and recent file events so that I can trust the app.
 
 Tasks:
 
-- [ ] `M-03.1` Bind enabled/starting/watching/recovering/failed states to project UI.
-- [ ] `M-03.2` Add start/stop controls and file-event activity rows.
-- [ ] `M-03.3` Add UI tests using injected monitor events.
+- [x] `M-03.1` Bind stopped/starting/watching/recovering/failed states to project UI.
+- [x] `M-03.2` Add start/stop/retry controls and bounded file-event activity rows.
+- [x] `M-03.3` Add app and UI tests using injected monitor events.
 
-**Sprint 3 exit gate:** real filesystem integration tests pass; a five-minute idle sample is below 1% CPU; UI never shows “watching” after access or stream failure.
+**Sprint 3 exit gate:** PASS — real workspace-backed lifecycle/recovery tests and injected UI regressions pass; the 30-second warm-up plus 300-sample idle probe recorded 0.0126% mean and 0.0251% peak CPU, and repeated monitor/server cleanup passed. Evidence: `docs/modernization/evidence/reload-loop/idle-resources.md`.
 
 #### Sprint 4 — Protocol server and browser compatibility
 
@@ -409,9 +411,9 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `W-01.1` Define typed client/server messages and validation errors.
-- [ ] `W-01.2` Implement JSON decoding/encoding and negotiation state machine.
-- [ ] `W-01.3` Run golden fixtures shared with Sprint 0 browser research.
+- [x] `W-01.1` Define typed client/server messages and validation errors.
+- [x] `W-01.2` Implement JSON decoding/encoding and negotiation state machine.
+- [x] `W-01.3` Run golden fixtures shared with Sprint 0 browser research.
 
 **W-02 — Serve browser connections (L)**
 As a user, I want browsers to connect locally and reconnect safely.
@@ -424,9 +426,9 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `W-02.1` Implement `ReloadServer` and session actors per ADR-001.
-- [ ] `W-02.2` Add lifecycle, multiple-client, invalid-handshake, disconnect, and port-conflict integration tests.
-- [ ] `W-02.3` Add manual-reload API and connection-status events.
+- [x] `W-02.1` Implement `ReloadServer` and isolated session ownership per ADR-001.
+- [x] `W-02.2` Add lifecycle, multiple-client, invalid-handshake, disconnect, and port-conflict integration tests.
+- [x] `W-02.3` Add manual-reload API and connection-status events.
 
 **W-03 — Connect monitoring to reload (M)**
 As a user, I want saving a source file to refresh my browser automatically.
@@ -439,12 +441,12 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] `W-03.1` Implement initial `ProjectPipeline` actor for monitor → reload.
-- [ ] `W-03.2` Implement reload classification and path mapping.
-- [ ] `W-03.3` Add end-to-end browser test harness and captured evidence.
-- [ ] `W-03.4` Update browser compatibility documentation with actual results.
+- [x] `W-03.1` Implement initial `ProjectPipeline` actor for monitor → reload.
+- [x] `W-03.2` Implement reload classification and path mapping.
+- [x] `W-03.3` Add end-to-end production-server browser test harness and sanitized evidence.
+- [x] `W-03.4` Update browser compatibility documentation with actual Safari and Chromium results.
 
-**Sprint 4 exit gate / Milestone 1 preview:** select a folder, connect a modern browser, edit CSS and HTML, and observe the expected reloads. All protocol, socket, monitoring, and end-to-end tests pass.
+**Sprint 4 exit gate / Milestone 1 preview:** PASS — protocol, socket, pipeline, recovery, app/UI, and production-browser coverage proves classified stylesheet and full-page delivery to current Safari and Chromium. Evidence: `docs/modernization/evidence/reload-loop/browser-compatibility-2026-07-14.md`. Phase 2 remains in exit verification until the complete T035–T039 evidence/reconciliation gate closes.
 
 ### Phase 3 — Developer workflow and daily usability
 

@@ -58,6 +58,23 @@ Record product defects, blockers, risks, and unanswered technical questions here
 
 Move records here without changing their IDs. Add resolution date, linked solution/commit/test, and why the disposition is justified.
 
+### ISS-006 — Background completion could outlive its runtime owner
+
+- Status: resolved
+- Severity: high
+- Found: 2026-07-14
+- Resolved: 2026-07-14
+- Owner: Phase 2 maintainer
+- Related tasks: T012, T013, T020, T026, T027, T031, T032
+- Related ADRs: ADR-001, ADR-002
+- Reproduction: Race monitor start against stop; close a browser session while its read source is active; trigger recovery while a broadcast is pending; overflow the event stream; or include a slow client in a multi-client broadcast.
+- Expected: A stopped/recovering owner cannot be revived by late work, descriptors have one serialized owner, overflow is visible recovery, and one client cannot delay independent peers.
+- Actual: Review found stale start completion, descriptor/read close races, recovery/broadcast overlap, silent `AsyncStream` drop, and serial fan-out paths.
+- Evidence: generation/lifecycle regressions in `MonitoringTests.swift`, `ProjectPipelineTests.swift`, `ReloadServerTests.swift`, and `RuntimeTestDoubleTests.swift`; implementation commits `98f6668d` and `9d843b55`.
+- Resolution: Fence monitor and pipeline work by generation, serialize session descriptor/source state, convert first buffer overflow to recovery, cancel owned broadcast tasks on recovery/stop, and use bounded concurrent delivery.
+- Next action: Preserve these ownership regressions when extending the pipeline for builds in Phase 3.
+- Review/expiry: 2026-10-14
+
 ### ISS-005 — macOS UI-test runner does not complete automation-mode startup
 
 - Status: resolved

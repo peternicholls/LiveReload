@@ -3,7 +3,7 @@
 - Status: accepted
 - Date: 2026-07-12
 - Deciders: Phase 0 maintainer
-- Related tasks/issues: T032–T038, LRN-002
+- Related tasks/issues: `specs/003-reload-loop/tasks.md` T010–T021 and T031–T034, ISS-006, SOL-002, LRN-002
 - Supersedes: none
 
 ## Context
@@ -39,3 +39,9 @@ Persist folder selection as security-scoped bookmark data. Resolve it on launch,
 ## Verification
 
 `docs/modernization/evidence/monitoring/fsevents-bookmark-prototype.md` contains the real workspace-event, root-change, burst, bookmark restore/stale, corrupt-bookmark, and physical sleep/wake results.
+
+## Phase 2 implementation outcome
+
+`ProjectMonitor` and `FSEventsFileEventSource` implement the selected ownership boundary. Callback flags are copied into bounded values before actor handoff; start/stop generations prevent a late start completion from reviving a stopped monitor. The event buffer is bounded, and its first overflow becomes one explicit event-loss recovery signal instead of silently dropping ordinary changes. Root change, stream loss, and folder access failure never leave the UI claiming Watching.
+
+`ChangeBatcher` owns a single cancellable pending batch, normalizes project-relative paths, applies built-in and positive user glob exclusions, and settles through an injectable clock. Phase 2 deliberately does not infer tree contents after an event-loss signal; the project enters visible recovery and must restart from a valid access boundary.
