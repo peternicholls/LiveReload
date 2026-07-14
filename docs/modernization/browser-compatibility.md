@@ -30,7 +30,7 @@ On 2026-07-14 the reusable direct protocol fixture ran twice against the product
 | OBS-003 | Safari 26.5.2 | accepted; production server reported a ready client | exactly one `styles.css` reload with `liveCSS=true`; cache-busted stylesheet returned successfully | exactly one `index.html` reload followed by one new hello | supported for the recorded Phase 2 production build | `docs/modernization/evidence/reload-loop/browser-compatibility-2026-07-14.md` |
 | OBS-004 | Google Chrome 149.0.7827.201 (headless) | accepted; production server reported a ready client | exactly one `styles.css` reload with `liveCSS=true`; cache-busted stylesheet returned successfully | exactly one `index.html` reload followed by one new hello | supported for the recorded Phase 2 production build | `docs/modernization/evidence/reload-loop/browser-compatibility-2026-07-14.md` |
 
-Both broadcasts reported two sends and zero failures. This closes the Phase 2 production compatibility obligation for current Safari and Chromium; it does not claim extension packaging, bundled `livereload-js`, remote-device access, or every historical browser version.
+Both broadcasts reported two sends and zero failures. The same fixture passed again after loopback-Origin enforcement and the two-second negotiation deadline were added. This closes the Phase 2 production compatibility obligation for current Safari and Chromium; it does not claim extension packaging, bundled `livereload-js`, remote-device access, or every historical browser version.
 
 ## Captured evidence summary
 

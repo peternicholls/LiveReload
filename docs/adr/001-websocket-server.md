@@ -40,6 +40,6 @@ Implement a small local RFC 6455 server in the Phase 2 `reload-loop` feature. It
 
 ## Phase 2 implementation outcome
 
-The accepted boundary is implemented in `Packages/LiveReloadCore/Sources/LiveReloadCore/ReloadProtocol/` and `ReloadServer/`. Golden and raw integration tests cover route rejection, masked frames, bounded headers/frames/messages/client count, ping/pong, close, multiple clients, disconnect cleanup, slow/failing-client isolation, cancellation, restart, and port conflict. Delivery is bounded to four concurrent session writes so a slow client cannot serialize every peer.
+The accepted boundary is implemented in `Packages/LiveReloadCore/Sources/LiveReloadCore/ReloadProtocol/` and `ReloadServer/`. Golden and raw integration tests cover route and non-loopback-origin rejection, masked frames, bounded headers/frames/messages/client count, a bounded negotiation lifetime, ping/pong, close, multiple clients, disconnect cleanup, slow/failing-client isolation, cancellation, restart, and port conflict. Delivery is bounded to four concurrent session writes so a slow client cannot serialize every peer. Connected or upgraded sessions that do not complete protocol-7 negotiation close after two seconds; ready sessions cancel that deadline.
 
 The reusable production compatibility harness is `Research/BrowserFixture/run-production-compatibility.mjs`; its sanitized result is linked from `docs/modernization/evidence/reload-loop/README.md`. The app does not bundle or serve `livereload.js`, accept non-loopback clients, or implement URL override.

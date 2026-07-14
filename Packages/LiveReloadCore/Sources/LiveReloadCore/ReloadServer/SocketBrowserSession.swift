@@ -30,6 +30,7 @@ final class SocketBrowserSession: @unchecked Sendable, BrowserSessionControlling
     // The session queue is the sole owner of all mutable socket state.
     private var descriptor: Int32
     private var source: DispatchSourceRead?
+    private var negotiationDeadline: DispatchSourceTimer?
     private var state: BrowserSessionState = .connected
     private var negotiatedProtocolVersion: Int?
     private var input = Data()
@@ -50,6 +51,15 @@ final class SocketBrowserSession: @unchecked Sendable, BrowserSessionControlling
         let source = DispatchSource.makeReadSource(fileDescriptor: descriptor, queue: queue)
         source.setEventHandler { [weak self] in self?.readAvailableBytes() }
         self.source = source
+
+        let deadline = DispatchSource.makeTimerSource(queue: queue)
+        deadline.schedule(
+            deadline: .now() + .milliseconds(ProtocolLimits.negotiationDeadlineMilliseconds),
+            leeway: .milliseconds(50)
+        )
+        deadline.setEventHandler { [weak self] in self?.negotiationDeadlineReached() }
+        negotiationDeadline = deadline
+        deadline.resume()
         source.resume()
     }
 
@@ -178,6 +188,7 @@ final class SocketBrowserSession: @unchecked Sendable, BrowserSessionControlling
             try write(WebSocketFrameCodec.encodeServerFrame(opcode: .text, payload: hello))
             negotiatedProtocolVersion = 7
             state = .ready
+            cancelNegotiationDeadline()
             onReady(id)
         case .ping:
             try write(WebSocketFrameCodec.encodeServerFrame(opcode: .pong, payload: frame.payload))
@@ -226,6 +237,7 @@ final class SocketBrowserSession: @unchecked Sendable, BrowserSessionControlling
     }
 
     private func closeOwned() {
+        cancelNegotiationDeadline()
         guard !didClose else { return }
         didClose = true
         if state == .ready { state = .closing }
@@ -238,6 +250,19 @@ final class SocketBrowserSession: @unchecked Sendable, BrowserSessionControlling
             descriptor = -1
         }
         onClose(id)
+    }
+
+    private func negotiationDeadlineReached() {
+        guard state != .ready else {
+            cancelNegotiationDeadline()
+            return
+        }
+        closeOwned()
+    }
+
+    private func cancelNegotiationDeadline() {
+        negotiationDeadline?.cancel()
+        negotiationDeadline = nil
     }
 
     deinit {

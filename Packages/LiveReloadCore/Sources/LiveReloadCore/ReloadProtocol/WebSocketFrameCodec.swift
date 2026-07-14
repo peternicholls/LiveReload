@@ -40,6 +40,9 @@ public struct WebSocketUpgrade: Equatable, Sendable {
             }
             let name = line[..<separator].trimmingCharacters(in: .whitespaces).lowercased()
             let value = line[line.index(after: separator)...].trimmingCharacters(in: .whitespaces)
+            if name == "origin", headers[name] != nil {
+                throw WebSocketProtocolError.invalidUpgrade
+            }
             headers[name] = value
         }
         guard headers["upgrade"]?.lowercased() == "websocket",
@@ -47,6 +50,9 @@ public struct WebSocketUpgrade: Equatable, Sendable {
               headers["sec-websocket-version"] == "13",
               let key = headers["sec-websocket-key"],
               Data(base64Encoded: key)?.count == 16 else {
+            throw WebSocketProtocolError.invalidUpgrade
+        }
+        if let origin = headers["origin"], !isAllowedBrowserOrigin(origin) {
             throw WebSocketProtocolError.invalidUpgrade
         }
 
@@ -58,6 +64,30 @@ public struct WebSocketUpgrade: Equatable, Sendable {
             "Connection: Upgrade\r\n" +
             "Sec-WebSocket-Accept: \(accept)\r\n\r\n"
         )
+    }
+
+    private static func isAllowedBrowserOrigin(_ value: String) -> Bool {
+        guard value.unicodeScalars.allSatisfy({ $0.value > 0x20 && $0.value != 0x7f }),
+              let schemeSeparator = value.range(of: "://") else {
+            return false
+        }
+
+        let scheme = value[..<schemeSeparator.lowerBound].lowercased()
+        guard scheme == "http" || scheme == "https" else { return false }
+        let authority = value[schemeSeparator.upperBound...]
+        guard !authority.isEmpty,
+              !authority.contains("://"),
+              !authority.contains(where: { "/?#@".contains($0) }) else {
+            return false
+        }
+
+        let hostAndPort = authority.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+        let host = hostAndPort[0].lowercased()
+        guard host == "localhost" || host == "127.0.0.1" else { return false }
+        guard hostAndPort.count == 2 else { return true }
+
+        let port = hostAndPort[1]
+        return !port.isEmpty && port.allSatisfy(\.isNumber) && UInt16(port) != nil
     }
 }
 

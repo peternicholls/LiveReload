@@ -32,6 +32,21 @@ Record verified fixes and diagnostic techniques that are likely to be useful aga
 - Limits: Phase 3 process execution will need its own child-process cancellation proof; it must not assume these socket/stream fences cover subprocesses.
 - References: commits `98f6668d` and `9d843b55`; ISS-006
 
+## SOL-003 — Bound loopback browser trust before protocol readiness
+
+- Status: verified
+- Verified: 2026-07-14
+- Solves: ISS-007
+- Related tasks: T026, T030, T031, T032, T037
+- Related ADRs: ADR-001
+- Context: Loopback binding prevents remote-host access, but an unrelated browser origin can still initiate a WebSocket connection and an incomplete local client can consume a bounded session slot.
+- Root cause: The upgrade parser did not evaluate `Origin`, and accepted sessions had no lifetime bound before completing protocol-7 negotiation.
+- Solution: Permit absent Origin for native/raw compatibility, allow only exact loopback HTTP(S) browser origins, reject malformed/opaque/duplicate origins, and give each connected or HTTP-upgraded non-ready session a serial-queue-owned two-second deadline that cancels on ready or close.
+- Verification: `ReloadProtocolTests.swift` origin matrix; `ReloadServerTests.swift` live rejection, saturation expiry, and ready-client survival; production Safari/Chromium compatibility; independent dynamic security re-audit.
+- Rejected alternatives: Treat loopback binding as sufficient | browsers can reach loopback from unrelated web origins. Allow sessions to wait indefinitely within the 32-client cap | incomplete peers can deny service without exceeding any allocation bound.
+- Limits: A malicious native process can repeatedly reconnect or negotiate as a raw client; broader authentication or capability tokens require a separate local-threat model and compatibility decision.
+- References: ISS-007; `docs/modernization/evidence/reload-loop/security-privacy-review.md`
+
 <!--
 ## SOL-001 — Concise solution name
 

@@ -4,6 +4,7 @@
 
 - Bind only to `127.0.0.1` on the documented LiveReload port using the owned Darwin BSD-socket listener; do not substitute the rejected `Network.framework` server path.
 - Accept only the `/livereload` endpoint.
+- Accept absent Origin for native/raw compatibility or an exact loopback HTTP(S) browser Origin; reject opaque, malformed, duplicate, credential-bearing, path-bearing, and non-loopback origins.
 - Reject requests that cannot complete a valid WebSocket upgrade or exceed bounded header, frame, message, or client limits.
 
 ## Connection lifecycle
@@ -11,8 +12,9 @@
 1. Perform the WebSocket upgrade.
 2. Require a masked client `hello` message that advertises a supported LiveReload protocol version.
 3. Negotiate protocol 7 before registering the client as ready.
-4. Accept bounded text, ping, pong, and close frames; reject unsupported, malformed, or oversized input by closing only that session.
-5. Remove closed sessions from the client count immediately.
+4. Close a connected or HTTP-upgraded session that does not become ready within the named bounded negotiation deadline; cancel that deadline when the session becomes ready or closes.
+5. Accept bounded text, ping, pong, and close frames; reject unsupported, malformed, or oversized input by closing only that session.
+6. Remove closed sessions from the client count immediately.
 
 ## Reload messages
 

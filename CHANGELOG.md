@@ -29,6 +29,7 @@ All notable modern application changes are recorded here. Entries describe user-
 ### Security
 
 - Browser serving is restricted to `127.0.0.1:35729` and `/livereload`; HTTP headers, WebSocket frames/messages, protocol fields, client count, and diagnostics are bounded.
+- Browser upgrades accept only absent Origin or exact loopback HTTP(S) origins, and incomplete protocol negotiation is closed after two seconds so idle peers cannot retain every client slot indefinitely.
 - User-visible monitoring/server failures and reload results use redacted activity summaries; bookmark data, peer addresses, arbitrary absolute paths, credentials, and raw untrusted messages are not displayed or persisted.
 
 ## 0.0.0 — Unreleased baseline

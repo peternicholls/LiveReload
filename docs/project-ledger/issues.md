@@ -58,6 +58,23 @@ Record product defects, blockers, risks, and unanswered technical questions here
 
 Move records here without changing their IDs. Add resolution date, linked solution/commit/test, and why the disposition is justified.
 
+### ISS-007 — Loopback clients could bypass origin and negotiation-lifetime boundaries
+
+- Status: resolved
+- Severity: medium
+- Found: 2026-07-14
+- Resolved: 2026-07-14
+- Owner: Phase 2 maintainer
+- Related tasks: T026, T030, T031, T032, T037
+- Related ADRs: ADR-001
+- Reproduction: Send an otherwise valid WebSocket upgrade with `Origin: https://attacker.example`; separately hold 32 TCP connections open without completing the HTTP upgrade or protocol-7 hello, then attempt one valid browser connection.
+- Expected: Browser origins are restricted to local development contexts, and incomplete negotiation cannot occupy the bounded client registry indefinitely.
+- Actual: Before the fix, the untrusted origin received `101 Switching Protocols`; 32 idle pre-negotiation sockets prevented a valid thirty-third client from upgrading until an idle peer disconnected.
+- Evidence: `ReloadProtocolTests.swift`, `ReloadServerTests.swift`, production Safari/Chromium revalidation, and `docs/modernization/evidence/reload-loop/security-privacy-review.md`.
+- Resolution: Accept absent Origin only for native/raw clients, allow exact loopback HTTP(S) browser origins, reject all other or duplicate origins, and close connected or upgraded non-ready sessions through a queue-owned two-second negotiation deadline. Independent probes confirmed rejected origins return 400, incomplete sessions close after about 2.06 seconds, and a ready client remains connected beyond the deadline.
+- Next action: Preserve the origin and negotiation-lifetime regressions; any future non-loopback or browser-extension origin requires its own threat model and explicit contract.
+- Review/expiry: 2026-10-14
+
 ### ISS-006 — Background completion could outlive its runtime owner
 
 - Status: resolved

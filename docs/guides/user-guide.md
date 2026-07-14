@@ -30,7 +30,7 @@ Monitoring always starts from an explicit user action after launch. Runtime moni
 
 Saved folder access is rechecked on every launch. If access becomes stale, missing, or denied, the project remains listed. Choose **Repair Access**, select the replacement folder, then retry monitoring; the project identity, name, and settings are retained. Root changes, dropped FSEvents, and stream failures stop the app from claiming that it is watching and expose a retry action.
 
-A port conflict does not remove project configuration or stop folder monitoring. Free port 35729, then choose **Retry Server**. A malformed, oversized, slow, or disconnected browser is closed in isolation and does not stop other compatible clients. The server accepts loopback connections only and does not serve the browser client script.
+A port conflict does not remove project configuration or stop folder monitoring. Free port 35729, then choose **Retry Server**. A malformed, oversized, slow, or disconnected browser is closed in isolation and does not stop other compatible clients. The server accepts loopback connections and loopback HTTP(S) browser origins only, expires incomplete negotiation, and does not serve the browser client script.
 
 Recent activity is bounded and uses project-relative, length-limited summaries. It does not expose bookmark bytes, peer addresses, credentials, arbitrary absolute paths, or raw untrusted browser input. Long batches are summarized rather than rendered in full.
 

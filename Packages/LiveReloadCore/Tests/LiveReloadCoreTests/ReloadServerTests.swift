@@ -24,6 +24,11 @@ struct ReloadServerTests {
         #expect(String(data: hello.payload, encoding: .utf8)?.contains(#""command":"hello""#) == true)
         await eventually { (await server.currentState()).clientCount == 1 }
 
+        try await Task.sleep(
+            for: .milliseconds(ProtocolLimits.negotiationDeadlineMilliseconds + 500)
+        )
+        #expect((await server.currentState()).clientCount == 1)
+
         let result = await server.broadcast(.manual(projectID: UUID()))
         let reload = try client.receiveServerFrame()
         #expect(result == ReloadBroadcastResult(readyClientCount: 1, sentCount: 1, failedCount: 0))
@@ -71,6 +76,20 @@ struct ReloadServerTests {
         defer { client.close() }
 
         #expect(throws: RawClientError.self) { try client.upgrade(path: "/other") }
+        await eventually { (await server.currentState()).clientCount == 0 }
+    }
+
+    @Test("a non-loopback browser origin cannot receive a WebSocket upgrade")
+    func originRejection() async throws {
+        let server = ReloadServer(port: 0)
+        await server.start()
+        defer { Task { await server.stop() } }
+        let client = try RawWebSocketClient(port: try #require(await server.listeningPort()))
+        defer { client.close() }
+
+        #expect(throws: RawClientError.upgradeRejected) {
+            try client.upgrade(path: "/livereload", origin: "https://attacker.example")
+        }
         await eventually { (await server.currentState()).clientCount == 0 }
     }
 
@@ -178,6 +197,40 @@ struct ReloadServerTests {
         defer { rejected.close() }
         #expect(throws: RawClientError.self) { try rejected.upgrade(path: "/livereload") }
         #expect((await server.currentState()).clientCount == ProtocolLimits.maximumClients)
+    }
+
+    @Test("idle pre-negotiation sessions expire so a valid browser can connect")
+    func idleNegotiationDeadline() async throws {
+        let server = ReloadServer(port: 0)
+        await server.start()
+        defer { Task { await server.stop() } }
+        let port = try #require(await server.listeningPort())
+        var idleClients: [RawWebSocketClient] = []
+        defer { idleClients.forEach { $0.close() } }
+
+        for index in 0..<ProtocolLimits.maximumClients {
+            let client = try RawWebSocketClient(port: port)
+            if index.isMultiple(of: 2) {
+                try client.upgrade(path: "/livereload", origin: "http://localhost:35731")
+            }
+            idleClients.append(client)
+        }
+        await eventually { await server.activeSessionCount() == ProtocolLimits.maximumClients }
+
+        try await Task.sleep(
+            for: .milliseconds(ProtocolLimits.negotiationDeadlineMilliseconds + 500)
+        )
+        await eventually { await server.activeSessionCount() == 0 }
+
+        let valid = try RawWebSocketClient(port: port)
+        defer { valid.close() }
+        try valid.upgrade(path: "/livereload", origin: "http://127.0.0.1:35731")
+        try valid.sendClientFrame(
+            opcode: .text,
+            payload: Data(#"{"command":"hello","protocols":["http://livereload.com/protocols/official-7"]}"#.utf8)
+        )
+        _ = try valid.receiveServerFrame()
+        await eventually { (await server.currentState()).clientCount == 1 }
     }
 
     @Test("ping receives pong and close removes the session")
@@ -369,10 +422,11 @@ private final class RawWebSocketClient: @unchecked Sendable {
         guard result == 0 else { Darwin.close(descriptor); throw RawClientError.connectionFailure }
     }
 
-    func upgrade(path: String) throws {
+    func upgrade(path: String, origin: String? = nil) throws {
         let request =
             "GET \(path) HTTP/1.1\r\n" +
             "Host: 127.0.0.1\r\n" +
+            (origin.map { "Origin: \($0)\r\n" } ?? "") +
             "Upgrade: websocket\r\n" +
             "Connection: Upgrade\r\n" +
             "Sec-WebSocket-Version: 13\r\n" +

@@ -147,6 +147,8 @@ public actor ReloadServer: ReloadServerControlling {
 
     public func listeningPort() -> UInt16? { listener?.port }
 
+    func activeSessionCount() -> Int { sessions.count }
+
     private func accept(_ descriptor: Int32) {
         guard phase == .listening, sessions.count < ProtocolLimits.maximumClients else {
             Darwin.close(descriptor)

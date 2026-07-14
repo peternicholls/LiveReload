@@ -6,6 +6,7 @@ public enum ProtocolLimits {
     public static let maximumMessageBytes = 64 * 1_024
     public static let maximumRelativePathBytes = 4 * 1_024
     public static let maximumClients = 32
+    public static let negotiationDeadlineMilliseconds = 2_000
 }
 
 public enum ReloadProtocolError: Error, Equatable, Sendable {

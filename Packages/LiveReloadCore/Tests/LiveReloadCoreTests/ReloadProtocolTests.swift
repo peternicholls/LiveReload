@@ -96,7 +96,7 @@ struct WebSocketFrameTests {
         }
     }
 
-    @Test("upgrade accepts only the local LiveReload route")
+    @Test("upgrade accepts only the local LiveReload route and loopback browser origins")
     func upgradeValidation() throws {
         let request = Data((
             "GET /livereload?snipver=1 HTTP/1.1\r\n" +
@@ -110,6 +110,42 @@ struct WebSocketFrameTests {
         let upgrade = try WebSocketUpgrade.parse(request)
 
         #expect(upgrade.responseHeaders.contains("s3pPLMBiTxaQ9kYGzzhZRbK+xOo="))
+
+        for origin in [
+            "http://127.0.0.1:35731",
+            "https://127.0.0.1",
+            "http://localhost:35731",
+            "https://localhost"
+        ] {
+            var browserRequest = request
+            browserRequest.insert(contentsOf: Data("Origin: \(origin)\r\n".utf8), at: browserRequest.count - 2)
+            #expect(throws: Never.self) { try WebSocketUpgrade.parse(browserRequest) }
+        }
+
+        for origin in [
+            "https://attacker.example",
+            "null",
+            "file://localhost",
+            "http://user@localhost",
+            "http://localhost/path",
+            "http://localhost:not-a-port"
+        ] {
+            var hostileRequest = request
+            hostileRequest.insert(contentsOf: Data("Origin: \(origin)\r\n".utf8), at: hostileRequest.count - 2)
+            #expect(throws: WebSocketProtocolError.invalidUpgrade) {
+                try WebSocketUpgrade.parse(hostileRequest)
+            }
+        }
+
+        var duplicateOriginRequest = request
+        duplicateOriginRequest.insert(
+            contentsOf: Data("Origin: http://localhost\r\nOrigin: http://127.0.0.1\r\n".utf8),
+            at: duplicateOriginRequest.count - 2
+        )
+        #expect(throws: WebSocketProtocolError.invalidUpgrade) {
+            try WebSocketUpgrade.parse(duplicateOriginRequest)
+        }
+
         var rejected = request
         rejected.replaceSubrange(4..<(4 + "/livereload".utf8.count), with: "/other".utf8)
         #expect(throws: WebSocketProtocolError.self) { try WebSocketUpgrade.parse(rejected) }

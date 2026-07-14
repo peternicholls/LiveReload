@@ -81,6 +81,11 @@ Both consecutive compatibility runs produced the same result:
 }
 ```
 
+The compatibility command was run again after loopback-Origin enforcement and
+the bounded negotiation deadline were added. The same two-client stylesheet,
+full-page, reconnect, and fixture-isolation result passed, proving that the
+security hardening preserves current Safari and Chromium compatibility.
+
 ## Acceptance interpretation
 
 - Each browser sent the official protocol-7 client hello and acknowledged the
