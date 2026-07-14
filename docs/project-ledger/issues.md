@@ -58,6 +58,23 @@ Record product defects, blockers, risks, and unanswered technical questions here
 
 Move records here without changing their IDs. Add resolution date, linked solution/commit/test, and why the disposition is justified.
 
+### ISS-008 — Browser evidence bypassed the file-to-pipeline production path
+
+- Status: resolved
+- Severity: high
+- Found: 2026-07-14
+- Resolved: 2026-07-14
+- Owner: Phase 2 maintainer
+- Related tasks: T024, T030, T037, T039
+- Related ADRs: ADR-001, ADR-002
+- Reproduction: Inspect the original `LiveReloadBrowserHarness`: `stylesheet` and `full-page` stdin commands constructed `ReloadDecision` values and called `ReloadServer.broadcast` directly. The browser runner did not edit a monitored workspace, and malformed-third behavior passed only in a separate raw-client test.
+- Expected: SC-001 evidence traverses a real disposable-project save through FSEvents, batching, project pipeline, and production server; SC-004 observes two compatible browser fixtures while a malformed third client fails.
+- Actual: Each component had green coverage, but no single executable acceptance path crossed every boundary claimed by the end-to-end criteria.
+- Evidence: The strengthened browser fixture first timed out waiting for a stylesheet broadcast against the direct harness, then passed twice after the production composition change; `RUN_BROWSER_COMPATIBILITY_GATE=1 scripts/verify-modern.sh` passed the full gate.
+- Resolution: Compose `FSEventsFileEventSource`, `ProjectMonitor`, `ProjectPipeline`, and `ReloadServer` in the Swift harness; drive real CSS/HTML writes from the Node runner; inject an upgraded third client with an invalid unmasked frame; and make the repository verifier reject restored direct-broadcast shortcuts.
+- Next action: Preserve the full-path source assertions and live compatibility gate whenever monitoring, batching, protocol, or browser behavior changes.
+- Review/expiry: 2026-10-14
+
 ### ISS-007 — Loopback clients could bypass origin and negotiation-lifetime boundaries
 
 - Status: resolved

@@ -1,9 +1,8 @@
 # Phase 2 Reload Loop Evidence Index
 
-This directory is the feature evidence index for `003-reload-loop`. Evidence
-must be generated from disposable projects and sanitized before it is linked
-here. A listed future artifact is a required destination, not a claim that its
-gate already passes.
+This directory is the completed feature evidence index for `003-reload-loop`.
+Evidence is generated from disposable projects and sanitized before it is
+linked here. Every Phase 2 evidence gate is closed.
 
 | Evidence ID | Gate | Owning tasks | Artifact or source | State |
 |---|---|---|---|---|
@@ -18,7 +17,7 @@ gate already passes.
 | EV-P2-009 | Recovery and isolation | T031–T033 | Integration/UI results and `security-privacy-review.md` | Pass |
 | EV-P2-010 | Idle resources | T034 | `idle-resources.md` | Pass |
 | EV-P2-011 | Full release verification | T035–T037 | `scripts/verify-modern.sh` and `sprint-2.md` | Pass |
-| EV-P2-012 | Closure consistency | T038–T039 | Ledger/roadmap reconciliation and final analysis | Planned |
+| EV-P2-012 | Closure consistency | T038–T039 | `final-cross-artifact-analysis.md` and synchronized ledgers/roadmap | Pass |
 
 ## Evidence hygiene
 

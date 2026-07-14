@@ -47,6 +47,21 @@ Record verified fixes and diagnostic techniques that are likely to be useful aga
 - Limits: A malicious native process can repeatedly reconnect or negotiate as a raw client; broader authentication or capability tokens require a separate local-threat model and compatibility decision.
 - References: ISS-007; `docs/modernization/evidence/reload-loop/security-privacy-review.md`
 
+## SOL-004 — Make end-to-end evidence cross every claimed production boundary
+
+- Status: verified
+- Verified: 2026-07-14
+- Solves: ISS-008
+- Related tasks: T024, T030, T037, T039
+- Related ADRs: ADR-001, ADR-002
+- Context: Component tests can prove monitoring, settlement, pipeline decisions, protocol delivery, and browsers independently while still leaving their production composition untested.
+- Root cause: The first compatibility harness injected typed decisions directly at `ReloadServer`, so its result was incorrectly combined with separate pipeline tests to support an end-to-end file-save claim.
+- Solution: Build the acceptance harness from the same production services as the app, drive behavior at the user boundary with disposable workspace writes, inject failure while real clients remain connected, and make the verifier reject lower-level shortcuts.
+- Verification: A regression run timed out on the old direct harness; two strengthened Safari/Chromium runs and `RUN_BROWSER_COMPATIBILITY_GATE=1 scripts/verify-modern.sh` passed after remediation.
+- Rejected alternatives: Treat a chain of separate green component tests as equivalent | it cannot detect wiring, lifecycle, or classification gaps between those components.
+- Limits: The harness intentionally excludes deferred build execution and browser-extension packaging; those later features require their own complete production paths.
+- References: ISS-008; commit `10d0792e`; `docs/modernization/evidence/reload-loop/browser-compatibility-2026-07-14.md`
+
 <!--
 ## SOL-001 — Concise solution name
 

@@ -15,12 +15,13 @@ Sprint 2 review links the consolidated results.
 | Idle/resources | Thirty-second warm-up followed by 300 one-second CPU samples; monitor/server lifecycle cleanup | `idle-resources.md` | Mean CPU at or above 1%, incomplete sample, or retained resource blocks | Pass |
 | Privacy | Scan captured diagnostics/evidence and exercise bounded path/message cases | `security-privacy-review.md`; repository verifier | Secret, absolute private path, bookmark, peer address, raw untrusted input, or unrelated contents block | Pass |
 | Recovery | Folder loss, event loss, root change, port conflict, malformed/oversized client, disconnect, and restart | Integration/UI summary in `sprint-2.md` | Configuration loss, false active state, or cross-client/project failure blocks | Pass |
-| Documentation/release | Requirements checklist, guides, changelog, inclusion/NOTICE disposition, constitution and final analysis | `sprint-2.md` and evidence index; final analysis remains T039 | Missing or contradictory artifact blocks | Pass pending T039 reconciliation |
+| Documentation/release | Requirements checklist, guides, changelog, inclusion/NOTICE disposition, constitution and final analysis | `sprint-2.md`, evidence index, and `final-cross-artifact-analysis.md` | Missing or contradictory artifact blocks | Pass |
 
 ## Setup evidence
 
 - Sanitized input fixtures: `tests/fixtures/reload-loop/`
 - Pre-implementation analysis: `cross-artifact-analysis.md`
+- Final closure analysis: `final-cross-artifact-analysis.md`
 - Accepted browser reference: `Research/BrowserFixture/`
 - Accepted server decision: `docs/adr/001-websocket-server.md`
 - Accepted monitoring decision: `docs/adr/002-monitoring-and-folder-access.md`

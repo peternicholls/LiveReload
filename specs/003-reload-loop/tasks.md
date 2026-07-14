@@ -136,7 +136,7 @@
 - [x] T036 [P] Update `docs/guides/user-guide.md`, `docs/guides/developer-guide.md`, `CHANGELOG.md`, `docs/project-ledger/software-inclusions.md`, and `NOTICE.md` disposition for verified Phase 2 behavior and retained deferrals (FR-018, SC-007).
 - [x] T037 [P] Run the feature requirements checklist, full Debug/Release/unit/integration/UI/browser/privacy verification, and record evidence plus a constitution check in `docs/modernization/sprint-reviews/sprint-2.md` (SC-001–SC-007).
 - [x] T038 Update `docs/modernization/behavior-inventory.md`, relevant ADR links, issues, solutions, learnings, and the parent `.omx/plans/modern-apple-silicon-rewrite.md` with Phase 2 outcomes before handoff (FR-016, FR-018).
-- [ ] T039 Run a strictly read-only cross-artifact analysis over the Phase 2 spec, plan, tasks, constitution, ADRs, and evidence; resolve critical/high findings under the implementation workflow before phase closure (SC-007).
+- [x] T039 Run a strictly read-only cross-artifact analysis over the Phase 2 spec, plan, tasks, constitution, ADRs, and evidence; resolve critical/high findings under the implementation workflow before phase closure (SC-007).
 
 **Final checkpoint**: Phase 2 is complete only when T001–T039, all four story checkpoints, SC-001–SC-007, the constitution gate, and Phase 2 evidence are complete. Phase 3 begins only through a fresh `speckit.specify` flow for `developer-workflow`.
 

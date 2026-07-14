@@ -46,6 +46,17 @@ Capture non-obvious discoveries that should affect later design, estimation, tes
 - Evidence: `LiveReloadAppTests.swift`, `LiveReloadAppUITests.swift`, and `ReloadLoopRuntimeService.swift`.
 - Revisit when: A later specification explicitly designs automatic restoration and proves crash/relaunch ownership semantics.
 
+## LRN-005 — End-to-end claims cannot be assembled from separate green boundaries
+
+- Status: validated
+- Learned: 2026-07-14
+- Related tasks/issues: T024, T030, T037, T039, ISS-008
+- Observation: The first browser harness proved production protocol delivery and separate tests proved FSEvents, batching, and pipeline behavior, but no run began with a file save and ended in real browsers. The final analysis exposed that missing connection despite every component test being green.
+- Interpretation: A release claim about a user journey requires one executable path across every named production boundary; component coverage is supporting evidence, not a substitute.
+- Consequence: The Phase 2 browser harness now composes the production monitor, pipeline, and server, drives real workspace edits, and injects failure while Safari and Chromium are live. Phase 3 build-and-reload evidence must likewise begin with the configured build trigger and end at browser behavior.
+- Evidence: ISS-008; SOL-004; commit `10d0792e`; final Phase 2 cross-artifact analysis.
+- Revisit when: A later architecture removes or replaces one of the production boundaries in the claimed journey.
+
 <!--
 ## LRN-002 — Concise learning
 

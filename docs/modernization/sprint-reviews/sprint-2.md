@@ -13,7 +13,7 @@
 - US2 exposes explicit, idempotent project monitoring lifecycle and recovery without losing saved configuration.
 - US3 applies documented exclusions and produces one ordered, bounded decision for noisy save bursts.
 - US4 isolates folder, event-stream, listener, malformed-client, stalled-client, and disconnect failures while preserving unrelated work.
-- T001–T038 are complete with executable fixtures, tests, measurements, documentation, and linked evidence. T039 is the final read-only artifact-consistency gate and is recorded separately after this review.
+- T001–T039 are complete with executable fixtures, tests, measurements, documentation, and linked evidence.
 
 ## Demo
 
@@ -28,14 +28,14 @@ A disposable workspace was monitored through production FSEvents while current S
 | App Debug/Release and signing | `scripts/verify-modern.sh` shared Xcode scheme | PASS — arm64, macOS 15, Hardened Runtime | [`verification-matrix.md`](../evidence/reload-loop/verification-matrix.md) |
 | App tests | `scripts/verify-modern.sh` shared test plan | PASS — 10 tests, 0 failures | [`verification-matrix.md`](../evidence/reload-loop/verification-matrix.md) |
 | UI/accessibility tests | `scripts/verify-modern.sh` shared test plan | PASS — 10 tests, 0 failures | [`verification-matrix.md`](../evidence/reload-loop/verification-matrix.md) |
-| Safari and Chromium compatibility | Production `LiveReloadServer` browser harness | PASS — two ready clients; one CSS and one full-page reload each | [`browser-compatibility-2026-07-14.md`](../evidence/reload-loop/browser-compatibility-2026-07-14.md) |
+| Safari and Chromium compatibility | Real workspace edits through the production monitor/pipeline/server plus malformed-third injection | PASS — two ready clients; one CSS and one full-page reload each; third client isolated | [`browser-compatibility-2026-07-14.md`](../evidence/reload-loop/browser-compatibility-2026-07-14.md) |
 | Idle CPU and resource ownership | 30-second warm-up plus 300 one-second samples and repeated lifecycle cleanup | PASS — 0.0126% mean, 0.0251% peak; all owned resources released | [`idle-resources.md`](../evidence/reload-loop/idle-resources.md) |
 | Security and privacy | Origin/negotiation regressions, independent hostile-client audit, evidence and repository scans | PASS — no open critical, high, medium, or actionable low finding | [`security-privacy-review.md`](../evidence/reload-loop/security-privacy-review.md) |
 | Fixture/evidence hygiene | `scripts/verify-modern.sh` privacy and tracked-product gates | PASS — no private paths, secrets, bookmark bytes, peer addresses, build products, or volatile agent state | [`README.md`](../evidence/reload-loop/README.md) |
 | Requirements checklist | CHK001–CHK016 rerun against the final feature artifacts | PASS — 16/16 | [`requirements.md`](../../../specs/003-reload-loop/checklists/requirements.md) |
 | Documentation/release | Version, changelog, inclusion register, NOTICE, user/developer guides, and deferral scan | PASS | [`verification-matrix.md`](../evidence/reload-loop/verification-matrix.md) |
 
-The authoritative full gate completed successfully on 2026-07-14 with the final line `Modern verification completed successfully.` The production browser harness was also rerun after the origin and negotiation-lifetime hardening and retained the same passing result.
+The authoritative full gate completed successfully on 2026-07-14 with the final line `Modern verification completed successfully.` After the final analysis exposed the original direct-broadcast evidence gap, `RUN_BROWSER_COMPATIBILITY_GATE=1 scripts/verify-modern.sh` reran the strengthened live browser path and the complete repository gate successfully.
 
 ## Constitution check
 
@@ -54,9 +54,9 @@ The authoritative full gate completed successfully on 2026-07-14 with the final 
 
 ## Issues, solutions, and learnings
 
-- Issues opened/resolved: ISS-007 resolved by enforcing exact loopback browser origins and expiring pre-negotiation sessions; all earlier Phase 2 implementation issues are resolved or retained as accepted historical evidence.
-- Solutions added: SOL-003 records the reusable browser-origin and negotiation-lifetime boundary.
-- Learnings added: LRN-002–LRN-004 record workspace-backed FSEvents evidence, invalidation across suspension points, and event-driven runtime truth.
+- Issues opened/resolved: ISS-007 resolved browser-origin and negotiation-lifetime defects; ISS-008 resolved the cross-boundary browser evidence gap.
+- Solutions added: SOL-003 records the browser trust boundary; SOL-004 records the requirement that end-to-end evidence traverse every claimed production boundary in one executable path.
+- Learnings added: LRN-002–LRN-005 cover workspace-backed FSEvents evidence, invalidation across suspension points, event-driven runtime truth, and the limits of composing separate green tests into an end-to-end claim.
 - ADRs added/superseded: no new ADR; ADR-001 through ADR-003 remain authoritative and linked from the plan and behavior inventory.
 
 ## Metrics and risks
@@ -74,12 +74,12 @@ The authoritative full gate completed successfully on 2026-07-14 with the final 
 
 ## Unfinished work
 
-- T039 only: run the required read-only final cross-artifact analysis, resolve any critical/high finding, and record the closure result before merging.
+- None within Phase 2. Retained deferrals are assigned to later specifications rather than unfinished reload-loop work.
 
 ## Phase readiness verdict
 
-**PASS pending only the T039 artifact-consistency record.** All product, build, test, browser, performance, privacy, security, accessibility, documentation, and constitution gates pass. T039 does not add product behavior; it verifies that the completed artifacts make consistent claims before Phase 2 is closed.
+**PASS.** T001–T039, all four user-story checkpoints, FR-001–FR-018, SC-001–SC-007, constitution 1.1.0, and EV-P2-001–EV-P2-012 pass. No unresolved critical/high security or consistency finding remains.
 
 ## Next sprint readiness
 
-After T039, Phase 2 is ready to merge into `develop`. Phase 3 must begin with a fresh Spec Kit feature for `developer-workflow`; it must not infer authorization for build execution or any other retained deferral from this reload-loop implementation.
+Phase 2 is ready to merge into `develop`. Phase 3 must begin with a fresh Spec Kit feature for `developer-workflow`; it must not infer authorization for build execution or any other retained deferral from this reload-loop implementation.

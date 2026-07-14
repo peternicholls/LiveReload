@@ -104,7 +104,7 @@ Proposed feature sequence (exact numbers are assigned by Spec Kit at creation ti
 |---|---|---|---|
 | Phase 0 — Discovery and decision lock | `discovery-baseline` | Sprint 0 | `001` complete; Phase 1 short name: `modern-foundation` |
 | Phase 1 — Modern foundation and project lifecycle | `modern-foundation` | Sprints 1–2 | `002` complete; final verification passed 27 core tests, 6 app tests, and 5 UI tests |
-| Phase 2 — Minimum useful reload loop | `reload-loop` | Sprints 3–4 | `003` implementation complete; phase-exit verification in progress |
+| Phase 2 — Minimum useful reload loop | `reload-loop` | Sprints 3–4 | `003` complete; final verification passed 92 core tests, 10 app tests, 10 UI tests, and production Safari/Chromium file-to-browser evidence |
 | Phase 3 — Developer workflow and daily usability | `developer-workflow` | Sprints 5–6 | Not specified |
 | Phase 4 — Quality, security, and private preview | `private-preview` | Sprints 7–8 | Not specified |
 
@@ -446,7 +446,7 @@ Tasks:
 - [x] `W-03.3` Add end-to-end production-server browser test harness and sanitized evidence.
 - [x] `W-03.4` Update browser compatibility documentation with actual Safari and Chromium results.
 
-**Sprint 4 exit gate / Milestone 1 preview:** PASS — protocol, socket, pipeline, recovery, app/UI, and production-browser coverage proves classified stylesheet and full-page delivery to current Safari and Chromium. Evidence: `docs/modernization/evidence/reload-loop/browser-compatibility-2026-07-14.md`. Phase 2 remains in exit verification until the complete T035–T039 evidence/reconciliation gate closes.
+**Sprint 4 exit gate / Milestone 1 preview:** PASS — protocol, socket, pipeline, recovery, app/UI, and production-browser coverage proves real workspace CSS and HTML changes produce classified delivery to current Safari and Chromium while a malformed third client is isolated. T001–T039 and EV-P2-001–EV-P2-012 are complete with no unresolved critical/high analysis finding. Evidence: `docs/modernization/evidence/reload-loop/browser-compatibility-2026-07-14.md`, `docs/modernization/evidence/reload-loop/final-cross-artifact-analysis.md`, and `docs/modernization/sprint-reviews/sprint-2.md`.
 
 ### Phase 3 — Developer workflow and daily usability
 
