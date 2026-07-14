@@ -146,33 +146,102 @@ final class LiveReloadAppUITests: XCTestCase {
     }
 
     @MainActor
-    func testReloadLoopStatesActionsAndClientCountAreExpectedFailuresUntilUIComposition() {
+    func testReloadLoopStatesActionsClientCountAndPreservedConfiguration() {
         for scenario in reloadLoopUIScenarios {
             XCTContext.runActivity(named: scenario.name) { _ in
                 let app = application(["--ui-testing-seeded", scenario.launchArgument])
                 app.launch()
 
-                // T015/T029 will implement these deterministic launch fixtures and
-                // replace each expected failure with state text, keyboard action,
-                // client-count, and preservation assertions. The identifiers come
-                // directly from contracts/ui-states.md; action identifiers are the
-                // reserved UI-test seam for the corresponding safe next action.
-                XCTExpectFailure("Deferred to T015/T029: \(scenario.name) UI fixture is not composed yet") {
-                    let state = identified(scenario.stateIdentifier, in: app)
-                    XCTAssertTrue(state.waitForExistence(timeout: 0.5), scenario.safeMeaning)
-                    if let expectedValue = scenario.expectedValue {
-                        XCTAssertEqual(state.value as? String, expectedValue)
-                    }
-                    if let actionIdentifier = scenario.actionIdentifier {
-                        let action = identified(actionIdentifier, in: app)
-                        XCTAssertTrue(action.exists)
-                        XCTAssertTrue(action.isEnabled)
-                    }
+                let state = identified(scenario.stateIdentifier, in: app)
+                XCTAssertTrue(state.waitForExistence(timeout: 5), scenario.safeMeaning)
+                if let expectedValue = scenario.expectedValue {
+                    XCTAssertEqual(state.value as? String, expectedValue)
+                }
+                if let actionIdentifier = scenario.actionIdentifier {
+                    let action = identified(actionIdentifier, in: app)
+                    XCTAssertTrue(action.exists)
+                    XCTAssertTrue(action.isEnabled)
+                }
+                if scenario.assertsPreservedConfiguration {
+                    let name = app.textFields["project.name"]
+                    XCTAssertEqual(name.value as? String, "Fixture Project")
+                    XCTAssertTrue(identified("project.enabled", in: app).exists)
+                    XCTAssertTrue(
+                        app.staticTexts.matching(NSPredicate(format: "value CONTAINS[c] 'preserved'"))
+                            .firstMatch.exists
+                    )
                 }
 
                 app.terminate()
             }
         }
+    }
+
+    @MainActor
+    func testSettledBatchActivityIsProjectRelativeTruncatedAndBounded() {
+        let app = application([
+            "--ui-testing-seeded",
+            "--ui-testing-monitoring-watching",
+            "--ui-testing-server-two-clients",
+            "--ui-testing-activity-overflow",
+        ])
+        app.launch()
+
+        XCTAssertTrue(identified("activity.batch", in: app).waitForExistence(timeout: 5))
+        XCTAssertTrue(identified("activity.batch.path.0", in: app).exists)
+        XCTAssertTrue(identified("activity.batch.path.7", in: app).exists)
+        XCTAssertTrue(identified("activity.batch.overflow", in: app).exists)
+        XCTAssertFalse(identified("activity.batch.path.8", in: app).exists)
+        XCTAssertFalse(
+            app.staticTexts.matching(NSPredicate(format: "value CONTAINS %@", selectedFolderURL.path))
+                .firstMatch.exists
+        )
+    }
+
+    @MainActor
+    func testRuntimeRecoveryActionsAreKeyboardOperable() {
+        var app = application(["--ui-testing-seeded", "--ui-testing-monitoring-recovering"])
+        app.launch()
+        XCTAssertTrue(identified("monitoring.retry", in: app).waitForExistence(timeout: 5))
+        app.typeKey("m", modifierFlags: [.command, .shift])
+        XCTAssertTrue(identified("monitoring.watching", in: app).waitForExistence(timeout: 5))
+        app.terminate()
+
+        app = application(["--ui-testing-seeded", "--ui-testing-server-port-conflict"])
+        app.launch()
+        XCTAssertTrue(identified("server.retry", in: app).waitForExistence(timeout: 5))
+        app.typeKey("l", modifierFlags: [.command, .shift])
+        XCTAssertTrue(identified("server.listening", in: app).waitForExistence(timeout: 5))
+        app.terminate()
+
+        app = application(["--ui-testing-seeded", "--ui-testing-server-two-clients"])
+        app.launch()
+        XCTAssertTrue(identified("reload.manual", in: app).waitForExistence(timeout: 5))
+        app.typeKey("r", modifierFlags: .command)
+        XCTAssertTrue(
+            app.staticTexts.matching(NSPredicate(format: "value CONTAINS 'Manual reload sent'"))
+                .firstMatch.waitForExistence(timeout: 5)
+        )
+    }
+
+    @MainActor
+    func testMonitoringFolderFailureRepairsWithoutDiscardingConfiguration() {
+        let app = application([
+            "--ui-testing-seeded",
+            "--ui-testing-monitoring-folder-unavailable",
+        ])
+        app.launch()
+
+        XCTAssertTrue(identified("monitoring.failed", in: app).waitForExistence(timeout: 5))
+        let repair = identified("monitoring.repair", in: app)
+        XCTAssertTrue(repair.exists)
+        XCTAssertTrue(repair.isEnabled)
+        repair.click()
+
+        XCTAssertTrue(identified("monitoring.stopped", in: app).waitForExistence(timeout: 5))
+        XCTAssertEqual(app.textFields["project.name"].value as? String, "Fixture Project")
+        XCTAssertTrue(identified("project.enabled", in: app).exists)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: selectedFolderURL.path))
     }
 }
 
@@ -183,17 +252,18 @@ private struct ReloadLoopUIScenario {
     let actionIdentifier: String?
     let expectedValue: String?
     let safeMeaning: String
+    let assertsPreservedConfiguration: Bool
 }
 
 private let reloadLoopUIScenarios: [ReloadLoopUIScenario] = [
-    .init(name: "Stopped monitoring", launchArgument: "--ui-testing-monitoring-stopped", stateIdentifier: "monitoring.stopped", actionIdentifier: "monitoring.start", expectedValue: nil, safeMeaning: "The project is not observing files and offers Start Monitoring"),
-    .init(name: "Starting monitoring", launchArgument: "--ui-testing-monitoring-starting", stateIdentifier: "monitoring.starting", actionIdentifier: "monitoring.stop", expectedValue: nil, safeMeaning: "LiveReload is preparing access and observation"),
-    .init(name: "Watching", launchArgument: "--ui-testing-monitoring-watching", stateIdentifier: "monitoring.watching", actionIdentifier: "monitoring.stop", expectedValue: nil, safeMeaning: "Supported changes can trigger reloads"),
-    .init(name: "Recovering", launchArgument: "--ui-testing-monitoring-recovering", stateIdentifier: "monitoring.recovering", actionIdentifier: "monitoring.retry", expectedValue: nil, safeMeaning: "Configuration is preserved and recovery is actionable"),
-    .init(name: "Failed monitoring", launchArgument: "--ui-testing-monitoring-failed", stateIdentifier: "monitoring.failed", actionIdentifier: "monitoring.retry", expectedValue: nil, safeMeaning: "A safe failure reason and retry action are visible"),
-    .init(name: "Server starting", launchArgument: "--ui-testing-server-starting", stateIdentifier: "server.starting", actionIdentifier: nil, expectedValue: nil, safeMeaning: "The local browser endpoint is preparing"),
-    .init(name: "Server ready without clients", launchArgument: "--ui-testing-server-listening", stateIdentifier: "server.listening", actionIdentifier: nil, expectedValue: nil, safeMeaning: "The loopback endpoint is ready"),
-    .init(name: "Port conflict", launchArgument: "--ui-testing-server-port-conflict", stateIdentifier: "server.port-conflict", actionIdentifier: "server.retry", expectedValue: nil, safeMeaning: "Monitoring remains intact and retry is actionable"),
-    .init(name: "No compatible clients", launchArgument: "--ui-testing-server-no-clients", stateIdentifier: "server.no-clients", actionIdentifier: nil, expectedValue: "0 compatible browsers connected", safeMeaning: "The user is prompted to connect a compatible browser"),
-    .init(name: "Connected clients and manual reload", launchArgument: "--ui-testing-server-two-clients", stateIdentifier: "server.clients", actionIdentifier: "reload.manual", expectedValue: "2 compatible browsers connected", safeMeaning: "The client count and manual reload action are visible"),
+    .init(name: "Stopped monitoring", launchArgument: "--ui-testing-monitoring-stopped", stateIdentifier: "monitoring.stopped", actionIdentifier: "monitoring.start", expectedValue: nil, safeMeaning: "The project is not observing files and offers Start Monitoring", assertsPreservedConfiguration: false),
+    .init(name: "Starting monitoring", launchArgument: "--ui-testing-monitoring-starting", stateIdentifier: "monitoring.starting", actionIdentifier: "monitoring.stop", expectedValue: nil, safeMeaning: "LiveReload is preparing access and observation", assertsPreservedConfiguration: false),
+    .init(name: "Watching", launchArgument: "--ui-testing-monitoring-watching", stateIdentifier: "monitoring.watching", actionIdentifier: "monitoring.stop", expectedValue: nil, safeMeaning: "Supported changes can trigger reloads", assertsPreservedConfiguration: false),
+    .init(name: "Recovering", launchArgument: "--ui-testing-monitoring-recovering", stateIdentifier: "monitoring.recovering", actionIdentifier: "monitoring.retry", expectedValue: nil, safeMeaning: "Configuration is preserved and recovery is actionable", assertsPreservedConfiguration: true),
+    .init(name: "Failed monitoring", launchArgument: "--ui-testing-monitoring-failed", stateIdentifier: "monitoring.failed", actionIdentifier: "monitoring.retry", expectedValue: nil, safeMeaning: "A safe failure reason and retry action are visible", assertsPreservedConfiguration: true),
+    .init(name: "Server starting", launchArgument: "--ui-testing-server-starting", stateIdentifier: "server.starting", actionIdentifier: nil, expectedValue: nil, safeMeaning: "The local browser endpoint is preparing", assertsPreservedConfiguration: false),
+    .init(name: "Server ready without clients", launchArgument: "--ui-testing-server-listening", stateIdentifier: "server.listening", actionIdentifier: nil, expectedValue: nil, safeMeaning: "The loopback endpoint is ready", assertsPreservedConfiguration: false),
+    .init(name: "Port conflict", launchArgument: "--ui-testing-server-port-conflict", stateIdentifier: "server.port-conflict", actionIdentifier: "server.retry", expectedValue: nil, safeMeaning: "Monitoring remains intact and retry is actionable", assertsPreservedConfiguration: true),
+    .init(name: "No compatible clients", launchArgument: "--ui-testing-server-no-clients", stateIdentifier: "server.no-clients", actionIdentifier: nil, expectedValue: "0 compatible browsers connected", safeMeaning: "The user is prompted to connect a compatible browser", assertsPreservedConfiguration: false),
+    .init(name: "Connected clients and manual reload", launchArgument: "--ui-testing-server-two-clients", stateIdentifier: "server.clients", actionIdentifier: "reload.manual", expectedValue: "2 compatible browsers connected", safeMeaning: "The client count and manual reload action are visible", assertsPreservedConfiguration: false),
 ]

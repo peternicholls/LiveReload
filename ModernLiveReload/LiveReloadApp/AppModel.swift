@@ -45,6 +45,7 @@ final class AppModel {
     private let accessCoordinator: ProjectAccessCoordinator?
     private let beforeProjectMutation: @Sendable (UUID) async -> Void
     private let runtimeService: any ReloadLoopRuntimeServing
+    private let usesUITestRuntimeFixtures: Bool
     private var projectMutationGate = ProjectMutationGate()
     private var runtimeOperationGate = ProjectMutationGate()
     @ObservationIgnored private var runtimeUpdatesTask: Task<Void, Never>?
@@ -123,6 +124,11 @@ final class AppModel {
         accessCoordinator = store.map { ProjectAccessCoordinator(store: $0, provider: provider) }
         self.beforeProjectMutation = beforeProjectMutation
         self.runtimeService = runtimeService ?? LiveReloadLoopRuntimeService(provider: provider)
+        usesUITestRuntimeFixtures = arguments.contains {
+            $0.hasPrefix("--ui-testing-monitoring-") ||
+                $0.hasPrefix("--ui-testing-server-") ||
+                $0 == "--ui-testing-activity-overflow"
+        }
         initialActivities.forEach(AppLogger.log)
         observeRuntimeUpdates()
         guard automaticallyLoad else { return }
@@ -144,6 +150,7 @@ final class AppModel {
                     displayName: String(repeating: "Long Project Name ", count: 7)
                 )
             }
+            configureUITestRuntime(arguments: arguments)
             if !arguments.contains(where: { $0.hasPrefix("--ui-testing-") }) {
                 await startLocalServer()
             }
@@ -350,6 +357,10 @@ final class AppModel {
         defer { endRuntimeOperation(for: project.id) }
         let previous = runtimeProjection(for: project.id)
         applyProjectProjection(previous.replacingState(.starting), projectID: project.id)
+        if usesUITestRuntimeFixtures {
+            applyProjectProjection(previous.replacingState(.watching), projectID: project.id)
+            return
+        }
         let projection = await runtimeService.startMonitoring(project)
         applyProjectProjection(projection, projectID: project.id)
         if projection.monitoringState == .failed {
@@ -366,6 +377,10 @@ final class AppModel {
         defer { endRuntimeOperation(for: project.id) }
         let current = runtimeProjection(for: project.id)
         applyProjectProjection(current.replacingState(.stopping), projectID: project.id)
+        if usesUITestRuntimeFixtures {
+            applyProjectProjection(.stopped, projectID: project.id)
+            return
+        }
         let projection = await runtimeService.stopMonitoring(projectID: project.id)
         applyProjectProjection(projection, projectID: project.id)
     }
@@ -377,6 +392,10 @@ final class AppModel {
         defer { endRuntimeOperation(for: project.id) }
         let previous = runtimeProjection(for: project.id)
         applyProjectProjection(previous.replacingState(.starting), projectID: project.id)
+        if usesUITestRuntimeFixtures {
+            applyProjectProjection(previous.replacingState(.watching), projectID: project.id)
+            return
+        }
         let projection = await runtimeService.retryMonitoring(project)
         applyProjectProjection(projection, projectID: project.id)
         if projection.monitoringState == .failed {
@@ -391,6 +410,14 @@ final class AppModel {
     func manualReload(_ project: ProjectConfiguration) async {
         guard canManuallyReload(project.id), beginRuntimeOperation(for: project.id) else { return }
         defer { endRuntimeOperation(for: project.id) }
+        if usesUITestRuntimeFixtures {
+            let count = connectedClientCount
+            let summary = count == 1
+                ? "Manual reload sent to one browser."
+                : "Manual reload sent to \(count) browsers."
+            await record(.pipeline, .info, summary, projectID: project.id)
+            return
+        }
         guard let result = await runtimeService.manualReload(projectID: project.id) else { return }
         let summary = result.sentCount == 1
             ? "Manual reload sent to one browser."
@@ -403,6 +430,10 @@ final class AppModel {
         isServerOperationPending = true
         defer { isServerOperationPending = false }
         serverState = .starting
+        if usesUITestRuntimeFixtures {
+            serverState = uiTestListeningState(clientCount: 0)
+            return
+        }
         serverState = await runtimeService.startServer()
         if serverState.phase == .portConflict {
             await presentRecovery(
@@ -547,5 +578,59 @@ final class AppModel {
         } catch {
             recoveryMessage = "The synthetic UI test project could not be created."
         }
+    }
+
+    private func configureUITestRuntime(arguments: [String]) {
+        guard usesUITestRuntimeFixtures, let project = selectedProject else { return }
+
+        var projection = ProjectRuntimeProjection.stopped
+        if arguments.contains("--ui-testing-monitoring-starting") {
+            projection = projection.replacingState(.starting)
+        } else if arguments.contains("--ui-testing-monitoring-watching") {
+            projection = projection.replacingState(.watching)
+        } else if arguments.contains("--ui-testing-monitoring-recovering") {
+            projection = projection.replacingState(.recovering, reason: .eventsDropped)
+        } else if arguments.contains("--ui-testing-monitoring-failed") {
+            projection = projection.replacingState(.failed, reason: .sourceFailure)
+        } else if arguments.contains("--ui-testing-monitoring-folder-unavailable") {
+            projection = projection.replacingState(.failed, reason: .folderUnavailable)
+        }
+
+        if arguments.contains("--ui-testing-server-starting") {
+            serverState = .starting
+        } else if arguments.contains("--ui-testing-server-port-conflict") {
+            serverState = .portConflict
+            projection = projection.replacingState(.watching)
+        } else if arguments.contains("--ui-testing-server-listening") ||
+                    arguments.contains("--ui-testing-server-no-clients") {
+            serverState = uiTestListeningState(clientCount: 0)
+            projection = projection.replacingState(.watching)
+        } else if arguments.contains("--ui-testing-server-two-clients") {
+            serverState = uiTestListeningState(clientCount: 2)
+            projection = projection.replacingState(.watching)
+        }
+
+        if arguments.contains("--ui-testing-activity-overflow") {
+            let paths = [
+                "Styles/\(String(repeating: "nested-component-", count: 12))site.css",
+            ] + (1...11).map { "Sources/Feature\($0)/component-\($0).js" }
+            if let batch = try? ChangeBatch(
+                projectID: project.id,
+                relativePaths: paths,
+                classification: .fullPage
+            ) {
+                projection = ProjectRuntimeProjection(
+                    monitoringState: .watching,
+                    recoveryReason: nil,
+                    lastSafeBatch: batch
+                )
+            }
+        }
+
+        applyProjectProjection(projection, projectID: project.id)
+    }
+
+    private func uiTestListeningState(clientCount: Int) -> ServerState {
+        (try? ServerState.listening(clientCount: clientCount)) ?? .failed
     }
 }

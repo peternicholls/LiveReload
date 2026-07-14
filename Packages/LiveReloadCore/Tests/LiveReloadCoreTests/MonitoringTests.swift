@@ -88,6 +88,31 @@ struct ProjectMonitorTests {
         #expect(kinds.isSuperset(of: Set(FileChangeKind.allCases)))
     }
 
+    @Test("workspace root removal emits recovery instead of ordinary change activity")
+    func workspaceRootRemoval() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appending(path: "LiveReloadFSEventsRootRemoval-\(UUID().uuidString)", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let source = FSEventsFileEventSource(latency: 0.05)
+        let stream = try await source.makeStream(projectID: UUID(), rootURL: root)
+        let signals = await stream.signals()
+        let collector = Task { () -> [MonitoringRecoveryReason] in
+            var reasons: [MonitoringRecoveryReason] = []
+            for await signal in signals {
+                if let reason = signal.recoveryReason { reasons.append(reason) }
+            }
+            return reasons
+        }
+
+        try await Task.sleep(for: .milliseconds(100))
+        try FileManager.default.removeItem(at: root)
+        try await Task.sleep(for: .milliseconds(500))
+        await stream.stop()
+
+        #expect(await collector.value.contains(.rootChanged))
+    }
+
     @Test("start and stop are idempotent and release owned resources")
     func idempotentLifecycle() async throws {
         let source = FakeFileEventSource()

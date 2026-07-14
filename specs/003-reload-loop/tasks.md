@@ -60,8 +60,8 @@
 - [x] T012 [US2] Implement the actor-owned `ProjectMonitor` lifecycle and explicit recovery transitions in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` (FR-001–FR-005).
 - [x] T013 [US2] Implement the narrow direct-FSEvents adapter that copies callback paths/flags into bounded Sendable signals and maps required-scan/dropped/root-change conditions to recovery in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` (FR-003–FR-004).
 - [x] T014 [US2] Extend `AppModel` composition and runtime projection for explicit per-project start/stop/retry actions without changing Phase 1 persistence ownership in `ModernLiveReload/LiveReloadApp/AppModel.swift` (FR-001–FR-005).
-- [ ] T015 [US2] Add accessible stopped/starting/watching/recovering/failed views, controls, safe recovery copy, and identifiers in `ModernLiveReload/LiveReloadApp/Views/` (FR-002, FR-015, SC-006).
-- [ ] T016 [US2] Complete app-model/UI regression tests for user start/stop and folder/stream recovery states in `ModernLiveReload/LiveReloadAppTests/` and `ModernLiveReload/LiveReloadAppUITests/` (FR-001–FR-005, SC-006).
+- [x] T015 [US2] Add accessible stopped/starting/watching/recovering/failed views, controls, safe recovery copy, and identifiers in `ModernLiveReload/LiveReloadApp/Views/` (FR-002, FR-015, SC-006).
+- [x] T016 [US2] Complete app-model/UI regression tests for user start/stop and folder/stream recovery states in `ModernLiveReload/LiveReloadAppTests/` and `ModernLiveReload/LiveReloadAppUITests/` (FR-001–FR-005, SC-006).
 
 **Checkpoint**: US2 passes its lifecycle and UI acceptance tests; the UI never claims watching after source, access, or recovery failure.
 
@@ -82,7 +82,7 @@
 
 - [x] T019 [US3] Implement normalized project-relative path handling, built-in exclusions, positive user glob rules, and bounded safe summaries in `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/` (FR-006–FR-007, FR-016).
 - [x] T020 [US3] Implement actor-owned `ChangeBatcher` with injected clock, one pending batch per project, ordered de-duplication, and cancellation in `Packages/LiveReloadCore/Sources/LiveReloadCore/Pipeline/` (FR-008, FR-016).
-- [ ] T021 [US3] Surface safe settled-batch activity rows and verify long/path-overflow behavior in `ModernLiveReload/LiveReloadApp/Views/` and `ModernLiveReload/LiveReloadAppUITests/` (FR-016, SC-006).
+- [x] T021 [US3] Surface safe settled-batch activity rows and verify long/path-overflow behavior in `ModernLiveReload/LiveReloadApp/Views/` and `ModernLiveReload/LiveReloadAppUITests/` (FR-016, SC-006).
 
 **Checkpoint**: US3 passes mixed-burst and 10,000-event tests; excluded-only changes make no reload decision.
 
@@ -106,7 +106,7 @@
 - [x] T026 [US1] Implement actor-owned loopback `ReloadServer` on Darwin BSD sockets (not `Network.framework`) and isolated browser sessions in `Packages/LiveReloadCore/Sources/LiveReloadCore/ReloadServer/` (FR-009–FR-011, FR-014–FR-016).
 - [x] T027 [US1] Implement `ProjectPipeline` to connect monitor batches and manual reload to one classified broadcast, with recovery/stopped/no-client suppression in `Packages/LiveReloadCore/Sources/LiveReloadCore/Pipeline/` (FR-008, FR-012–FR-013, FR-017).
 - [x] T028 [US1] Compose server and per-project pipelines in `ModernLiveReload/LiveReloadApp/AppModel.swift`, expose safe connection count/manual reload state, and preserve existing project mutation gating (FR-011, FR-015, FR-017).
-- [ ] T029 [US1] Add accessible local-server/no-client/client-count/manual-reload UI and identifiers in `ModernLiveReload/LiveReloadApp/Views/` with corresponding app/UI tests (FR-011, FR-015, FR-017, SC-006).
+- [x] T029 [US1] Add accessible local-server/no-client/client-count/manual-reload UI and identifiers in `ModernLiveReload/LiveReloadApp/Views/` with corresponding app/UI tests (FR-011, FR-015, FR-017, SC-006).
 - [ ] T030 [US1] Run the existing Safari and Chromium browser fixtures against the production server and capture sanitized compatibility evidence in `docs/modernization/evidence/reload-loop/` (FR-010–FR-013, SC-001, SC-004, SC-007).
 
 **Checkpoint**: US1 passes raw-server and browser-fixture acceptance tests; a meaningful settled change produces exactly one appropriate reload per ready client.
@@ -119,9 +119,9 @@
 
 **Independent Test**: Trigger every failure through fakes or disposable integrations and verify preserved project configuration, accurate UI state, safe diagnostics, and unaffected sibling projects/clients.
 
-- [ ] T031 [US4] Add failing integration regressions for unavailable/stale access, root removal, event loss, port conflict, malformed/oversized client, disconnect during broadcast, and server restart in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/` (FR-003–FR-005, FR-014–FR-016, SC-002, SC-004).
-- [ ] T032 [US4] Implement recovery coordination, retry boundaries, client isolation, and safe activity mapping across `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/`, `ReloadServer/`, and `Pipeline/` (FR-003–FR-005, FR-014–FR-016).
-- [ ] T033 [US4] Complete recovery UI, keyboard, VoiceOver, and UI-test coverage for monitor failure, repair, port conflict, retry, and preserved configuration in `ModernLiveReload/LiveReloadApp/` and `ModernLiveReload/LiveReloadAppUITests/` (FR-002, FR-015–FR-016, SC-006).
+- [x] T031 [US4] Add failing integration regressions for unavailable/stale access, root removal, event loss, port conflict, malformed/oversized client, disconnect during broadcast, and server restart in `Packages/LiveReloadCore/Tests/LiveReloadCoreTests/` (FR-003–FR-005, FR-014–FR-016, SC-002, SC-004).
+- [x] T032 [US4] Implement recovery coordination, retry boundaries, client isolation, and safe activity mapping across `Packages/LiveReloadCore/Sources/LiveReloadCore/Monitoring/`, `ReloadServer/`, and `Pipeline/` (FR-003–FR-005, FR-014–FR-016).
+- [x] T033 [US4] Complete recovery UI, keyboard, VoiceOver, and UI-test coverage for monitor failure, repair, port conflict, retry, and preserved configuration in `ModernLiveReload/LiveReloadApp/` and `ModernLiveReload/LiveReloadAppUITests/` (FR-002, FR-015–FR-016, SC-006).
 
 **Checkpoint**: US4 passes isolated-failure tests; no failure silently drops configuration or stops independent clients/projects.
 
