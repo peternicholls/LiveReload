@@ -136,7 +136,7 @@
 - [ ] T042 [P] Update `docs/guides/user-guide.md` and `docs/guides/developer-guide.md` for structured builds, bounded diagnostics, menu-bar controls, settings, and recovery.
 - [ ] T043 [P] Update `docs/project-ledger/issues.md`, `docs/project-ledger/solutions.md`, `docs/project-ledger/learnings.md`, and `docs/project-ledger/software-inclusions.md` with linked task/test/decision evidence.
 - [ ] T044 [P] Update `CHANGELOG.md`, `NOTICE.md`, and `docs/modernization/behavior-inventory.md` for the accepted Phase 3 behavior and any new inclusion.
-- [ ] T045 Run `scripts/verify-modern.sh` plus the focused quickstart commands and resolve all warnings, test failures, privacy findings, and documentation consistency errors in the affected paths.
+- [ ] T045 Run the focused package/app commands, `scripts/verify-reload-idle.sh`, the supported five-minute idle/resource gate, and `scripts/verify-modern.sh`; resolve all warnings, test failures, privacy findings, performance threshold misses, and documentation consistency errors in the affected paths.
 - [ ] T046 Record the Phase 3 sprint review and synchronize the parent roadmap phase status in `docs/modernization/sprint-reviews/sprint-3.md` and `.omx/plans/modern-apple-silicon-rewrite.md`.
 
 ## Dependencies & Execution Order

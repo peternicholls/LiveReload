@@ -35,3 +35,9 @@
 **Rationale**: The roadmap marks launch at login as a stretch story and it does not unblock build-before-reload or daily menu-bar controls. Research can be recorded later without expanding this feature's acceptance surface.
 
 **Alternatives considered**: Including it now was rejected to keep Phase 3's sprint gate focused on build/process lifecycle and recovery.
+
+## Decision: Keep launch behavior separate from launch-at-login
+
+**Rationale**: The settings story needs a place for supported in-app startup policy, while the roadmap's `SMAppService` registration is a separate stretch story. Naming the boundary prevents a settings control from implying an unimplemented operating-system login item.
+
+**Alternatives considered**: Treating every launch-related setting as launch-at-login was rejected because it would contradict the explicit deferral and make acceptance criteria unverifiable in this sprint.

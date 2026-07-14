@@ -143,5 +143,6 @@ As a developer, I want the app to explain and recover from lost folders, occupie
 - The Phase 1 project store, folder-access repair flow, activity-history redaction, and accessibility baseline remain the foundation and are extended rather than replaced.
 - The Phase 2 local-only browser endpoint and protocol behavior remain unchanged for projects without a build configuration.
 - Build commands run only after the user enables them for a project; there is no automatic project discovery or launch-at-login implementation in this feature.
+- The launch-behavior setting covers supported in-app project/runtime startup policy only; launch-at-login registration remains deferred.
 - A bounded in-memory output/history policy is acceptable; durable raw stdout, full environments, credentials, and unrelated source contents are out of scope.
 - macOS 15+, Apple silicon, Swift 6.2 strict concurrency, SwiftUI, and existing Apple platform frameworks remain the supported implementation baseline.
